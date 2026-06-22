@@ -2,24 +2,25 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   TrendingUp, TrendingDown, DollarSign, Percent,
-  ArrowUpRight, ArrowDownRight, RefreshCw,
+  ArrowUpRight, ArrowDownRight, RefreshCw, Sparkles, Brain, ArrowRight,
+  Target, PieChart as PieChartIcon, Activity, ArrowLeftRight
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell,
+  ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 import { dashboardApi } from '../api/dashboard';
 import type { DashboardSummary, MonthlyChartData, CategoryChartData, Transaction } from '../types';
 import { useAuthStore } from '../store/authStore';
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n) + ' MMK';
+  '$' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
 
 function KPICard({
-  label, value, change, icon: Icon, color, delay,
+  label, value, change, icon: Icon, color, bg, delay,
 }: {
   label: string; value: string; change?: number | null;
-  icon: React.ElementType; color: string; delay: number;
+  icon: React.ElementType; color: string; bg: string; delay: number;
 }) {
   const isPositive = (change ?? 0) >= 0;
   return (
@@ -27,23 +28,23 @@ function KPICard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35 }}
-      className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md transition-all duration-300"
+      className="bg-white rounded-2xl border border-dark-100 p-5 shadow-sm hover:shadow-md transition-all"
     >
       <div className="flex items-start justify-between mb-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
-          <Icon className="w-5 h-5 text-white" />
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bg}`}>
+          <Icon className={`w-6 h-6 ${color}`} />
         </div>
         {change !== null && change !== undefined && (
-          <div className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg ${
-            isPositive ? 'bg-[#16A34A]/10 text-[#16A34A]' : 'bg-[#DC2626]/10 text-[#DC2626]'
+          <div className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${
+            isPositive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'
           }`}>
-            {isPositive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+            {isPositive ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
             {Math.abs(change).toFixed(1)}%
           </div>
         )}
       </div>
-      <p className="text-slate-600 text-xs font-medium mb-1">{label}</p>
-      <p className="text-slate-900 text-xl font-bold">{value}</p>
+      <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-dark-900 text-2xl font-bold">{value}</p>
     </motion.div>
   );
 }
@@ -51,11 +52,12 @@ function KPICard({
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload?.length) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl px-4 py-3 shadow text-sm">
-        <p className="text-slate-600 mb-2 font-medium">{label}</p>
+      <div className="bg-dark-900 border border-dark-800 rounded-xl px-4 py-3 shadow-xl text-sm">
+        <p className="text-dark-400 mb-2 font-medium">{label}</p>
         {payload.map((p: any) => (
-          <p key={p.name} style={{ color: p.color }} className="font-semibold">
-            {p.name}: {fmt(p.value)}
+          <p key={p.name} style={{ color: p.color }} className="font-bold flex items-center justify-between gap-4">
+            <span>{p.name}</span>
+            <span>{fmt(p.value)}</span>
           </p>
         ))}
       </div>
@@ -64,8 +66,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+// Dummy data for Financial Health Trend
+const healthData = [
+  { name: 'Jan', score: 65 }, { name: 'Feb', score: 68 }, { name: 'Mar', score: 72 },
+  { name: 'Apr', score: 75 }, { name: 'May', score: 80 }, { name: 'Jun', score: 85 }
+];
+
 export default function DashboardPage() {
-  const { business } = useAuthStore();
+  const { user, business } = useAuthStore();
   const now = new Date();
   const [month] = useState(now.getMonth() + 1);
   const [year] = useState(now.getFullYear());
@@ -82,7 +90,7 @@ export default function DashboardPage() {
         dashboardApi.summary(month, year),
         dashboardApi.monthlyChart(6),
         dashboardApi.categoryChart('expense', month, year),
-        dashboardApi.recent(5),
+        dashboardApi.recent(4),
       ]);
       setSummary(s);
       setMonthly(m.chart_data);
@@ -99,175 +107,256 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
-          <p className="text-slate-500 text-sm">Loading dashboard…</p>
-        </div>
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="w-10 h-10 border-4 border-primary-100 border-t-primary-500 rounded-full animate-spin" />
       </div>
     );
   }
 
-  const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long' });
-
   return (
-    <div className="space-y-6">
-      {/* Period header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 pb-12">
+      {/* Header section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
         <div>
-          <p className="text-slate-600 text-sm">
-            {monthName} {year} · {business?.business_name}
-          </p>
+          <h1 className="text-2xl font-bold text-dark-900">Good morning, {user?.name?.split(' ')[0] || 'User'} 👋</h1>
+          <p className="text-dark-500 mt-1">Here's what's happening with your finances today.</p>
         </div>
         <button
           onClick={load}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-dark-200 text-dark-700 hover:bg-softGray text-sm font-medium transition-all shadow-sm"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Refresh
+          <RefreshCw className="w-4 h-4" />
+          Refresh Data
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           label="Total Income" delay={0}
           value={fmt(summary?.total_income ?? 0)}
           change={summary?.income_change_pct}
-          icon={TrendingUp}
-          color="bg-[#16A34A]"
+          icon={TrendingUp} color="text-success" bg="bg-success/10"
         />
         <KPICard
-          label="Total Expenses" delay={0.05}
+          label="Total Expenses" delay={0.1}
           value={fmt(summary?.total_expense ?? 0)}
           change={summary?.expense_change_pct ? -summary.expense_change_pct : null}
-          icon={TrendingDown}
-          color="bg-[#DC2626]"
+          icon={TrendingDown} color="text-danger" bg="bg-danger/10"
         />
         <KPICard
-          label="Net Balance" delay={0.1}
+          label="Net Balance" delay={0.2}
           value={fmt(summary?.net_balance ?? 0)}
           change={null}
-          icon={DollarSign}
-          color={(summary?.net_balance ?? 0) >= 0 ? 'bg-[#2563EB]' : 'bg-[#f97316]'}
+          icon={DollarSign} color="text-primary-500" bg="bg-primary-100"
         />
         <KPICard
-          label="Financial Health" delay={0.15}
-          value={`${summary?.savings_rate ?? 0}%`}
-          change={null}
-          icon={Percent}
-          color="bg-[#2563EB]"
+          label="Health Score" delay={0.3}
+          value={`${summary?.savings_rate ?? 0}/100`}
+          change={12.5}
+          icon={Activity} color="text-purple-500" bg="bg-purple-100"
         />
       </div>
 
-      {/* Charts */}
+      {/* Main Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Monthly Bar Chart */}
+        {/* Income vs Expenses Bar Chart */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5"
+          transition={{ delay: 0.4 }}
+          className="lg:col-span-2 bg-white rounded-2xl border border-dark-100 p-6 shadow-sm"
         >
-          <h3 className="text-slate-900 font-semibold text-sm mb-1">Income vs Expenses</h3>
-          <p className="text-slate-500 text-xs mb-5">Last 6 months</p>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={monthly} barCategoryGap="30%">
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false}
-                tickFormatter={(v) => `${(v).toLocaleString()} MMK`} />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="income" name="Income" fill="#16A34A" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expense" name="Expenses" fill="#DC2626" radius={[4, 4, 0, 0]} />
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-dark-900 font-bold text-lg">Income vs Expenses</h3>
+              <p className="text-dark-500 text-sm">Last 6 months overview</p>
+            </div>
+            <select className="bg-softGray border border-dark-200 text-dark-700 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary-500">
+              <option>Last 6 months</option>
+              <option>This Year</option>
+            </select>
+          </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={monthly} barCategoryGap="20%">
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+              <XAxis dataKey="month" tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
+              <YAxis tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dx={-10}
+                tickFormatter={(v) => `$${(v/1000)}k`} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F3F4F6' }} />
+              <Bar dataKey="income" name="Income" fill="#10B981" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="expense" name="Expenses" fill="#EF4444" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Category Donut */}
+        {/* Expenses by Category Donut */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="bg-white rounded-2xl border border-slate-200 p-5"
+          transition={{ delay: 0.5 }}
+          className="bg-white rounded-2xl border border-dark-100 p-6 shadow-sm flex flex-col"
         >
-          <h3 className="text-slate-900 font-semibold text-sm mb-1">Expense Breakdown</h3>
-          <p className="text-slate-500 text-xs mb-3">By category this month</p>
-          {catData.length === 0 ? (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm">
-              No expense data
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={catData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
-                  dataKey="amount"
-                  paddingAngle={2}
-                >
-                  {catData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
+          <div>
+            <h3 className="text-dark-900 font-bold text-lg">Expenses by Category</h3>
+            <p className="text-dark-500 text-sm">This month's breakdown</p>
+          </div>
+          
+          <div className="flex-1 flex flex-col justify-center mt-4">
+            {catData.length === 0 ? (
+              <div className="text-center text-dark-400 text-sm py-10">No expense data found</div>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={catData} cx="50%" cy="50%"
+                      innerRadius={65} outerRadius={85}
+                      dataKey="amount" paddingAngle={4}
+                    >
+                      {catData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                    </Pie>
+                    <Tooltip formatter={(v: any) => fmt(Number(v))} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="space-y-3 mt-4">
+                  {catData.slice(0, 3).map((c) => (
+                    <div key={c.name} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full shadow-sm" style={{ background: c.color }} />
+                        <span className="text-dark-700 font-medium truncate max-w-[120px]">{c.name}</span>
+                      </div>
+                      <span className="text-dark-900 font-bold">{c.percentage}%</span>
+                    </div>
                   ))}
-                </Pie>
-                <Tooltip formatter={(v: any) => fmt(Number(v))} />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-          <div className="space-y-1.5 mt-2">
-            {catData.slice(0, 4).map((c) => (
-              <div key={c.name} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ background: c.color }} />
-                  <span className="text-slate-600 truncate max-w-[140px]">{c.name}</span>
                 </div>
-                <span className="text-slate-700 font-medium">{c.percentage}%</span>
-              </div>
-            ))}
+              </>
+            )}
           </div>
         </motion.div>
       </div>
 
-      {/* Recent Transactions */}
+      {/* Complex Row: AI Recommendation + Recent Transactions + Health Trend */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* AI Recommendation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-2xl border border-primary-200 p-6 shadow-sm flex flex-col"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 rounded-xl bg-white shadow-sm">
+              <Sparkles className="w-5 h-5 text-primary-600" />
+            </div>
+            <h3 className="font-bold text-primary-900">AI Insights</h3>
+          </div>
+          <h4 className="text-lg font-bold text-dark-900 mb-2 leading-tight">Your software subscriptions have increased.</h4>
+          <p className="text-dark-600 text-sm mb-6 flex-1">
+            We noticed a 15% jump in recurring SaaS expenses. Consider reviewing unused tools to save up to $1,200 annually.
+          </p>
+          <button className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors shadow-sm shadow-primary-500/30">
+            Review Subscriptions
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </motion.div>
+
+        {/* Recent Transactions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="bg-white rounded-2xl border border-dark-100 p-6 shadow-sm"
+        >
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-dark-900 font-bold text-lg">Recent Transactions</h3>
+            <button className="text-primary-600 text-sm font-medium hover:underline">View All</button>
+          </div>
+          {recent.length === 0 ? (
+            <div className="text-center py-8 text-dark-400 text-sm">No recent transactions.</div>
+          ) : (
+            <div className="space-y-4">
+              {recent.map((tx) => (
+                <div key={tx.id} className="flex items-center justify-between group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: tx.category_color + '15' }}>
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tx.category_color }} />
+                    </div>
+                    <div>
+                      <p className="text-dark-900 font-bold text-sm">{tx.description}</p>
+                      <p className="text-dark-500 text-xs mt-0.5">{tx.date}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-sm font-bold ${tx.type === 'income' ? 'text-success' : 'text-dark-900'}`}>
+                      {tx.type === 'income' ? '+' : '-'}{fmt(tx.amount)}
+                    </p>
+                    <p className="text-dark-400 text-xs mt-0.5">{tx.category_name}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+
+        {/* Financial Health Trend */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="bg-dark-900 rounded-2xl border border-dark-800 p-6 shadow-xl relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/20 blur-3xl rounded-full" />
+          <div className="relative z-10">
+            <h3 className="text-white font-bold text-lg mb-1">Financial Health Trend</h3>
+            <p className="text-dark-400 text-sm mb-6">+12% improvement this quarter</p>
+            
+            <div className="h-32 mb-4 -mx-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={healthData}>
+                  <defs>
+                    <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <Tooltip content={<CustomTooltip />} cursor={false} />
+                  <Area type="monotone" dataKey="score" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            
+            <div className="flex items-center justify-between border-t border-dark-800 pt-4">
+              <div className="text-white text-2xl font-bold">85<span className="text-dark-500 text-sm font-normal">/100</span></div>
+              <div className="px-3 py-1 rounded-full bg-success/20 text-success text-xs font-bold border border-success/30">Excellent</div>
+            </div>
+          </div>
+        </motion.div>
+
+      </div>
+
+      {/* Mini Panels Row */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-white rounded-2xl border border-slate-200 p-5"
+        transition={{ delay: 0.9 }}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
       >
-        <h3 className="text-slate-900 font-semibold text-sm mb-4">Recent Transactions</h3>
-        {recent.length === 0 ? (
-          <div className="text-center py-8 text-slate-500 text-sm">
-            No transactions yet. Add your first one!
+        {[
+          { title: 'Transactions', icon: ArrowLeftRight, desc: 'View all history', color: 'text-blue-500', bg: 'bg-blue-50' },
+          { title: 'Budget Overview', icon: PieChartIcon, desc: 'Track spending limits', color: 'text-orange-500', bg: 'bg-orange-50' },
+          { title: 'AI Assistant', icon: Brain, desc: 'Ask financial queries', color: 'text-purple-500', bg: 'bg-purple-50' },
+          { title: 'Gap Analysis', icon: Target, desc: 'Find growth opportunities', color: 'text-green-500', bg: 'bg-green-50' }
+        ].map((panel, i) => (
+          <div key={i} className="bg-white rounded-xl border border-dark-100 p-4 hover:border-primary-300 hover:shadow-md transition-all cursor-pointer group">
+            <div className={`w-10 h-10 rounded-lg ${panel.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+              <panel.icon className={`w-5 h-5 ${panel.color}`} />
+            </div>
+            <h4 className="font-bold text-dark-900 text-sm">{panel.title}</h4>
+            <p className="text-xs text-dark-500 mt-1">{panel.desc}</p>
           </div>
-        ) : (
-          <div className="space-y-2">
-            {recent.map((tx) => (
-              <div key={tx.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                <div
-                  className="w-8 h-8 rounded-lg flex-shrink-0"
-                  style={{ backgroundColor: tx.category_color + '20', border: `1px solid ${tx.category_color}40` }}
-                >
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full" style={{ background: tx.category_color }} />
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-slate-800 text-sm font-medium truncate">{tx.description}</p>
-                  <p className="text-slate-500 text-xs">{tx.category_name} · {tx.date}</p>
-                </div>
-                <p className={`text-sm font-semibold flex-shrink-0 ${
-                  tx.type === 'income' ? 'text-[#16A34A]' : 'text-[#DC2626]'
-                }`}>
-                  {tx.type === 'income' ? '+' : '-'}{fmt(tx.amount)}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+        ))}
       </motion.div>
     </div>
   );

@@ -27,8 +27,11 @@ async function request<T>(
 
   if (!skipAuth) {
     const token = getToken();
-    if (token) {
+    if (token && token !== 'undefined' && token !== 'null') {
       headers['Authorization'] = `Bearer ${token}`;
+    } else {
+      // If the token is 'undefined', clear it so we don't end up in an invalid state
+      localStorage.removeItem('access_token');
     }
   }
 

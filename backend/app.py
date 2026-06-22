@@ -44,9 +44,9 @@ def _create_database_if_not_exists() -> None:
         )
         if not cur.fetchone():
             cur.execute(f'CREATE DATABASE "{db_name}"')
-            print(f"✅ Database '{db_name}' created.")
+            print(f"[OK] Database '{db_name}' created.")
         else:
-            print(f"✅ Database '{db_name}' already exists.")
+            print(f"[OK] Database '{db_name}' already exists.")
         cur.close()
         conn.close()
     except Exception as exc:
@@ -56,7 +56,7 @@ def _create_database_if_not_exists() -> None:
                 "PostgreSQL connection failed: DB_PASSWORD is missing or incorrect. "
                 "Create backend/.env from .env.example and set DB_PASSWORD."
             ) from exc
-        print(f"❌ Database setup error: {exc}")
+        print(f"[ERROR] Database setup error: {exc}")
         raise
 
 
@@ -119,12 +119,12 @@ def create_app() -> Flask:
     # ── Auto-create / verify all tables ──────────────────────────────────────
     with app.app_context():
         db.create_all()
-        print("✅ Database tables created / verified.")
+        print("[OK] Database tables created / verified.")
 
     # ── Built-in routes ───────────────────────────────────────────────────────
     @app.route("/")
     def index():
-        return jsonify({"message": "FinanceAI API is running 🚀", "version": "2.0"})
+        return jsonify({"message": "FinanceAI API is running", "version": "2.0"})
 
     @app.route("/api/health")
     def health():

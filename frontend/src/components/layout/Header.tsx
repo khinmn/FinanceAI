@@ -1,26 +1,9 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { Bell, Calendar } from 'lucide-react';
+import { Search, Bell } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
-const PAGE_TITLES: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/transactions': 'Transactions',
-  '/reports': 'Reports',
-  '/gap-analysis': 'Gap Analysis',
-};
-
 export default function Header() {
-  const location = useLocation();
-  const { user, business } = useAuthStore();
-  const title = PAGE_TITLES[location.pathname] || 'FinanceAI';
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const { user } = useAuthStore();
 
   const initials = user?.name
     .split(' ')
@@ -30,30 +13,37 @@ export default function Header() {
     .slice(0, 2) || 'U';
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-transparent border-b border-slate-200/10 flex-shrink-0">
-      <div>
-        <h1 className="text-slate-900 font-semibold text-xl">{title}</h1>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <Calendar className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-500 text-xs">{dateStr}</span>
-        </div>
+    <header className="flex items-center justify-between px-6 py-4 bg-transparent border-b border-dark-100 flex-shrink-0 z-10">
+      <div className="flex-1">
+        {/* Placeholder for left side if needed, Dashboard handles the greeting */}
       </div>
 
-      <div className="flex items-center gap-3">
-        {/* Currency badge */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200">
-          <span className="text-[#2563EB] text-sm font-bold">MMK</span>
-          <span className="text-slate-600 text-xs">{business?.currency_name || 'Myanmar Kyat'}</span>
+      <div className="flex items-center gap-6">
+        {/* Search */}
+        <div className="relative hidden md:block">
+          <Search className="w-4 h-4 text-dark-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input 
+            type="text" 
+            placeholder="Search anything..." 
+            className="pl-9 pr-4 py-2 w-64 rounded-full border border-dark-200 bg-white text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all placeholder:text-dark-400"
+          />
         </div>
 
-        {/* Notification bell (cosmetic) */}
-        <button className="relative w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-800 transition-all">
-          <Bell className="w-4 h-4" />
+        {/* Notification bell */}
+        <button className="relative p-2 rounded-full hover:bg-dark-100 text-dark-600 transition-colors">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-danger border-2 border-white" />
         </button>
 
-        {/* Avatar */}
-        <div className="w-9 h-9 rounded-xl bg-[#2563EB] flex items-center justify-center flex-shrink-0 shadow-sm">
-          <span className="text-white text-xs font-bold">{initials}</span>
+        {/* Avatar & Profile */}
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 border border-primary-200">
+            <span className="text-primary-600 text-xs font-bold">{initials}</span>
+          </div>
+          <div className="hidden sm:block">
+            <div className="text-sm font-bold text-dark-900 leading-none">{user?.name || 'Admin User'}</div>
+            <div className="text-[10px] text-dark-500 mt-1">SME Owner</div>
+          </div>
         </div>
       </div>
     </header>

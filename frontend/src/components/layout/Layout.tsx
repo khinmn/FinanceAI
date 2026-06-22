@@ -8,7 +8,7 @@ export default function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] overflow-hidden text-slate-900">
+    <div className="flex h-screen bg-softGray overflow-hidden text-dark-900 font-sans">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((c) => !c)}
