@@ -16,11 +16,12 @@ const tooltipFormatter = (value: number | string | readonly (string | number)[] 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload?.length) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-xl text-sm">
-        <p className="text-slate-500 mb-2">{label}</p>
+      <div className="bg-dark-900 border border-dark-800 rounded-xl px-4 py-3 shadow-xl text-sm text-white">
+        <p className="text-dark-400 mb-2 font-semibold">{label}</p>
         {payload.map((p: any) => (
-          <p key={p.name} style={{ color: p.color || p.stroke }} className="font-semibold">
-            {p.name}: {fmt(p.value)}
+          <p key={p.name} style={{ color: p.color || p.stroke }} className="font-bold flex items-center justify-between gap-4">
+            <span>{p.name}</span>
+            <span>{fmt(p.value)}</span>
           </p>
         ))}
       </div>
@@ -67,8 +68,8 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="w-10 h-10 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -78,15 +79,15 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-slate-50 border border-slate-200 rounded-xl w-fit">
+      <div className="flex gap-1 p-1 bg-white border border-dark-100 rounded-xl w-fit shadow-soft">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setActiveTab(t.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-250 ${
               activeTab === t.key
-                ? 'bg-[#2563EB] text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-800'
+                ? 'bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-md shadow-brand-500/20'
+                : 'text-dark-500 hover:text-dark-900'
             }`}
           >
             {t.label}
@@ -97,41 +98,41 @@ export default function ReportsPage() {
       {activeTab === 'cashflow' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
           {/* Cumulative cashflow area chart */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-slate-900 font-semibold text-sm mb-1">Cumulative Cash Flow</h3>
-            <p className="text-slate-500 text-xs mb-5">Running total over last 6 months</p>
+          <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-dark-900 font-bold text-base mb-1">Cumulative Cash Flow</h3>
+            <p className="text-dark-400 text-xs mb-5 font-medium">Running total over last 6 months</p>
             <ResponsiveContainer width="100%" height={240}>
               <AreaChart data={cashflow}>
                 <defs>
                   <linearGradient id="cfGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="period" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <XAxis dataKey="period" tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
+                <YAxis tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dx={-10}
                   tickFormatter={(v) => `K${(v / 1000).toFixed(0)}k`} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="cumulative" name="Cumulative" stroke="#10b981"
-                  fill="url(#cfGrad)" strokeWidth={2} dot={{ fill: '#10b981', r: 3 }} />
+                <Area type="monotone" dataKey="cumulative" name="Cumulative" stroke="#8B5CF6"
+                  fill="url(#cfGrad)" strokeWidth={3} dot={{ fill: '#8B5CF6', r: 3 }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
           {/* Monthly income/expense bars */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-slate-900 font-semibold text-sm mb-1">Monthly Net Cash Flow</h3>
-            <p className="text-slate-500 text-xs mb-5">Income vs expenses per month</p>
+          <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-dark-900 font-bold text-base mb-1">Monthly Net Cash Flow</h3>
+            <p className="text-dark-400 text-xs mb-5 font-medium">Income vs expenses per month</p>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={cashflow} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="period" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <XAxis dataKey="period" tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
+                <YAxis tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dx={-10}
                   tickFormatter={(v) => `K${(v / 1000).toFixed(0)}k`} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="income" name="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expense" name="Expenses" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F3F4F6' }} />
+                <Bar dataKey="income" name="Income" fill="#10B981" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="expense" name="Expenses" fill="#EF4444" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -141,19 +142,19 @@ export default function ReportsPage() {
       {(activeTab === 'income' || activeTab === 'expenses') && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pie Chart */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-slate-900 font-semibold text-sm mb-1">
+          <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-dark-900 font-bold text-base mb-1">
               {activeTab === 'income' ? 'Income' : 'Expense'} by Category
             </h3>
-            <p className="text-slate-500 text-xs mb-3">Year {year}</p>
+            <p className="text-dark-400 text-xs mb-3 font-medium">Year {year}</p>
             {breakdown.length === 0 ? (
-              <div className="flex items-center justify-center h-48 text-slate-400 text-sm">No data</div>
+              <div className="flex items-center justify-center h-48 text-dark-400 text-sm">No data</div>
             ) : (
               <>
                 <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
-                    <Pie data={breakdown} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
-                      dataKey="total" paddingAngle={2}>
+                    <Pie data={breakdown} cx="50%" cy="50%" innerRadius={65} outerRadius={85}
+                      dataKey="total" paddingAngle={3}>
                       {breakdown.map((entry, i) => (
                         <Cell key={i} fill={entry.color} />
                       ))}
@@ -166,26 +167,26 @@ export default function ReportsPage() {
           </div>
 
           {/* Category table */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-slate-900 font-semibold text-sm mb-4">Breakdown</h3>
+          <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-dark-900 font-bold text-base mb-4">Breakdown</h3>
             {breakdown.length === 0 ? (
-              <div className="flex items-center justify-center h-48 text-slate-400 text-sm">No data for this period</div>
+              <div className="flex items-center justify-center h-48 text-dark-400 text-sm">No data for this period</div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {breakdown.map((item) => (
                   <div key={item.name}>
-                    <div className="flex items-center justify-between text-xs mb-1">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
                       <div className="flex items-center gap-2">
                         <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                        <span className="text-slate-700 font-medium">{item.name}</span>
+                        <span className="text-dark-700 font-semibold">{item.name}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-slate-500">{item.count} txn{item.count !== 1 ? 's' : ''}</span>
-                        <span className="text-slate-900 font-semibold">{fmt(item.total)}</span>
-                        <span className="text-slate-500 w-10 text-right">{item.percentage}%</span>
+                        <span className="text-dark-400 font-medium">{item.count} txn{item.count !== 1 ? 's' : ''}</span>
+                        <span className="text-dark-900 font-bold">{fmt(item.total)}</span>
+                        <span className="text-dark-500 w-10 text-right font-semibold">{item.percentage}%</span>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-dark-50 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${item.percentage}%` }}

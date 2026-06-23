@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,14 +12,16 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: #F9FAFB; /* softGray from config */
-  color: #111827; /* dark-900 from config */
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #FAFAFA; /* softGray from config */
+  color: #0F1115; /* dark-900 from config */
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 #root {
@@ -28,24 +30,24 @@ body {
 
 /* ── Scrollbar ──────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 /* ── Selection ──────────────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(37,99,235,0.12);
-  color: #0F1724;
+  background: rgba(139, 92, 246, 0.2); /* Brand purple */
+  color: #0F1115;
 }
 
 /* ── Animations ─────────────────────────────────────────────────────────────── */
@@ -61,13 +63,16 @@ body {
 /* ── Custom Utilities ───────────────────────────────────────────────────────── */
 @layer utilities {
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-glass rounded-2xl;
+    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-glass rounded-3xl;
   }
   .glass-dark {
-    @apply bg-dark-800/60 backdrop-blur-xl border border-white/10 shadow-glass-dark rounded-2xl;
+    @apply bg-dark-800/60 backdrop-blur-2xl border border-white/10 shadow-glass-dark rounded-3xl;
   }
   .glass-card {
-    @apply bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm rounded-xl transition-all duration-300 hover:shadow-md hover:bg-white/95;
+    @apply bg-white/80 backdrop-blur-lg border border-white/80 shadow-soft rounded-2xl transition-all duration-500 hover:shadow-glass-hover hover:bg-white hover:-translate-y-1;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-dark-900 via-dark-800 to-brand-800;
   }
 }
 

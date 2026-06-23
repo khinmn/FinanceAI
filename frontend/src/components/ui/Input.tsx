@@ -22,7 +22,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           id={inputId}
           className={clsx(
             'w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm placeholder:text-slate-400',
-            'focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]/40 transition-all duration-200',
+            'focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all duration-200',
             error
               ? 'border-rose-500/50 focus:ring-rose-500/30'
               : 'hover:border-slate-300',
@@ -58,7 +58,7 @@ export function Select({ label, error, options, className, id, ...props }: Selec
         id={selectId}
         className={clsx(
           'w-full px-4 py-2.5 rounded-xl bg-white border text-slate-900 text-sm',
-          'focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all duration-200',
+          'focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all duration-200',
           'appearance-none cursor-pointer',
           error
             ? 'border-rose-500/50'

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { TrendingUp, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
 import Button from '../components/ui/Button';
@@ -69,7 +69,7 @@ export default function RegisterPage() {
         business_name: form.business_name,
         industry: form.industry,
         description: form.description,
-        role: form.role, // included if backend supports it; ignored otherwise
+        role: form.role,
       });
       login(res.user, res.business, res.access_token, res.refresh_token);
       navigate('/dashboard');
@@ -81,23 +81,30 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: '#FDFDFD' }}>
+      {/* Matching landing page blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-brand-400/20 blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-indigo-400/15 blur-[100px] pointer-events-none animate-blob-reverse" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
+        {/* Back to home */}
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-dark-500 hover:text-brand-600 transition-colors mb-8">
+          <ArrowLeft className="w-4 h-4" /> Back to Home
+        </Link>
+
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-xl shadow-emerald-500/30 mb-4">
-            <TrendingUp className="w-7 h-7 text-white" />
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl shadow-brand-500/30 mb-5"
+            style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)' }}>
+            <div className="w-7 h-7 rounded-full border-[3px] border-white border-t-transparent animate-spin" />
           </div>
-          <h1 className="text-slate-900 text-2xl font-bold">Create your account</h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <h1 className="text-dark-900 text-3xl font-extrabold tracking-tight">Create your account</h1>
+          <p className="text-dark-500 text-sm mt-2 font-medium">
             {step === 1 ? 'Step 1 of 2 — Personal details' : 'Step 2 of 2 — Business profile'}
           </p>
         </div>
@@ -107,19 +114,19 @@ export default function RegisterPage() {
           {[1, 2].map((s) => (
             <div
               key={s}
-              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                s <= step ? 'bg-emerald-500' : 'bg-slate-200'
+              className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
+                s <= step ? 'bg-brand-500' : 'bg-gray-200'
               }`}
             />
           ))}
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/80 rounded-3xl p-8 shadow-soft">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2.5 p-3.5 mb-5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm"
+              className="flex items-center gap-2.5 p-3.5 mb-5 bg-danger/10 border border-danger/20 rounded-xl text-danger text-sm font-medium"
             >
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {error}
@@ -131,7 +138,7 @@ export default function RegisterPage() {
               <Input
                 label="Full Name"
                 type="text"
-                placeholder="Khin Myat Noe"
+                placeholder="Your Name"
                 value={form.name}
                 onChange={(e) => setField('name', e.target.value)}
                 required
@@ -145,11 +152,11 @@ export default function RegisterPage() {
                 required
               />
               <div>
-                <label className="text-sm font-medium text-slate-700">Role</label>
+                <label className="text-sm font-semibold text-dark-700 block mb-2">Role</label>
                 <select
                   value={form.role}
                   onChange={(e) => setField('role', e.target.value)}
-                  className="w-full mt-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm transition-all duration-200"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-dark-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400 transition-all"
                 >
                   <option>SME Owner</option>
                   <option>Freelancer</option>
@@ -171,7 +178,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPw((s) => !s)}
-                  className="absolute right-3 top-9 text-slate-400 hover:text-slate-700 transition-colors"
+                  className="absolute right-3 top-9 text-dark-400 hover:text-brand-600 transition-colors"
                 >
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -228,9 +235,9 @@ export default function RegisterPage() {
             </form>
           )}
 
-          <p className="text-center text-slate-500 text-sm mt-6">
+          <p className="text-center text-dark-500 text-sm mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-emerald-600 hover:text-emerald-500 font-medium transition-colors">
+            <Link to="/login" className="text-brand-600 hover:text-brand-500 font-bold transition-colors">
               Sign in
             </Link>
           </p>

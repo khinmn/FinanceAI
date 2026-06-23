@@ -8,13 +8,19 @@ export default function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen bg-softGray overflow-hidden text-dark-900 font-sans">
+    <div className="flex h-screen overflow-hidden text-dark-900 font-sans relative" style={{ background: '#FDFDFD' }}>
+      {/* Subtle ambient background matching landing page */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[-5%] right-[-5%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-brand-400/8 blur-[100px]" />
+        <div className="absolute bottom-[-10%] left-[10%] w-[30vw] h-[30vw] max-w-[400px] max-h-[400px] rounded-full bg-indigo-400/8 blur-[100px]" />
+      </div>
+
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((c) => !c)}
       />
 
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative z-10">
         <Header />
         <main className="flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-6">
           <div className="max-w-screen-xl mx-auto">

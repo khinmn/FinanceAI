@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { TrendingUp, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Mail, Eye, EyeOff, AlertCircle, ArrowLeft } from 'lucide-react';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
 import Button from '../components/ui/Button';
@@ -31,34 +31,39 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Ambient blobs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: '#FDFDFD' }}>
+      {/* Matching landing page blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-brand-400/20 blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-indigo-400/15 blur-[100px] pointer-events-none animate-blob-reverse" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
+        {/* Back to home */}
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-dark-500 hover:text-brand-600 transition-colors mb-8">
+          <ArrowLeft className="w-4 h-4" /> Back to Home
+        </Link>
+
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-xl shadow-emerald-500/30 mb-4">
-            <TrendingUp className="w-7 h-7 text-white" />
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl shadow-brand-500/30 mb-5"
+            style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)' }}>
+            <div className="w-7 h-7 rounded-full border-[3px] border-white border-t-transparent animate-spin" />
           </div>
-          <h1 className="text-slate-900 text-2xl font-bold">Welcome back</h1>
-          <p className="text-slate-500 text-sm mt-1">Sign in to FinanceAI</p>
+          <h1 className="text-dark-900 text-3xl font-extrabold tracking-tight">Welcome back</h1>
+          <p className="text-dark-500 text-sm mt-2 font-medium">Sign in to FinanceAI</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/80 rounded-3xl p-8 shadow-soft">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2.5 p-3.5 mb-5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm"
+              className="flex items-center gap-2.5 p-3.5 mb-5 bg-danger/10 border border-danger/20 rounded-xl text-danger text-sm font-medium"
             >
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {error}
@@ -76,7 +81,7 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
               />
-              <Mail className="absolute right-3 top-9 w-4 h-4 text-slate-400 pointer-events-none" />
+              <Mail className="absolute right-3 top-9 w-4 h-4 text-dark-400 pointer-events-none" />
             </div>
 
             <div className="relative">
@@ -92,7 +97,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPw((s) => !s)}
-                className="absolute right-3 top-9 text-slate-400 hover:text-slate-700 transition-colors"
+                className="absolute right-3 top-9 text-dark-400 hover:text-brand-600 transition-colors"
               >
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -103,15 +108,15 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center text-slate-500 text-sm mt-6">
+          <p className="text-center text-dark-500 text-sm mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-emerald-600 hover:text-emerald-500 font-medium transition-colors">
+            <Link to="/register" className="text-brand-600 hover:text-brand-500 font-bold transition-colors">
               Create one
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-slate-400 text-xs mt-6">
+        <p className="text-center text-dark-400 text-xs mt-6 font-medium">
           FinanceAI — AI-powered finance for SMEs
         </p>
       </motion.div>

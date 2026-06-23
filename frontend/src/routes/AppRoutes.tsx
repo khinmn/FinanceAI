@@ -11,28 +11,37 @@ import ReportsPage from '../pages/ReportsPage';
 import GapAnalysisPage from '../pages/GapAnalysisPage';
 import SettingsPage from '../pages/SettingsPage';
 
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
-}
-
+// If logged in, redirect to dashboard. Otherwise show the page (landing/login/register).
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+}
+
+// If NOT logged in, redirect to landing page. Otherwise show the protected page.
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
+}
+
+// Catch unknown URLs: logged in → dashboard, logged out → landing page
+function CatchAllRoute() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return <Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />;
 }
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
+        {/* Landing Page - first thing any visitor sees */}
         <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+
+        {/* Auth pages */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-        {/* Protected routes */}
+        {/* Protected app routes */}
         <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
           <Route path="reports" element={<ReportsPage />} />
@@ -41,7 +50,7 @@ export default function AppRoutes() {
         </Route>
 
         {/* Catch-all */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<CatchAllRoute />} />
       </Routes>
     </BrowserRouter>
   );

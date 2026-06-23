@@ -23,7 +23,7 @@ export default function Button({
 
   const variants: Record<string, string> = {
     primary:
-      'bg-[#2563EB] text-white hover:bg-[#1e40af] focus:ring-[#2563EB] shadow-sm',
+      'bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500 shadow-sm shadow-brand-500/20',
     secondary:
       'bg-white border border-slate-200 text-slate-800 hover:bg-slate-50 focus:ring-slate-200',
     ghost:

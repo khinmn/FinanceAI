@@ -1,283 +1,436 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Play, Shield, Target, TrendingUp, Users, CheckCircle2, DollarSign, Brain, BarChart3, Fingerprint } from 'lucide-react';
+import { ArrowRight, Shield, Target, TrendingUp, CheckCircle2, DollarSign, Brain, BarChart3, Fingerprint, Lock, Zap } from 'lucide-react';
+
+// Reusable animated section wrapper
+const FadeInSection = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.8, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
 
 export default function LandingPage() {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const mockupY = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
+  const opacityFade = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
   return (
-    <div className="min-h-screen bg-softGray relative overflow-hidden font-sans text-dark-900">
-      {/* Background ambient orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-200/50 blur-[100px] pointer-events-none" />
-      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] rounded-full bg-purple-200/40 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-cyan-200/30 blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#FDFDFD] relative overflow-hidden font-sans text-dark-900 selection:bg-brand-500/20" ref={containerRef}>
+      
+      {/* --- BACKGROUND BLOBS --- */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Top left purple blob */}
+        <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] rounded-full bg-brand-400/20 blur-[120px] mix-blend-multiply animate-blob" />
+        {/* Top right blue blob */}
+        <div className="absolute top-[10%] right-[-10%] w-[50vw] h-[50vw] max-w-[700px] max-h-[700px] rounded-full bg-blue-400/20 blur-[120px] mix-blend-multiply animate-blob-reverse" style={{ animationDelay: '2s' }} />
+        {/* Bottom center indigo blob */}
+        <div className="absolute bottom-[-20%] left-[20%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full bg-indigo-400/15 blur-[150px] mix-blend-multiply animate-blob" style={{ animationDelay: '4s' }} />
+      </div>
 
-      {/* Navigation */}
-      <nav className="relative z-50 flex items-center justify-between px-6 lg:px-20 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-dark-900 flex items-center justify-center">
-            <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin-slow" />
+      {/* --- NAVIGATION --- */}
+      <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/50 backdrop-blur-md border-b border-white/20">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-dark-900 flex items-center justify-center shadow-lg">
+              <div className="w-5 h-5 rounded-full border-2 border-brand-400 border-t-transparent animate-spin-slow" />
+            </div>
+            <span className="font-bold text-2xl tracking-tight">FinanceAI<span className="text-brand-500">.</span></span>
           </div>
-          <span className="font-bold text-xl tracking-tight">FinanceAI<span className="text-primary-500 text-2xl leading-none relative top-0.5">+</span></span>
-        </div>
-        
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-dark-600">
-          <a href="#" className="text-dark-900 font-semibold">Home</a>
-          <a href="#features" className="hover:text-dark-900 transition-colors">Features</a>
-          <a href="#how-it-works" className="hover:text-dark-900 transition-colors">How It Works</a>
-          <a href="#pricing" className="hover:text-dark-900 transition-colors">Pricing</a>
-          <a href="#about" className="hover:text-dark-900 transition-colors">About</a>
-        </div>
+          
+          <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-dark-600">
+            <a href="#home" className="text-dark-900 transition-colors">Platform</a>
+            <a href="#features" className="hover:text-dark-900 transition-colors">Features</a>
+            <a href="#security" className="hover:text-dark-900 transition-colors">Security</a>
+            <a href="#pricing" className="hover:text-dark-900 transition-colors">Pricing</a>
+          </div>
 
-        <Link to="/login" className="px-6 py-2.5 bg-dark-900 text-white text-sm font-medium rounded-full hover:bg-dark-800 transition-all shadow-lg hover:shadow-xl">
-          Get Started
-        </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/login" className="hidden md:block text-sm font-semibold text-dark-900 hover:text-brand-600 transition-colors">
+              Log in
+            </Link>
+            <Link to="/register" className="px-6 py-2.5 bg-dark-900 text-white text-sm font-semibold rounded-full hover:bg-brand-600 transition-all shadow-lg hover:shadow-brand-500/30">
+              Get Started
+            </Link>
+          </div>
+        </div>
       </nav>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 lg:px-20 pt-12 pb-24">
-        {/* Hero Section */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div className="max-w-2xl">
+      <main className="relative z-10">
+        
+        {/* --- HERO SECTION --- */}
+        <section id="home" className="relative pt-40 pb-20 lg:pt-48 lg:pb-32 px-6 lg:px-12 max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center gap-16 min-h-[90vh]">
+          
+          {/* Hero Content */}
+          <motion.div 
+            className="flex-1 w-full"
+            style={{ y: heroY, opacity: opacityFade }}
+          >
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 border border-white/80 shadow-sm text-sm font-medium text-dark-600 mb-8"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm border border-white/80 shadow-sm text-sm font-bold text-brand-700 mb-8"
             >
-              <span className="text-primary-500">✦</span> AI-Powered Finance Management
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-500"></span>
+              </span>
+              Intelligent Financial Management
             </motion.div>
             
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-5xl lg:text-[64px] leading-[1.1] font-bold tracking-tight mb-6"
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="text-6xl lg:text-[80px] leading-[1.05] font-extrabold tracking-[-0.03em] mb-8 text-dark-900"
             >
-              AI-Powered<br />
-              Financial Intelligence<br />
-              <span className="text-primary-500">for SMEs & MSMEs</span>
+              Core Finance<br />
+              Management<br />
+              <span className="text-gradient">for Businesses.</span>
             </motion.h1>
             
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-lg text-dark-600 mb-10 max-w-lg leading-relaxed"
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-xl text-dark-600 mb-12 max-w-xl font-medium leading-relaxed"
             >
-              Track finances, analyze gaps, and get AI-driven insights to grow your business smarter.
+              End-to-end AI financial platform. Automate tracking, uncover gaps, and accelerate your business growth with enterprise-grade intelligence.
             </motion.p>
             
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex items-center gap-4 mb-16"
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="flex flex-wrap items-center gap-4"
             >
-              <Link to="/register" className="flex items-center gap-2 px-8 py-4 bg-dark-900 text-white rounded-full font-medium hover:bg-dark-800 transition-all shadow-lg hover:shadow-xl group">
-                Get Started Free
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <Link to="/register" className="flex items-center gap-2 px-8 py-4 bg-brand-600 text-white rounded-full font-bold text-lg hover:bg-brand-500 transition-all shadow-[0_8px_30px_rgb(139,92,246,0.3)] hover:shadow-[0_8px_40px_rgb(139,92,246,0.5)] hover:-translate-y-1 group">
+                Create Free Account
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <button className="flex items-center gap-2 px-8 py-4 bg-white/80 border border-dark-100 rounded-full font-medium hover:bg-white transition-all shadow-sm">
-                <div className="w-6 h-6 rounded-full bg-dark-100 flex items-center justify-center">
-                  <Play className="w-3 h-3 text-dark-900 ml-0.5" />
-                </div>
-                Watch Demo
-              </button>
+              <Link to="/login" className="flex items-center gap-2 px-8 py-4 bg-white border-2 border-dark-900 text-dark-900 rounded-full font-bold text-lg hover:bg-dark-900 hover:text-white transition-all shadow-sm hover:-translate-y-1">
+                Log In
+              </Link>
             </motion.div>
+          </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex items-center gap-8"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600">
-                  <Target className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-bold text-dark-900">500+</div>
-                  <div className="text-xs text-dark-500">Businesses</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                  <Shield className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-bold text-dark-900">98.5%</div>
-                  <div className="text-xs text-dark-500">Accuracy</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
-                  <Users className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-bold text-dark-900">24/7</div>
-                  <div className="text-xs text-dark-500">AI Support</div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Right Visuals (Floating Cards) */}
-          <div className="relative h-[600px] w-full hidden lg:block perspective-1000">
-            {/* Main Financial Overview Card */}
+          {/* Hero Visuals (CSS Dashboard Mockup) */}
+          <motion.div 
+            className="flex-1 w-full relative perspective-[2000px] h-[600px] hidden lg:block"
+            style={{ y: mockupY }}
+          >
             <motion.div
-              initial={{ opacity: 0, x: 50, y: 20, rotateY: -10 }}
-              animate={{ opacity: 1, x: 0, y: 0, rotateY: -5 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="absolute top-10 right-0 w-[500px] glass-panel p-6 z-20"
+              initial={{ opacity: 0, rotateY: 20, rotateX: 10, scale: 0.8, x: 100 }}
+              animate={{ opacity: 1, rotateY: -15, rotateX: 5, scale: 1, x: 0 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              className="absolute top-0 right-0 w-[800px] h-[550px] bg-white rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden"
               style={{ transformStyle: 'preserve-3d' }}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="font-semibold text-sm text-dark-900">Financial Overview</h3>
-                <span className="text-xs px-2 py-1 bg-dark-100 rounded text-dark-600">This Month</span>
+              {/* Mockup Sidebar */}
+              <div className="absolute left-0 top-0 bottom-0 w-64 bg-dark-900 p-6 flex flex-col border-r border-dark-800">
+                <div className="flex items-center gap-2 mb-12">
+                  <div className="w-8 h-8 rounded bg-brand-500" />
+                  <div className="h-5 w-24 bg-white/10 rounded" />
+                </div>
+                <div className="space-y-4 flex-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className={`flex items-center gap-4 p-3 rounded-xl ${i === 1 ? 'bg-brand-500/10' : 'opacity-60'}`}>
+                      <div className={`w-5 h-5 rounded ${i === 1 ? 'bg-brand-500' : 'bg-white/20'}`} />
+                      <div className={`h-3 rounded ${i === 1 ? 'bg-brand-500 w-16' : 'bg-white/20 w-20'}`} />
+                    </div>
+                  ))}
+                </div>
               </div>
               
-              <div className="grid grid-cols-4 gap-4 mb-8">
-                <div>
-                  <div className="text-[10px] text-dark-500 mb-1">Total Income</div>
-                  <div className="font-bold text-sm">$24,580</div>
-                  <div className="text-[10px] text-success flex items-center mt-1">+12.5% <TrendingUp className="w-3 h-3 ml-1" /></div>
+              {/* Mockup Main Content */}
+              <div className="absolute left-64 right-0 top-0 bottom-0 bg-[#F9FAFB] p-8">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-10">
+                  <div>
+                    <div className="h-4 w-32 bg-gray-200 rounded mb-2" />
+                    <div className="h-8 w-48 bg-dark-900 rounded" />
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-white shadow-sm" />
+                    <div className="w-10 h-10 rounded-full bg-brand-100" />
+                  </div>
                 </div>
-                <div>
-                  <div className="text-[10px] text-dark-500 mb-1">Total Expenses</div>
-                  <div className="font-bold text-sm">$16,420</div>
-                  <div className="text-[10px] text-danger flex items-center mt-1">-8.3% <TrendingUp className="w-3 h-3 ml-1 transform rotate-180" /></div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-dark-500 mb-1">Net Balance</div>
-                  <div className="font-bold text-sm">$8,160</div>
-                  <div className="text-[10px] text-success flex items-center mt-1">+18.7% <TrendingUp className="w-3 h-3 ml-1" /></div>
-                </div>
-                <div className="text-center border-l border-dark-100 pl-2">
-                  <div className="text-[10px] text-dark-500 mb-1">Health Score</div>
-                  <div className="font-bold text-sm">82<span className="text-dark-400 text-[10px]">/100</span></div>
-                  <div className="text-[10px] text-success mt-1">Good</div>
-                </div>
-              </div>
 
-              <div className="flex gap-6">
-                {/* Dummy Bar Chart */}
-                <div className="flex-1">
-                  <div className="text-[10px] text-dark-600 mb-4 font-medium">Income vs Expenses</div>
-                  <div className="h-24 flex items-end justify-between gap-1">
-                    {[40, 60, 30, 80, 50, 70].map((h, i) => (
-                      <div key={i} className="flex gap-0.5 items-end">
-                        <div className="w-2 bg-primary-500 rounded-t-sm" style={{ height: `${h}%` }} />
-                        <div className="w-2 bg-purple-200 rounded-t-sm" style={{ height: `${h * 0.7}%` }} />
+                {/* Cards Row */}
+                <div className="grid grid-cols-3 gap-6 mb-8">
+                  {[
+                    { c: 'bg-white', text: 'text-dark-900', bar: 'bg-brand-500', h: 'h-6' },
+                    { c: 'bg-brand-600', text: 'text-white', bar: 'bg-white', h: 'h-8' },
+                    { c: 'bg-white', text: 'text-dark-900', bar: 'bg-blue-500', h: 'h-5' }
+                  ].map((card, i) => (
+                    <div key={i} className={`${card.c} p-5 rounded-2xl shadow-sm border border-gray-100`}>
+                      <div className={`h-3 w-16 ${card.text} opacity-50 rounded mb-3`} />
+                      <div className={`h-6 w-24 ${card.text} rounded mb-4`} />
+                      <div className="flex gap-1 items-end h-8">
+                        {[1, 2, 3, 4, 5].map((b) => (
+                          <div key={b} className={`flex-1 ${card.bar} rounded-t-sm opacity-${b%2 ? '100' : '50'} ${card.h}`} />
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-                {/* Dummy Donut Chart */}
-                <div className="w-1/3">
-                  <div className="text-[10px] text-dark-600 mb-4 font-medium">Expenses by Category</div>
-                  <div className="relative w-20 h-20 mx-auto">
-                    <div className="absolute inset-0 rounded-full border-[6px] border-primary-500 border-r-purple-300 border-b-cyan-300" />
-                    <div className="absolute inset-0 flex items-center justify-center font-bold text-xs">$16,420</div>
+
+                {/* Main Graph Area */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-48">
+                  <div className="h-4 w-40 bg-gray-200 rounded mb-6" />
+                  <div className="h-[120px] w-full bg-gradient-to-t from-brand-50/50 to-transparent border-b border-brand-200 relative">
+                    <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                      <path d="M0,100 L0,50 Q25,30 50,60 T100,20 L100,100 Z" fill="url(#gradient)" className="opacity-20" />
+                      <path d="M0,50 Q25,30 50,60 T100,20" fill="none" stroke="#8B5CF6" strokeWidth="2" />
+                      <defs>
+                        <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+                          <stop offset="0%" stopColor="#8B5CF6" />
+                          <stop offset="100%" stopColor="transparent" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
                   </div>
                 </div>
               </div>
             </motion.div>
 
-            {/* AI Recommendation Floating Card */}
-            <motion.div
-              initial={{ opacity: 0, x: 20, y: 100 }}
-              animate={{ opacity: 1, x: -30, y: 280 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-              className="absolute right-0 w-[240px] glass-panel p-4 z-30 shadow-xl border-white/60 bg-white/80"
-              style={{ transform: 'rotateZ(-2deg)' }}
+            {/* Floating Elements Over Mockup */}
+            <motion.div 
+              animate={{ y: [-15, 15, -15] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -left-10 top-20 w-48 p-4 glass-panel z-20"
             >
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded bg-primary-100 flex items-center justify-center">
-                  <Brain className="w-3 h-3 text-primary-600" />
-                </div>
-                <span className="text-[10px] font-semibold text-primary-600 uppercase tracking-wider">AI Recommendation</span>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success"><CheckCircle2 className="w-4 h-4"/></div>
+                <div className="text-sm font-bold">Transfer complete</div>
               </div>
-              <p className="text-xs text-dark-600 leading-relaxed mb-3">
-                Your food expenses increased by 18% this month. Consider reducing dining out.
-              </p>
-              <button className="text-[10px] w-full py-1.5 rounded-lg bg-primary-500/10 text-primary-600 font-medium hover:bg-primary-500/20 transition-colors">
-                View Details →
-              </button>
+              <div className="text-xl font-extrabold">+ $24,500</div>
             </motion.div>
 
-            {/* Bubble 1 */}
             <motion.div 
-              animate={{ y: [0, -20, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-20 left-10 w-24 h-24 rounded-full bg-gradient-to-tr from-white/40 to-white/10 backdrop-blur-md border border-white/50 shadow-glass z-10"
-            />
-            {/* Bubble 2 */}
-            <motion.div 
-              animate={{ y: [0, 20, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute bottom-20 right-[-20px] w-16 h-16 rounded-full bg-gradient-to-tr from-purple-200/40 to-white/10 backdrop-blur-md border border-white/50 shadow-glass z-10"
-            />
-          </div>
-        </div>
+              animate={{ y: [15, -15, 15] }}
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute -right-10 bottom-10 w-56 p-5 glass-panel z-20 border-brand-200/30"
+            >
+              <div className="text-xs font-bold text-brand-600 mb-1 uppercase tracking-wider">AI Insight</div>
+              <div className="text-sm text-dark-800 font-medium leading-snug">
+                Your runway extended by 2 months based on recent optimizations.
+              </div>
+            </motion.div>
+          </motion.div>
+        </section>
 
-        {/* Partners */}
-        <div className="mt-20 border-t border-dark-100 pt-8 flex items-center justify-center gap-12 text-dark-400 grayscale opacity-60">
-          <span className="font-bold text-xl flex items-center gap-2"><Target className="w-6 h-6"/> StartUpHub</span>
-          <span className="font-bold text-xl flex items-center gap-2"><Shield className="w-6 h-6"/> TechCorp</span>
-          <span className="font-bold text-xl flex items-center gap-2"><TrendingUp className="w-6 h-6"/> BizGrowth</span>
-          <span className="font-bold text-xl flex items-center gap-2"><Fingerprint className="w-6 h-6"/> LaunchPad</span>
-        </div>
 
-        {/* Features Section */}
-        <div className="mt-32">
-          <div className="max-w-xl mb-16">
-            <h2 className="text-3xl font-bold mb-4">Everything You Need to<br/>Manage Finance <span className="text-primary-500">Smarter</span></h2>
-            <p className="text-dark-600">Powerful features to track, analyze and improve your business finances with AI.</p>
-          </div>
+        {/* --- FEATURES GRID --- */}
+        <section id="features" className="py-32 px-6 lg:px-12 max-w-[1400px] mx-auto relative z-10">
+          <FadeInSection className="max-w-2xl mb-20">
+            <h2 className="text-5xl font-extrabold mb-6 tracking-tight">
+              Core functionality – <br/>
+              <span className="text-brand-600">everything you need</span>
+            </h2>
+            <p className="text-xl text-dark-600 font-medium">
+              A complete suite of financial tools integrated into one single platform, powered by advanced artificial intelligence.
+            </p>
+          </FadeInSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: Brain, title: "AI Assistant", desc: "Get intelligent insights and recommendations for better decisions.", color: "text-purple-500", bg: "bg-purple-100" },
-              { icon: BarChart3, title: "Smart Dashboard", desc: "Real-time overview of income, expenses, budget and financial health.", color: "text-blue-500", bg: "bg-blue-100" },
-              { icon: Target, title: "Gap Analysis", desc: "Identify financial gaps and get actionable recommendations.", color: "text-green-500", bg: "bg-green-100" },
-              { icon: DollarSign, title: "Budget Management", desc: "Plan, track and manage budgets effectively across categories.", color: "text-orange-500", bg: "bg-orange-100" },
-              { icon: TrendingUp, title: "Reports & Analytics", desc: "Generate professional reports and export in multiple formats.", color: "text-indigo-500", bg: "bg-indigo-100" },
-              { icon: Shield, title: "Role-Based Access", desc: "Secure access for owners, staff, accountants and admins.", color: "text-rose-500", bg: "bg-rose-100" },
+              { icon: Brain, title: "AI Analytics Engine", desc: "Automated insights, anomaly detection, and predictive forecasting for your cash flow.", color: "bg-brand-50 text-brand-600" },
+              { icon: Target, title: "Gap Analysis", desc: "Identify inefficiencies in spending and get actionable recommendations to improve margins.", color: "bg-blue-50 text-blue-600" },
+              { icon: DollarSign, title: "Smart Budgeting", desc: "Dynamic budget allocation that learns from your spending habits and adjusts in real-time.", color: "bg-emerald-50 text-emerald-600" },
+              { icon: Lock, title: "Enterprise Security", desc: "Bank-grade encryption, role-based access control, and comprehensive audit logs.", color: "bg-slate-100 text-slate-700" },
+              { icon: Zap, title: "Real-time Sync", desc: "Connect multiple accounts and see all your transactions updated instantly.", color: "bg-amber-50 text-amber-600" },
+              { icon: BarChart3, title: "Custom Reports", desc: "Generate pixel-perfect financial reports for stakeholders with a single click.", color: "bg-pink-50 text-pink-600" },
             ].map((f, i) => (
-              <div key={i} className="glass-card p-6">
-                <div className={`w-10 h-10 rounded-lg ${f.bg} flex items-center justify-center mb-4`}>
-                  <f.icon className={`w-5 h-5 ${f.color}`} />
+              <FadeInSection key={i} delay={i * 0.1}>
+                <div className="glass-card p-10 h-full group">
+                  <div className={`w-14 h-14 rounded-2xl ${f.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300`}>
+                    <f.icon className="w-7 h-7" />
+                  </div>
+                  <h3 className="font-bold text-2xl mb-4">{f.title}</h3>
+                  <p className="text-dark-600 text-lg leading-relaxed">{f.desc}</p>
                 </div>
-                <h3 className="font-bold text-lg mb-2">{f.title}</h3>
-                <p className="text-sm text-dark-500">{f.desc}</p>
-              </div>
+              </FadeInSection>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* How it Works Section */}
-        <div className="mt-32 text-center">
-          <h2 className="text-3xl font-bold mb-2">How FinanceAI Works</h2>
-          <p className="text-dark-600 mb-16">Simple steps to transform your financial management</p>
-          
-          <div className="flex justify-between items-start max-w-4xl mx-auto relative">
-            <div className="absolute top-6 left-0 right-0 h-[2px] bg-dark-100 -z-10" />
-            {[
-              { step: 1, title: "Sign Up", desc: "Create your account and choose your role", icon: Users },
-              { step: 2, title: "Add Financial Data", desc: "Upload transactions, budgets and expenses", icon: DollarSign },
-              { step: 3, title: "AI Analysis", desc: "Our AI analyzes your data and identifies gaps", icon: Brain },
-              { step: 4, title: "Get Insights", desc: "Receive actionable insights and reports", icon: BarChart3 },
-              { step: 5, title: "Grow Business", desc: "Make better decisions and grow your business", icon: Target },
-            ].map((s, i) => (
-              <div key={i} className="flex flex-col items-center max-w-[140px] bg-softGray px-2">
-                <div className="w-12 h-12 rounded-full bg-white border-2 border-primary-100 flex items-center justify-center mb-4 text-primary-500 shadow-sm">
-                  <s.icon className="w-5 h-5" />
-                </div>
-                <div className="text-xs font-bold text-dark-400 mb-1">{s.step}. {s.title}</div>
-                <p className="text-[10px] text-dark-500 leading-tight">{s.desc}</p>
+        {/* --- INFO / VALUES SECTION --- */}
+        <section className="py-32 relative overflow-hidden bg-dark-900 text-white rounded-[3rem] mx-4 lg:mx-12 my-12 shadow-2xl">
+          {/* Internal blobs for dark section */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600/30 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/30 rounded-full blur-[100px]" />
+
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+            <FadeInSection>
+              <h2 className="text-5xl font-extrabold mb-8 tracking-tight leading-tight">
+                Always with <br/>FinanceAI
+              </h2>
+              
+              <div className="space-y-12 mt-12">
+                {[
+                  { step: "01", title: "Get what you need the most", desc: "Tailored IT solutions approved by regulators. Decades of software development expertise." },
+                  { step: "02", title: "Save your time and money", desc: "Minimal involvement of your team required. Ready-to-deploy integrations out of the box." },
+                  { step: "03", title: "Make changes easily", desc: "Add functionalities, customize workflows, and connect new APIs on demand." }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-6">
+                    <div className="text-brand-400 font-mono font-bold text-xl pt-1">{item.step}</div>
+                    <div>
+                      <h4 className="text-2xl font-bold mb-2">{item.title}</h4>
+                      <p className="text-dark-400 text-lg">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </FadeInSection>
+
+            <FadeInSection delay={0.2} className="relative h-[600px] hidden lg:block perspective-1000">
+              {/* Abstract 3D composition representing mobile app */}
+              <motion.div 
+                animate={{ rotateY: [0, 5, 0], y: [-10, 10, -10] }}
+                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <div className="w-[320px] h-[650px] bg-dark-800 rounded-[3rem] border-[8px] border-dark-950 shadow-2xl overflow-hidden relative">
+                  {/* Phone screen UI */}
+                  <div className="absolute inset-0 bg-white">
+                    <div className="bg-brand-600 h-40 rounded-b-3xl p-6 text-white pt-12">
+                      <div className="flex justify-between items-center mb-6">
+                        <div className="w-10 h-10 rounded-full bg-white/20" />
+                        <div className="w-8 h-8 rounded-full bg-white/20" />
+                      </div>
+                      <div className="text-sm opacity-80">Total Balance</div>
+                      <div className="text-3xl font-bold">$124,590.00</div>
+                    </div>
+                    
+                    <div className="p-6 space-y-4">
+                      <div className="flex gap-4 mb-6">
+                        <div className="flex-1 h-12 bg-gray-100 rounded-xl" />
+                        <div className="flex-1 h-12 bg-gray-100 rounded-xl" />
+                      </div>
+                      <div className="text-sm font-bold text-dark-900 mb-2">Recent Transactions</div>
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] border border-gray-50">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-brand-50" />
+                            <div>
+                              <div className="h-4 w-24 bg-gray-200 rounded mb-1" />
+                              <div className="h-3 w-16 bg-gray-100 rounded" />
+                            </div>
+                          </div>
+                          <div className="h-4 w-12 bg-gray-200 rounded" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </FadeInSection>
+          </div>
+        </section>
+
+        {/* --- CTA SECTION --- */}
+        <section className="py-32 px-6 lg:px-12 max-w-[1400px] mx-auto text-center relative z-10">
+          <FadeInSection>
+            <h2 className="text-5xl lg:text-7xl font-extrabold mb-8 tracking-tight">
+              Run your Business<br />
+              <span className="text-brand-600">with FinanceAI.</span>
+            </h2>
+            <p className="text-xl text-dark-600 mb-12 max-w-2xl mx-auto font-medium">
+              Join hundreds of forward-thinking businesses managing their finances intelligently.
+            </p>
+            <Link to="/register" className="inline-flex items-center gap-2 px-10 py-5 bg-dark-900 text-white rounded-full font-bold text-lg hover:bg-brand-600 transition-all shadow-xl hover:-translate-y-1">
+              Let's Speak <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
+          </FadeInSection>
+        </section>
+
+      </main>
+
+      {/* --- FOOTER --- */}
+      <footer className="bg-dark-950 text-white pt-20 pb-10 relative z-10 border-t border-white/5">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+          
+          <div className="bg-brand-600 rounded-3xl p-12 mb-20 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+            <h3 className="text-3xl font-bold z-10">Get the latest FinanceAI news<br/>straight to your inbox</h3>
+            <div className="flex w-full lg:w-auto z-10">
+              <input type="email" placeholder="Enter your email" className="px-6 py-4 rounded-l-full w-full lg:w-80 text-dark-900 focus:outline-none" />
+              <button className="bg-dark-900 text-white px-8 py-4 rounded-r-full font-bold hover:bg-dark-800 transition-colors">
+                Subscribe
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20 text-sm">
+            <div className="col-span-2 lg:col-span-1">
+              <span className="font-bold text-2xl tracking-tight mb-6 block">FinanceAI<span className="text-brand-500">.</span></span>
+              <p className="text-dark-400 mb-2">123 Innovation Drive</p>
+              <p className="text-dark-400 mb-2">Tech City, TC 10117</p>
+              <p className="text-dark-400 mt-6">contact@financeai.com</p>
+            </div>
+            
+            <div>
+              <h4 className="font-bold mb-6 text-white">Digital Core</h4>
+              <ul className="space-y-4 text-dark-400">
+                <li><a href="#" className="hover:text-white transition-colors">Core Software</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">BaaS</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Functionality</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Technology</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-bold mb-6 text-white">Consulting</h4>
+              <ul className="space-y-4 text-dark-400">
+                <li><a href="#" className="hover:text-white transition-colors">Implementation</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Advisory</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-bold mb-6 text-white">Company</h4>
+              <ul className="space-y-4 text-dark-400">
+                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Partners</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-white">Documents</h4>
+              <ul className="space-y-4 text-dark-400">
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between text-dark-500 text-xs font-medium">
+            <p>© 2026 FINANCEAI. ALL RIGHTS RESERVED.</p>
+            <div className="flex gap-6 mt-4 md:mt-0">
+              <a href="#" className="hover:text-white">LinkedIn</a>
+              <a href="#" className="hover:text-white">Twitter</a>
+              <a href="#" className="hover:text-white">GitHub</a>
+            </div>
           </div>
         </div>
-      </main>
+      </footer>
     </div>
   );
 }

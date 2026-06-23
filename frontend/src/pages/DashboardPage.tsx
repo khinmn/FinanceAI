@@ -28,7 +28,7 @@ function KPICard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35 }}
-      className="bg-white rounded-2xl border border-dark-100 p-5 shadow-sm hover:shadow-md transition-all"
+      className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft hover:shadow-glass-hover hover:-translate-y-0.5 transition-all duration-300"
     >
       <div className="flex items-start justify-between mb-4">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bg}`}>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
-        <div className="w-10 h-10 border-4 border-primary-100 border-t-primary-500 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -148,7 +148,7 @@ export default function DashboardPage() {
           label="Net Balance" delay={0.2}
           value={fmt(summary?.net_balance ?? 0)}
           change={null}
-          icon={DollarSign} color="text-primary-500" bg="bg-primary-100"
+          icon={DollarSign} color="text-brand-600" bg="bg-brand-100"
         />
         <KPICard
           label="Health Score" delay={0.3}
@@ -172,7 +172,7 @@ export default function DashboardPage() {
               <h3 className="text-dark-900 font-bold text-lg">Income vs Expenses</h3>
               <p className="text-dark-500 text-sm">Last 6 months overview</p>
             </div>
-            <select className="bg-softGray border border-dark-200 text-dark-700 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary-500">
+            <select className="bg-softGray border border-gray-200 text-dark-700 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-400">
               <option>Last 6 months</option>
               <option>This Year</option>
             </select>
@@ -244,19 +244,19 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-2xl border border-primary-200 p-6 shadow-sm flex flex-col"
+          className="rounded-2xl border border-brand-200/50 p-6 shadow-soft flex flex-col" style={{ background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)' }}
         >
           <div className="flex items-center gap-2 mb-4">
             <div className="p-2 rounded-xl bg-white shadow-sm">
-              <Sparkles className="w-5 h-5 text-primary-600" />
+              <Sparkles className="w-5 h-5 text-brand-600" />
             </div>
-            <h3 className="font-bold text-primary-900">AI Insights</h3>
+            <h3 className="font-bold text-brand-900">AI Insights</h3>
           </div>
           <h4 className="text-lg font-bold text-dark-900 mb-2 leading-tight">Your software subscriptions have increased.</h4>
           <p className="text-dark-600 text-sm mb-6 flex-1">
             We noticed a 15% jump in recurring SaaS expenses. Consider reviewing unused tools to save up to $1,200 annually.
           </p>
-          <button className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors shadow-sm shadow-primary-500/30">
+          <button className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-500 transition-all shadow-md shadow-brand-500/30 hover:-translate-y-0.5">
             Review Subscriptions
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -271,7 +271,7 @@ export default function DashboardPage() {
         >
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-dark-900 font-bold text-lg">Recent Transactions</h3>
-            <button className="text-primary-600 text-sm font-medium hover:underline">View All</button>
+            <button className="text-brand-600 text-sm font-semibold hover:text-brand-500 transition-colors">View All</button>
           </div>
           {recent.length === 0 ? (
             <div className="text-center py-8 text-dark-400 text-sm">No recent transactions.</div>
@@ -305,9 +305,10 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="bg-dark-900 rounded-2xl border border-dark-800 p-6 shadow-xl relative overflow-hidden"
+          className="rounded-2xl border border-brand-900/50 p-6 shadow-xl relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #0F1115 0%, #1A1328 100%)' }}
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/20 blur-3xl rounded-full" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-600/30 blur-3xl rounded-full" />
           <div className="relative z-10">
             <h3 className="text-white font-bold text-lg mb-1">Financial Health Trend</h3>
             <p className="text-dark-400 text-sm mb-6">+12% improvement this quarter</p>
@@ -317,12 +318,12 @@ export default function DashboardPage() {
                 <AreaChart data={healthData}>
                   <defs>
                     <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <Tooltip content={<CustomTooltip />} cursor={false} />
-                  <Area type="monotone" dataKey="score" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
+                  <Area type="monotone" dataKey="score" stroke="#8B5CF6" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -349,7 +350,7 @@ export default function DashboardPage() {
           { title: 'AI Assistant', icon: Brain, desc: 'Ask financial queries', color: 'text-purple-500', bg: 'bg-purple-50' },
           { title: 'Gap Analysis', icon: Target, desc: 'Find growth opportunities', color: 'text-green-500', bg: 'bg-green-50' }
         ].map((panel, i) => (
-          <div key={i} className="bg-white rounded-xl border border-dark-100 p-4 hover:border-primary-300 hover:shadow-md transition-all cursor-pointer group">
+          <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 hover:border-brand-300 hover:shadow-glass hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group">
             <div className={`w-10 h-10 rounded-lg ${panel.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
               <panel.icon className={`w-5 h-5 ${panel.color}`} />
             </div>
