@@ -71,7 +71,7 @@ export default function LandingPage() {
       <main className="relative z-10">
         
         {/* --- HERO SECTION --- */}
-        <section id="home" className="relative pt-40 pb-20 lg:pt-48 lg:pb-32 px-6 lg:px-12 max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center gap-16 min-h-[90vh]">
+        <section id="home" className="relative pt-40 pb-20 lg:pt-48 lg:pb-32 px-6 lg:px-12 max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-10 xl:gap-16 min-h-[90vh]">
           
           {/* Hero Content */}
           <motion.div 
@@ -95,7 +95,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-6xl lg:text-[80px] leading-[1.05] font-extrabold tracking-[-0.03em] mb-8 text-dark-900"
+              className="text-5xl lg:text-[48px] xl:text-[60px] 2xl:text-[72px] leading-[1.05] font-extrabold tracking-[-0.03em] mb-8 text-dark-900"
             >
               Core Finance<br />
               Management<br />
@@ -132,104 +132,106 @@ export default function LandingPage() {
             className="flex-1 w-full relative perspective-[2000px] h-[600px] hidden lg:block"
             style={{ y: mockupY }}
           >
-            <motion.div
-              initial={{ opacity: 0, rotateY: 20, rotateX: 10, scale: 0.8, x: 100 }}
-              animate={{ opacity: 1, rotateY: -15, rotateX: 5, scale: 1, x: 0 }}
-              transition={{ duration: 1.2, ease: "easeOut" }}
-              className="absolute top-0 right-0 w-[800px] h-[550px] bg-white rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden"
-              style={{ transformStyle: 'preserve-3d' }}
-            >
-              {/* Mockup Sidebar */}
-              <div className="absolute left-0 top-0 bottom-0 w-64 bg-dark-900 p-6 flex flex-col border-r border-dark-800">
-                <div className="flex items-center gap-2 mb-12">
-                  <div className="w-8 h-8 rounded bg-brand-500" />
-                  <div className="h-5 w-24 bg-white/10 rounded" />
-                </div>
-                <div className="space-y-4 flex-1">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className={`flex items-center gap-4 p-3 rounded-xl ${i === 1 ? 'bg-brand-500/10' : 'opacity-60'}`}>
-                      <div className={`w-5 h-5 rounded ${i === 1 ? 'bg-brand-500' : 'bg-white/20'}`} />
-                      <div className={`h-3 rounded ${i === 1 ? 'bg-brand-500 w-16' : 'bg-white/20 w-20'}`} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Mockup Main Content */}
-              <div className="absolute left-64 right-0 top-0 bottom-0 bg-[#F9FAFB] p-8">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-10">
-                  <div>
-                    <div className="h-4 w-32 bg-gray-200 rounded mb-2" />
-                    <div className="h-8 w-48 bg-dark-900 rounded" />
+            <div className="absolute top-0 left-0 origin-top-left w-[800px] h-[550px] lg:scale-[0.55] xl:scale-[0.7] 2xl:scale-[0.85] transition-transform duration-300">
+              <motion.div
+                initial={{ opacity: 0, rotateY: 20, rotateX: 10, scale: 0.8, x: 100 }}
+                animate={{ opacity: 1, rotateY: -15, rotateX: 5, scale: 1, x: 0 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="absolute inset-0 bg-white rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* Mockup Sidebar */}
+                <div className="absolute left-0 top-0 bottom-0 w-64 bg-dark-900 p-6 flex flex-col border-r border-dark-800">
+                  <div className="flex items-center gap-2 mb-12">
+                    <div className="w-8 h-8 rounded bg-brand-500" />
+                    <div className="h-5 w-24 bg-white/10 rounded" />
                   </div>
-                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-white shadow-sm" />
-                    <div className="w-10 h-10 rounded-full bg-brand-100" />
-                  </div>
-                </div>
-
-                {/* Cards Row */}
-                <div className="grid grid-cols-3 gap-6 mb-8">
-                  {[
-                    { c: 'bg-white', text: 'text-dark-900', bar: 'bg-brand-500', h: 'h-6' },
-                    { c: 'bg-brand-600', text: 'text-white', bar: 'bg-white', h: 'h-8' },
-                    { c: 'bg-white', text: 'text-dark-900', bar: 'bg-blue-500', h: 'h-5' }
-                  ].map((card, i) => (
-                    <div key={i} className={`${card.c} p-5 rounded-2xl shadow-sm border border-gray-100`}>
-                      <div className={`h-3 w-16 ${card.text} opacity-50 rounded mb-3`} />
-                      <div className={`h-6 w-24 ${card.text} rounded mb-4`} />
-                      <div className="flex gap-1 items-end h-8">
-                        {[1, 2, 3, 4, 5].map((b) => (
-                          <div key={b} className={`flex-1 ${card.bar} rounded-t-sm opacity-${b%2 ? '100' : '50'} ${card.h}`} />
-                        ))}
+                  <div className="space-y-4 flex-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className={`flex items-center gap-4 p-3 rounded-xl ${i === 1 ? 'bg-brand-500/10' : 'opacity-60'}`}>
+                        <div className={`w-5 h-5 rounded ${i === 1 ? 'bg-brand-500' : 'bg-white/20'}`} />
+                        <div className={`h-3 rounded ${i === 1 ? 'bg-brand-500 w-16' : 'bg-white/20 w-20'}`} />
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Main Graph Area */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-48">
-                  <div className="h-4 w-40 bg-gray-200 rounded mb-6" />
-                  <div className="h-[120px] w-full bg-gradient-to-t from-brand-50/50 to-transparent border-b border-brand-200 relative">
-                    <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                      <path d="M0,100 L0,50 Q25,30 50,60 T100,20 L100,100 Z" fill="url(#gradient)" className="opacity-20" />
-                      <path d="M0,50 Q25,30 50,60 T100,20" fill="none" stroke="#8B5CF6" strokeWidth="2" />
-                      <defs>
-                        <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
-                          <stop offset="0%" stopColor="#8B5CF6" />
-                          <stop offset="100%" stopColor="transparent" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </motion.div>
+                
+                {/* Mockup Main Content */}
+                <div className="absolute left-64 right-0 top-0 bottom-0 bg-[#F9FAFB] p-8">
+                  {/* Header */}
+                  <div className="flex justify-between items-center mb-10">
+                    <div>
+                      <div className="h-4 w-32 bg-gray-200 rounded mb-2" />
+                      <div className="h-8 w-48 bg-dark-900 rounded" />
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="w-10 h-10 rounded-full bg-white shadow-sm" />
+                      <div className="w-10 h-10 rounded-full bg-brand-100" />
+                    </div>
+                  </div>
 
-            {/* Floating Elements Over Mockup */}
-            <motion.div 
-              animate={{ y: [-15, 15, -15] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -left-10 top-20 w-48 p-4 glass-panel z-20"
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success"><CheckCircle2 className="w-4 h-4"/></div>
-                <div className="text-sm font-bold">Transfer complete</div>
-              </div>
-              <div className="text-xl font-extrabold">+ $24,500</div>
-            </motion.div>
+                  {/* Cards Row */}
+                  <div className="grid grid-cols-3 gap-6 mb-8">
+                    {[
+                      { c: 'bg-white', text: 'text-dark-900', bar: 'bg-brand-500', h: 'h-6' },
+                      { c: 'bg-brand-600', text: 'text-white', bar: 'bg-white', h: 'h-8' },
+                      { c: 'bg-white', text: 'text-dark-900', bar: 'bg-blue-500', h: 'h-5' }
+                    ].map((card, i) => (
+                      <div key={i} className={`${card.c} p-5 rounded-2xl shadow-sm border border-gray-100`}>
+                        <div className={`h-3 w-16 ${card.text} opacity-50 rounded mb-3`} />
+                        <div className={`h-6 w-24 ${card.text} rounded mb-4`} />
+                        <div className="flex gap-1 items-end h-8">
+                          {[1, 2, 3, 4, 5].map((b) => (
+                            <div key={b} className={`flex-1 ${card.bar} rounded-t-sm opacity-${b%2 ? '100' : '50'} ${card.h}`} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-            <motion.div 
-              animate={{ y: [15, -15, 15] }}
-              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -right-10 bottom-10 w-56 p-5 glass-panel z-20 border-brand-200/30"
-            >
-              <div className="text-xs font-bold text-brand-600 mb-1 uppercase tracking-wider">AI Insight</div>
-              <div className="text-sm text-dark-800 font-medium leading-snug">
-                Your runway extended by 2 months based on recent optimizations.
-              </div>
-            </motion.div>
+                  {/* Main Graph Area */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-48">
+                    <div className="h-4 w-40 bg-gray-200 rounded mb-6" />
+                    <div className="h-[120px] w-full bg-gradient-to-t from-brand-50/50 to-transparent border-b border-brand-200 relative">
+                      <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                        <path d="M0,100 L0,50 Q25,30 50,60 T100,20 L100,100 Z" fill="url(#gradient)" className="opacity-20" />
+                        <path d="M0,50 Q25,30 50,60 T100,20" fill="none" stroke="#8B5CF6" strokeWidth="2" />
+                        <defs>
+                          <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0%" stopColor="#8B5CF6" />
+                            <stop offset="100%" stopColor="transparent" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Floating Elements Over Mockup */}
+              <motion.div 
+                animate={{ y: [-15, 15, -15] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -left-10 top-20 w-48 p-4 glass-panel z-20"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success"><CheckCircle2 className="w-4 h-4"/></div>
+                  <div className="text-sm font-bold">Transfer complete</div>
+                </div>
+                <div className="text-xl font-extrabold">+ $24,500</div>
+              </motion.div>
+
+              <motion.div 
+                animate={{ y: [15, -15, 15] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                className="absolute -right-10 bottom-10 w-56 p-5 glass-panel z-20 border-brand-200/30"
+              >
+                <div className="text-xs font-bold text-brand-600 mb-1 uppercase tracking-wider">AI Insight</div>
+                <div className="text-sm text-dark-800 font-medium leading-snug">
+                  Your runway extended by 2 months based on recent optimizations.
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
         </section>
 
