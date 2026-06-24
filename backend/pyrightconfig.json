@@ -1,0 +1,11 @@
+{
+  "include": ["."],
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Windows",
+  "venvPath": ".",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "none",
+  "reportMissingModuleSource": "none",
+  "reportUndefinedVariable": "warning",
+  "reportGeneralTypeIssues": "warning"
+}
