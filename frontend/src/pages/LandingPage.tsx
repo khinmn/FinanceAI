@@ -51,9 +51,9 @@ export default function LandingPage() {
           </div>
           
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-dark-600">
-            <a href="#home" className="text-dark-900 transition-colors">Home</a>
+            <a href="#home" className="text-dark-900 transition-colors">Platform</a>
             <a href="#features" className="hover:text-dark-900 transition-colors">Features</a>
-            <a href="#about" className="hover:text-dark-900 transition-colors">About</a>
+            <a href="#insights" className="hover:text-dark-900 transition-colors">AI Insights</a>
           </div>
 
           <div className="flex items-center gap-4">
@@ -215,9 +215,9 @@ export default function LandingPage() {
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success"><CheckCircle2 className="w-4 h-4"/></div>
-                  <div className="text-sm font-bold">Receipt processed</div>
+                  <div className="text-sm font-bold">Transfer complete</div>
                 </div>
-                <div className="text-xl font-extrabold">+ 250,000 MMK</div>
+                <div className="text-xl font-extrabold">+ $24,500</div>
               </motion.div>
 
               <motion.div 
@@ -226,8 +226,8 @@ export default function LandingPage() {
                 className="absolute -right-10 bottom-10 w-56 p-5 glass-panel z-20 border-brand-200/30"
               >
                 <div className="text-xs font-bold text-brand-600 mb-1 uppercase tracking-wider">AI Insight</div>
-                <div className="text-sm text-dark-800 font-semibold leading-snug">
-                  Savings rate increased by 12.5% based on active budget targets.
+                <div className="text-sm text-dark-800 font-medium leading-snug">
+                  Your runway extended by 2 months based on recent optimizations.
                 </div>
               </motion.div>
             </div>
@@ -249,12 +249,12 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: Brain, title: "AI Assistant (Gemini)", desc: "Interact 24/7 to ask bookkeeping advice, request projection forecasts, or run transaction summaries.", color: "bg-brand-50 text-brand-600" },
-              { icon: Target, title: "Gap Analysis Scans", desc: "Detect leak points in your spending automatically, accompanied by direct actionable margin recommendations.", color: "bg-blue-50 text-blue-600" },
-              { icon: DollarSign, title: "Smart Category Budgets", desc: "Define limits per cost category with interactive progress trackers that alert you before limits are breached.", color: "bg-emerald-50 text-emerald-600" },
-              { icon: Lock, title: "Savings Milestones", desc: "Establish goals, track direct savings contributions, and evaluate targeted timelines via AI models.", color: "bg-slate-100 text-slate-700" },
-              { icon: Zap, title: "Team Collaboration Access", desc: "Invite accountants, partners, and employees to securely co-manage accounting ledgers under role permissions.", color: "bg-amber-50 text-amber-600" },
-              { icon: BarChart3, title: "Transaction receipt scan", desc: "Log sales and expense entries, select payment paths, and upload receipt images for audit-ready records.", color: "bg-pink-50 text-pink-600" },
+              { icon: Brain, title: "AI Analytics Engine", desc: "Automated insights, anomaly detection, and predictive forecasting for your cash flow.", color: "bg-brand-50 text-brand-600" },
+              { icon: Target, title: "Gap Analysis", desc: "Identify inefficiencies in spending and get actionable recommendations to improve margins.", color: "bg-blue-50 text-blue-600" },
+              { icon: DollarSign, title: "Smart Budgeting", desc: "Dynamic budget allocation that learns from your spending habits and adjusts in real-time.", color: "bg-emerald-50 text-emerald-600" },
+              { icon: Lock, title: "Enterprise Security", desc: "Bank-grade encryption, role-based access control, and comprehensive audit logs.", color: "bg-slate-100 text-slate-700" },
+              { icon: Zap, title: "Real-time Sync", desc: "Connect multiple accounts and see all your transactions updated instantly.", color: "bg-amber-50 text-amber-600" },
+              { icon: BarChart3, title: "Custom Reports", desc: "Generate pixel-perfect financial reports for stakeholders with a single click.", color: "bg-pink-50 text-pink-600" },
             ].map((f, i) => (
               <FadeInSection key={i} delay={i * 0.1}>
                 <div className="glass-card p-10 h-full group">
@@ -270,7 +270,7 @@ export default function LandingPage() {
         </section>
 
         {/* --- INFO / VALUES SECTION --- */}
-        <section id="about" className="py-32 relative overflow-hidden bg-dark-900 text-white rounded-[3rem] mx-4 lg:mx-12 my-12 shadow-2xl">
+        <section id="insights" className="py-32 relative overflow-hidden bg-dark-900 text-white rounded-[3rem] mx-4 lg:mx-12 my-12 shadow-2xl">
           {/* Internal blobs for dark section */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600/30 rounded-full blur-[100px]" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/30 rounded-full blur-[100px]" />
@@ -278,20 +278,20 @@ export default function LandingPage() {
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10 grid lg:grid-cols-2 gap-20 items-center">
             <FadeInSection>
               <h2 className="text-5xl font-extrabold mb-8 tracking-tight leading-tight">
-                Designed for SME<br/>Financial Growth
+                Always with <br/>FinanceAI
               </h2>
               
               <div className="space-y-12 mt-12">
                 {[
-                  { step: "01", title: "Complete Ledger Control", desc: "Add revenues, track recurring costs, and categorize transactions using standard payment methods." },
-                  { step: "02", title: "Proactive Budget Safeguards", desc: "Define limits and let our system flag budget overflows, preserving business margins." },
-                  { step: "03", title: "AI-Backed Predictions", desc: "Interact with the in-app Gemini assistant to review metrics, projections, and savings target timelines." }
+                  { step: "01", title: "Smart AI Financial Assistant", desc: "Interact with an intelligence engine that reviews transaction histories, updates budget forecasts, and offers saving insights." },
+                  { step: "02", title: "Automated Gap & Anomaly Checks", desc: "Run margin audits to surface recurring SaaS subscription updates, spending leaks, and cash flow alerts." },
+                  { step: "03", title: "Visual Saving Goals", desc: "Define milestone targets, track progress dynamically, and build savings timelines with auto-adjusting monthly metrics." }
                 ].map((item, i) => (
                   <div key={i} className="flex gap-6">
                     <div className="text-brand-400 font-mono font-bold text-xl pt-1">{item.step}</div>
                     <div>
                       <h4 className="text-2xl font-bold mb-2">{item.title}</h4>
-                      <p className="text-dark-400 text-lg leading-relaxed">{item.desc}</p>
+                      <p className="text-dark-400 text-lg">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -307,14 +307,14 @@ export default function LandingPage() {
               >
                 <div className="w-[320px] h-[650px] bg-dark-800 rounded-[3rem] border-[8px] border-dark-950 shadow-2xl overflow-hidden relative">
                   {/* Phone screen UI */}
-                  <div className="absolute inset-0 bg-white text-dark-900">
+                  <div className="absolute inset-0 bg-white">
                     <div className="bg-brand-600 h-40 rounded-b-3xl p-6 text-white pt-12">
                       <div className="flex justify-between items-center mb-6">
                         <div className="w-10 h-10 rounded-full bg-white/20" />
                         <div className="w-8 h-8 rounded-full bg-white/20" />
                       </div>
                       <div className="text-sm opacity-80">Total Balance</div>
-                      <div className="text-2xl font-bold">12,459,000 MMK</div>
+                      <div className="text-3xl font-bold">$124,590.00</div>
                     </div>
                     
                     <div className="p-6 space-y-4">
@@ -323,20 +323,16 @@ export default function LandingPage() {
                         <div className="flex-1 h-12 bg-gray-100 rounded-xl" />
                       </div>
                       <div className="text-sm font-bold text-dark-900 mb-2">Recent Transactions</div>
-                      {[
-                        { desc: 'Office Supply Purchase', amt: '-52,000 MMK' },
-                        { desc: 'Retail Sale Payment', amt: '+350,000 MMK' },
-                        { desc: 'Internet Subscription', amt: '-28,000 MMK' }
-                      ].map((item, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-gray-50">
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] border border-gray-50">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs">TX</div>
+                            <div className="w-10 h-10 rounded-full bg-brand-50" />
                             <div>
-                              <div className="text-[11px] font-bold text-dark-900">{item.desc}</div>
-                              <div className="text-[9px] text-dark-400 font-semibold">Processed</div>
+                              <div className="h-4 w-24 bg-gray-200 rounded mb-1" />
+                              <div className="h-3 w-16 bg-gray-100 rounded" />
                             </div>
                           </div>
-                          <div className="text-[11px] font-bold text-dark-900">{item.amt}</div>
+                          <div className="h-4 w-12 bg-gray-200 rounded" />
                         </div>
                       ))}
                     </div>
@@ -358,7 +354,7 @@ export default function LandingPage() {
               Join hundreds of forward-thinking businesses managing their finances intelligently.
             </p>
             <Link to="/register" className="inline-flex items-center gap-2 px-10 py-5 bg-dark-900 text-white rounded-full font-bold text-lg hover:bg-brand-600 transition-all shadow-xl hover:-translate-y-1">
-              Create Your Account <ArrowRight className="w-5 h-5 ml-2" />
+              Get Started for Free <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
           </FadeInSection>
         </section>
@@ -380,45 +376,39 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-12 mb-20 text-sm">
             <div className="col-span-2 lg:col-span-1">
               <span className="font-bold text-2xl tracking-tight mb-6 block">FinanceAI<span className="text-brand-500">.</span></span>
-              <p className="text-dark-400 mb-2">FinanceAI SME Portal</p>
-              <p className="text-dark-400 mb-2">Local Project Workspace</p>
+              <p className="text-dark-400 mb-2">Yangon, Myanmar</p>
               <p className="text-dark-400 mt-6">support@financeai.com</p>
             </div>
             
             <div>
               <h4 className="font-bold mb-6 text-white">Features</h4>
               <ul className="space-y-4 text-dark-400">
-                <li><a href="/login" className="hover:text-white transition-colors">Dashboard</a></li>
-                <li><a href="/login" className="hover:text-white transition-colors">Ledger Transactions</a></li>
-                <li><a href="/login" className="hover:text-white transition-colors">Category Budgets</a></li>
-                <li><a href="/login" className="hover:text-white transition-colors">Savings Goals</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-6 text-white">Intelligence</h4>
-              <ul className="space-y-4 text-dark-400">
-                <li><a href="/login" className="hover:text-white transition-colors">Gemini AI Assistant</a></li>
-                <li><a href="/login" className="hover:text-white transition-colors">Gap Analysis Reports</a></li>
+                <li><Link to="/login" className="hover:text-white transition-colors">Transactions Ledger</Link></li>
+                <li><Link to="/login" className="hover:text-white transition-colors">Budget Overview</Link></li>
+                <li><Link to="/login" className="hover:text-white transition-colors">AI Assistant Chat</Link></li>
+                <li><Link to="/login" className="hover:text-white transition-colors">Gap Analysis Reports</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-bold mb-6 text-white">Company</h4>
               <ul className="space-y-4 text-dark-400">
-                <li><a href="#" className="hover:text-white transition-colors">About Project</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Workspace Access</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Partners</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-6 text-white">Security</h4>
+              <h4 className="font-bold mb-6 text-white">Compliance</h4>
               <ul className="space-y-4 text-dark-400">
                 <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Security Standards</a></li>
               </ul>
             </div>
           </div>
