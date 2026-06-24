@@ -25,6 +25,8 @@ interface AuthState {
   setNotifyWeeklySummary: (enabled: boolean) => void;
   setNotifyBudgetThreshold: (enabled: boolean) => void;
   setNotifyAiInsights: (enabled: boolean) => void;
+  darkMode?: boolean;
+  setDarkMode: (enabled: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -41,6 +43,7 @@ export const useAuthStore = create<AuthState>()(
       notifyWeeklySummary: true,
       notifyBudgetThreshold: true,
       notifyAiInsights: false,
+      darkMode: false,
 
       login: (user, business, accessToken, refreshToken) => {
         localStorage.setItem('access_token', accessToken);
@@ -63,6 +66,7 @@ export const useAuthStore = create<AuthState>()(
           notifyWeeklySummary: true,
           notifyBudgetThreshold: true,
           notifyAiInsights: false,
+          darkMode: false,
         });
       },
 
@@ -74,6 +78,7 @@ export const useAuthStore = create<AuthState>()(
       setNotifyWeeklySummary: (notifyWeeklySummary) => set({ notifyWeeklySummary }),
       setNotifyBudgetThreshold: (notifyBudgetThreshold) => set({ notifyBudgetThreshold }),
       setNotifyAiInsights: (notifyAiInsights) => set({ notifyAiInsights }),
+      setDarkMode: (darkMode) => set({ darkMode }),
     }),
     {
       name: 'financeai-auth',
@@ -89,6 +94,7 @@ export const useAuthStore = create<AuthState>()(
         notifyWeeklySummary: state.notifyWeeklySummary,
         notifyBudgetThreshold: state.notifyBudgetThreshold,
         notifyAiInsights: state.notifyAiInsights,
+        darkMode: state.darkMode,
       }),
     }
   )

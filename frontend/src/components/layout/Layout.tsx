@@ -13,7 +13,7 @@ export default function Layout() {
   const isAssistantPage = location.pathname === '/ai-assistant';
 
   return (
-    <div className="flex h-screen overflow-hidden text-dark-900 font-sans relative" style={{ background: '#FDFDFD' }}>
+    <div className="flex h-screen overflow-hidden text-dark-900 dark:text-white font-sans relative bg-[#FDFDFD] dark:bg-dark-900 transition-colors duration-300">
       {/* Subtle ambient background matching landing page */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[-5%] right-[-5%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-brand-400/8 blur-[100px]" />
