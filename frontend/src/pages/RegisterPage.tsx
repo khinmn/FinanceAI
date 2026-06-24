@@ -23,7 +23,7 @@ const INDUSTRIES = [
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
+  const { login, setRole } = useAuthStore();
 
   const [form, setForm] = useState({
     name: '',
@@ -69,8 +69,8 @@ export default function RegisterPage() {
         business_name: form.business_name,
         industry: form.industry,
         description: form.description,
-        role: form.role,
       });
+      setRole(form.role);
       login(res.user, res.business, res.access_token, res.refresh_token);
       navigate('/dashboard');
     } catch (err: unknown) {

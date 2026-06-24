@@ -106,8 +106,133 @@ export default function GapAnalysisPage() {
 
   const health = result ? HEALTH_CONFIG[result.overall_health] : null;
 
+  const renderMarkdown = (text: string) => {
+    const blocks = text.split(/\n\n+/);
+
+    const parseInlineStyles = (rawText: string) => {
+      const parts = rawText.split(/\*\*([^*]+)\*\*/g);
+      if (parts.length === 1) return rawText;
+      return parts.map((part, index) => {
+        if (index % 2 === 1) {
+          return <strong key={index} className="font-bold text-[#2D1A54] bg-[#EFE6FD] px-1 rounded text-sm">{part}</strong>;
+        }
+        return part;
+      });
+    };
+
+    return blocks.map((block, bIdx) => {
+      const trimmedBlock = block.trim();
+      if (!trimmedBlock) return null;
+
+      // Headers
+      if (trimmedBlock.startsWith('# ')) {
+        return (
+          <h3 key={bIdx} className="text-sm font-extrabold text-[#2D1A54] mt-4 mb-2 first:mt-0 border-b border-[#E5DCFC] pb-1">
+            {parseInlineStyles(trimmedBlock.slice(2))}
+          </h3>
+        );
+      }
+      if (trimmedBlock.startsWith('## ')) {
+        return (
+          <h4 key={bIdx} className="text-sm font-extrabold text-[#5B39A8] mt-4 mb-2 first:mt-0">
+            {parseInlineStyles(trimmedBlock.slice(3))}
+          </h4>
+        );
+      }
+      if (trimmedBlock.startsWith('### ')) {
+        return (
+          <h5 key={bIdx} className="text-sm font-bold text-[#7C3AED] mt-3 mb-1">
+            {parseInlineStyles(trimmedBlock.slice(4))}
+          </h5>
+        );
+      }
+
+      // Check if block represents a list
+      const lines = trimmedBlock.split('\n');
+      const isListBlock = lines.some(line => {
+        const tLine = line.trim();
+        return tLine.match(/^[-*]\s+/) || tLine.match(/^\*\*[-*]\s*/) || tLine.match(/^(\d+)\.\s+/) || tLine.match(/^\*\*(\d+)\.\s*/);
+      });
+
+      if (isListBlock) {
+        return (
+          <div key={bIdx} className="space-y-1.5 my-1.5">
+            {lines.map((line, lIdx) => {
+              const trimmedLine = line.trim();
+              
+              // Bullet lists
+              let isBullet = false;
+              let bulletRestText = '';
+              const matchNormalBullet = trimmedLine.match(/^[-*]\s+(.*)/);
+              const matchBoldBullet = trimmedLine.match(/^\*\*[-*]\s*(.*)/);
+
+              if (matchBoldBullet) {
+                isBullet = true;
+                bulletRestText = matchBoldBullet[1].includes('**') ? '**' + matchBoldBullet[1] : matchBoldBullet[1];
+              } else if (matchNormalBullet) {
+                isBullet = true;
+                bulletRestText = matchNormalBullet[1];
+              }
+
+              if (isBullet) {
+                return (
+                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                    <span className="flex-1">{parseInlineStyles(bulletRestText)}</span>
+                  </div>
+                );
+              }
+
+              // Numbered lists
+              let isNumbered = false;
+              let numRestText = '';
+              const matchNormalNum = trimmedLine.match(/^(\d+)\.\s+(.*)/);
+              const matchBoldStartNum = trimmedLine.match(/^\*\*(\d+)\.\s*(.*)/);
+              const matchBoldBothNum = trimmedLine.match(/^\*\*(\d+)\.\*\*\s*(.*)/);
+
+              if (matchBoldBothNum) {
+                isNumbered = true;
+                numRestText = matchBoldBothNum[2];
+              } else if (matchBoldStartNum) {
+                isNumbered = true;
+                numRestText = matchBoldStartNum[2].includes('**') ? '**' + matchBoldStartNum[2] : matchBoldStartNum[2];
+              } else if (matchNormalNum) {
+                isNumbered = true;
+                numRestText = matchNormalNum[2];
+              }
+
+              if (isNumbered) {
+                return (
+                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                    <span className="flex-1">{parseInlineStyles(numRestText)}</span>
+                  </div>
+                );
+              }
+
+              return (
+                <p key={lIdx} className="text-sm text-[#3B3054] leading-relaxed pl-6">
+                  {parseInlineStyles(trimmedLine)}
+                </p>
+              );
+            })}
+          </div>
+        );
+      }
+
+      // Standard paragraph - merge single-line hard breaks
+      const mergedText = lines.map(line => line.trim()).join(' ');
+
+      return (
+        <p key={bIdx} className="text-sm text-[#3B3054] leading-relaxed my-1.5">
+          {parseInlineStyles(mergedText)}
+        </p>
+      );
+    });
+  };
+
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 pb-12">
       {/* Controls */}
       <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -201,14 +326,18 @@ export default function GapAnalysisPage() {
 
           {/* AI Explanation */}
           {result.ai_explanation && (
-            <div className="bg-gradient-to-br from-brand-50 to-brand-100 border border-brand-200/60 rounded-2xl p-6 shadow-soft">
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-4 h-4 text-brand-600" />
-                <h3 className="text-brand-900 font-bold text-sm">AI Analysis</h3>
-                <span className="text-dark-400 text-xs ml-auto font-medium">Powered by Gemini Flash</span>
+            <div className="bg-[#F8F5FE] border border-[#E5DCFC] rounded-2xl p-6 shadow-soft">
+              <div className="flex items-center gap-3.5 mb-4 border-b border-[#E5DCFC] pb-3">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#EDE5FC] text-[#7C3AED] border border-[#E5DCFC]">
+                  <Sparkles className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-[#2D1A54] font-bold text-sm leading-tight">AI Analysis</h3>
+                  <p className="text-[10px] text-[#7A6E99] font-semibold mt-0.5">Powered by Gemini Flash</p>
+                </div>
               </div>
-              <div className="text-dark-700 text-sm leading-relaxed whitespace-pre-wrap font-medium">
-                {result.ai_explanation}
+              <div className="max-w-none text-[#3B3054] leading-relaxed font-sans space-y-3">
+                {renderMarkdown(result.ai_explanation)}
               </div>
             </div>
           )}

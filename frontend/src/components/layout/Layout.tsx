@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import ChatWidget from '../chat/ChatWidget';
+import { useAuthStore } from '../../store/authStore';
 
 export default function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const location = useLocation();
+  const aiCopilotEnabled = useAuthStore((s) => s.aiCopilotEnabled);
+
+  const isAssistantPage = location.pathname === '/ai-assistant';
 
   return (
     <div className="flex h-screen overflow-hidden text-dark-900 font-sans relative" style={{ background: '#FDFDFD' }}>
@@ -30,7 +35,7 @@ export default function Layout() {
       </div>
 
       {/* Floating AI Chat Widget */}
-      <ChatWidget />
+      {!isAssistantPage && aiCopilotEnabled !== false && <ChatWidget />}
     </div>
   );
 }

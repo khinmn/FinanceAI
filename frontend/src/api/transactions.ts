@@ -41,14 +41,14 @@ export const transactionsApi = {
     api.get<{ transaction: Transaction }>(`/api/transactions/${id}`),
 
   create: (data: TransactionFormData) =>
-    api.post<{ message: string; transaction: Transaction }>('/api/transactions', {
+    api.post<{ message: string; transaction: Transaction; budget_alert?: boolean }>('/api/transactions', {
       ...data,
       amount: parseFloat(data.amount),
       category_id: data.category_id || null,
     }),
 
   update: (id: number, data: Partial<TransactionFormData>) =>
-    api.put<{ message: string; transaction: Transaction }>(`/api/transactions/${id}`, {
+    api.put<{ message: string; transaction: Transaction; budget_alert?: boolean }>(`/api/transactions/${id}`, {
       ...data,
       amount: data.amount ? parseFloat(data.amount) : undefined,
     }),

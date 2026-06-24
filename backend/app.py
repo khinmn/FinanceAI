@@ -89,7 +89,7 @@ def create_app() -> Flask:
     # ── OpenRouter AI ─────────────────────────────────────────────────────────
     app.config["OPENROUTER_API_KEY"] = os.getenv("OPENROUTER_API_KEY", "")
     app.config["OPENROUTER_MODEL"] = os.getenv(
-        "OPENROUTER_MODEL", "google/gemini-flash-1.5"
+        "OPENROUTER_MODEL", "google/gemini-2.5-flash"
     )
 
     # ── Extensions ────────────────────────────────────────────────────────────
@@ -107,6 +107,10 @@ def create_app() -> Flask:
     from routes.gap_analysis import gap_bp
     from routes.chat import chat_bp
     from routes.reports import reports_bp
+    from routes.upload import upload_bp
+    from routes.budgets import budgets_bp
+    from routes.goals import goals_bp
+    from routes.team import team_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(transactions_bp)
@@ -115,6 +119,14 @@ def create_app() -> Flask:
     app.register_blueprint(gap_bp)
     app.register_blueprint(chat_bp)
     app.register_blueprint(reports_bp)
+    app.register_blueprint(upload_bp)
+    app.register_blueprint(budgets_bp)
+    app.register_blueprint(goals_bp)
+    app.register_blueprint(team_bp)
+
+    # Ensure uploads folder exists
+    uploads_dir = os.path.join(app.root_path, "uploads", "receipts")
+    os.makedirs(uploads_dir, exist_ok=True)
 
     # ── Auto-create / verify all tables ──────────────────────────────────────
     with app.app_context():
@@ -125,6 +137,11 @@ def create_app() -> Flask:
     @app.route("/")
     def index():
         return jsonify({"message": "FinanceAI API is running", "version": "2.0"})
+
+    @app.route("/uploads/<path:filename>")
+    def uploaded_file(filename):
+        from flask import send_from_directory
+        return send_from_directory(uploads_dir, filename)
 
     @app.route("/api/health")
     def health():

@@ -40,7 +40,7 @@ def _call_openrouter(messages: list[dict], max_tokens: int = 1000) -> tuple[str 
     Returns (response_text, error_string).
     """
     api_key: str = current_app.config.get("OPENROUTER_API_KEY", "")
-    model: str = current_app.config.get("OPENROUTER_MODEL", "google/gemini-flash-1.5")
+    model: str = current_app.config.get("OPENROUTER_MODEL", "google/gemini-2.5-flash")
 
     if not api_key or api_key == "your_openrouter_api_key_here":
         return (
@@ -128,3 +128,33 @@ def get_chat_response(
     api_messages.extend(messages[-10:])
 
     return _call_openrouter(api_messages, max_tokens=800)
+
+
+def get_goal_projection(
+    goal_name: str,
+    target_amount: float,
+    current_amount: float,
+    target_date_str: str,
+    monthly_savings: float,
+) -> tuple[str | None, str | None]:
+    """
+    Get AI-generated goal projection narrative.
+    """
+    prompt = (
+        f"Goal Name: {goal_name}\n"
+        f"Target Amount: K{target_amount:,.2f}\n"
+        f"Current Saved Amount: K{current_amount:,.2f}\n"
+        f"Target Date: {target_date_str}\n"
+        f"Current Monthly Savings Rate: K{monthly_savings:,.2f}\n\n"
+        f"Please analyze this saving goal and calculate:\n"
+        f"1. Months required to reach the remaining balance at their current monthly savings rate.\n"
+        f"2. Whether they will reach the goal before the target date.\n"
+        f"3. Specific tips to optimize expenses or increase savings to hit or exceed their target.\n"
+        f"Keep the analysis concise and encouraging."
+    )
+    
+    messages = [
+        {"role": "system", "content": _SYSTEM_PROMPT},
+        {"role": "user", "content": prompt}
+    ]
+    return _call_openrouter(messages, max_tokens=800)

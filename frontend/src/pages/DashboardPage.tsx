@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
-  TrendingUp, TrendingDown, DollarSign, Percent,
+  TrendingUp, TrendingDown, Wallet, Percent,
   ArrowUpRight, ArrowDownRight, RefreshCw, Sparkles, Brain, ArrowRight,
   Target, PieChart as PieChartIcon, Activity, ArrowLeftRight
 } from 'lucide-react';
@@ -12,9 +12,26 @@ import {
 import { dashboardApi } from '../api/dashboard';
 import type { DashboardSummary, MonthlyChartData, CategoryChartData, Transaction } from '../types';
 import { useAuthStore } from '../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
-const fmt = (n: number) =>
-  '$' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number) => {
+  const business = useAuthStore.getState().business;
+  const currencyStr = business?.currency || 'MMK';
+  if (currencyStr === 'MMK') {
+    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n) + ' MMK';
+  }
+  return currencyStr + ' ' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+};
+
+const fmtAxis = (v: number) => {
+  const business = useAuthStore.getState().business;
+  const currencyStr = business?.currency || 'MMK';
+  const val = v >= 1000 ? `${(v/1000)}k` : v;
+  if (currencyStr === 'MMK') {
+    return `${val} MMK`;
+  }
+  return `${currencyStr} ${val}`;
+};
 
 function KPICard({
   label, value, change, icon: Icon, color, bg, delay,
@@ -74,6 +91,8 @@ const healthData = [
 
 export default function DashboardPage() {
   const { user, business } = useAuthStore();
+  const navigate = useNavigate();
+  const annualSavings = business?.currency === 'MMK' ? '2,500,000 MMK' : '$1,200';
   const now = new Date();
   const [month] = useState(now.getMonth() + 1);
   const [year] = useState(now.getFullYear());
@@ -148,7 +167,7 @@ export default function DashboardPage() {
           label="Net Balance" delay={0.2}
           value={fmt(summary?.net_balance ?? 0)}
           change={null}
-          icon={DollarSign} color="text-brand-600" bg="bg-brand-100"
+          icon={Wallet} color="text-brand-600" bg="bg-brand-100"
         />
         <KPICard
           label="Health Score" delay={0.3}
@@ -182,7 +201,7 @@ export default function DashboardPage() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
               <XAxis dataKey="month" tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
               <YAxis tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dx={-10}
-                tickFormatter={(v) => `$${(v/1000)}k`} />
+                tickFormatter={fmtAxis} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F3F4F6' }} />
               <Bar dataKey="income" name="Income" fill="#10B981" radius={[6, 6, 0, 0]} />
               <Bar dataKey="expense" name="Expenses" fill="#EF4444" radius={[6, 6, 0, 0]} />
@@ -254,9 +273,12 @@ export default function DashboardPage() {
           </div>
           <h4 className="text-lg font-bold text-dark-900 mb-2 leading-tight">Your software subscriptions have increased.</h4>
           <p className="text-dark-600 text-sm mb-6 flex-1">
-            We noticed a 15% jump in recurring SaaS expenses. Consider reviewing unused tools to save up to $1,200 annually.
+            We noticed a 15% jump in recurring SaaS expenses. Consider reviewing unused tools to save up to {annualSavings} annually.
           </p>
-          <button className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-500 transition-all shadow-md shadow-brand-500/30 hover:-translate-y-0.5">
+          <button
+            onClick={() => navigate('/transactions')}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-500 transition-all shadow-md shadow-brand-500/30 hover:-translate-y-0.5"
+          >
             Review Subscriptions
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -271,7 +293,12 @@ export default function DashboardPage() {
         >
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-dark-900 font-bold text-lg">Recent Transactions</h3>
-            <button className="text-brand-600 text-sm font-semibold hover:text-brand-500 transition-colors">View All</button>
+            <button
+              onClick={() => navigate('/transactions')}
+              className="text-brand-600 text-sm font-semibold hover:text-brand-500 transition-colors"
+            >
+              View All
+            </button>
           </div>
           {recent.length === 0 ? (
             <div className="text-center py-8 text-dark-400 text-sm">No recent transactions.</div>
@@ -305,12 +332,13 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="rounded-2xl border border-brand-900/50 p-6 shadow-xl relative overflow-hidden"
+          onClick={() => navigate('/gap-analysis')}
+          className="rounded-2xl border border-brand-900/50 p-6 shadow-xl relative overflow-hidden cursor-pointer hover:border-brand-500/80 transition-all duration-300 group"
           style={{ background: 'linear-gradient(135deg, #0F1115 0%, #1A1328 100%)' }}
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-600/30 blur-3xl rounded-full" />
           <div className="relative z-10">
-            <h3 className="text-white font-bold text-lg mb-1">Financial Health Trend</h3>
+            <h3 className="text-white font-bold text-lg mb-1 group-hover:text-brand-300 transition-colors">Financial Health Trend</h3>
             <p className="text-dark-400 text-sm mb-6">+12% improvement this quarter</p>
             
             <div className="h-32 mb-4 -mx-2">
@@ -345,12 +373,16 @@ export default function DashboardPage() {
         className="grid grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {[
-          { title: 'Transactions', icon: ArrowLeftRight, desc: 'View all history', color: 'text-blue-500', bg: 'bg-blue-50' },
-          { title: 'Budget Overview', icon: PieChartIcon, desc: 'Track spending limits', color: 'text-orange-500', bg: 'bg-orange-50' },
-          { title: 'AI Assistant', icon: Brain, desc: 'Ask financial queries', color: 'text-purple-500', bg: 'bg-purple-50' },
-          { title: 'Gap Analysis', icon: Target, desc: 'Find growth opportunities', color: 'text-green-500', bg: 'bg-green-50' }
+          { title: 'Transactions', icon: ArrowLeftRight, desc: 'View all history', color: 'text-blue-500', bg: 'bg-blue-50', path: '/transactions' },
+          { title: 'Budget Overview', icon: PieChartIcon, desc: 'Track spending limits', color: 'text-orange-500', bg: 'bg-orange-50', path: '/budget' },
+          { title: 'AI Assistant', icon: Brain, desc: 'Ask financial queries', color: 'text-purple-500', bg: 'bg-purple-50', path: '/ai-assistant' },
+          { title: 'Gap Analysis', icon: Target, desc: 'Find growth opportunities', color: 'text-green-500', bg: 'bg-green-50', path: '/gap-analysis' }
         ].map((panel, i) => (
-          <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 hover:border-brand-300 hover:shadow-glass hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group">
+          <div
+            key={i}
+            onClick={() => navigate(panel.path)}
+            className="bg-white rounded-xl border border-gray-100 p-4 hover:border-brand-300 hover:shadow-glass hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group"
+          >
             <div className={`w-10 h-10 rounded-lg ${panel.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
               <panel.icon className={`w-5 h-5 ${panel.color}`} />
             </div>

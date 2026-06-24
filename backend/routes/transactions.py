@@ -125,11 +125,39 @@ def create_transaction():
         date=t_date,
         payment_method=payment_method,
         note=data.get("note", ""),
+        receipt_url=data.get("receipt_url"),
     )
     db.session.add(tx)
     db.session.commit()
 
-    return jsonify({"message": "Transaction created.", "transaction": tx.to_dict()}), 201
+    # Check budget limit for this category/month
+    budget_alert = False
+    if tx.type == "expense" and tx.category_id:
+        from models.budget import Budget
+        month = tx.date.month
+        year = tx.date.year
+        budget = Budget.query.filter_by(
+            user_id=user.id,
+            category_id=tx.category_id,
+            month=month,
+            year=year
+        ).first()
+        if budget:
+            total_spent = db.session.query(func.sum(Transaction.amount)).filter(
+                Transaction.user_id == user.id,
+                Transaction.category_id == tx.category_id,
+                Transaction.type == "expense",
+                extract("month", Transaction.date) == month,
+                extract("year", Transaction.date) == year
+            ).scalar() or 0.0
+            if float(total_spent) > float(budget.amount):
+                budget_alert = True
+
+    return jsonify({
+        "message": "Transaction created.",
+        "transaction": tx.to_dict(),
+        "budget_alert": budget_alert
+    }), 201
 
 
 # ── Read one ───────────────────────────────────────────────────────────────────
@@ -185,6 +213,9 @@ def update_transaction(tx_id):
     if "note" in data:
         tx.note = data["note"]
 
+    if "receipt_url" in data:
+        tx.receipt_url = data["receipt_url"]
+
     if "category_id" in data:
         cat_id = data["category_id"]
         if cat_id:
@@ -195,7 +226,35 @@ def update_transaction(tx_id):
 
     tx.updated_at = datetime.utcnow()
     db.session.commit()
-    return jsonify({"message": "Transaction updated.", "transaction": tx.to_dict()}), 200
+
+    # Check budget limit for this category/month
+    budget_alert = False
+    if tx.type == "expense" and tx.category_id:
+        from models.budget import Budget
+        month = tx.date.month
+        year = tx.date.year
+        budget = Budget.query.filter_by(
+            user_id=user.id,
+            category_id=tx.category_id,
+            month=month,
+            year=year
+        ).first()
+        if budget:
+            total_spent = db.session.query(func.sum(Transaction.amount)).filter(
+                Transaction.user_id == user.id,
+                Transaction.category_id == tx.category_id,
+                Transaction.type == "expense",
+                extract("month", Transaction.date) == month,
+                extract("year", Transaction.date) == year
+            ).scalar() or 0.0
+            if float(total_spent) > float(budget.amount):
+                budget_alert = True
+
+    return jsonify({
+        "message": "Transaction updated.",
+        "transaction": tx.to_dict(),
+        "budget_alert": budget_alert
+    }), 200
 
 
 # ── Delete ─────────────────────────────────────────────────────────────────────

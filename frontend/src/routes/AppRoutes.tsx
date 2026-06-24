@@ -10,6 +10,10 @@ import TransactionsPage from '../pages/TransactionsPage';
 import ReportsPage from '../pages/ReportsPage';
 import GapAnalysisPage from '../pages/GapAnalysisPage';
 import SettingsPage from '../pages/SettingsPage';
+import BudgetPage from '../pages/BudgetPage';
+import AiAssistantPage from '../pages/AiAssistantPage';
+import GoalsPage from '../pages/GoalsPage';
+import TeamPage from '../pages/TeamPage';
 
 // If logged in, redirect to dashboard. Otherwise show the page (landing/login/register).
 function PublicRoute({ children }: { children: React.ReactNode }) {
@@ -44,8 +48,12 @@ export default function AppRoutes() {
         <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
+          <Route path="budget" element={<BudgetPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="gap-analysis" element={<GapAnalysisPage />} />
+          <Route path="ai-assistant" element={<AiAssistantPage />} />
+          <Route path="goals" element={<GoalsPage />} />
+          <Route path="team" element={<TeamPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 

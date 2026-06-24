@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
+import {
+  TrendingUp, TrendingDown, DollarSign, Calendar, Download, Percent
+} from 'lucide-react';
 import { reportsApi } from '../api/reports';
 import type { CashflowItem, CategoryReportItem } from '../types';
+import Button from '../components/ui/Button';
 
 const fmt = (n: number) =>
   'K ' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
@@ -38,7 +42,22 @@ export default function ReportsPage() {
   const [incomeBreakdown, setIncomeBreakdown] = useState<CategoryReportItem[]>([]);
   const [expenseBreakdown, setExpenseBreakdown] = useState<CategoryReportItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const year = new Date().getFullYear();
+
+  const now = new Date();
+  const [year, setYear] = useState(now.getFullYear());
+
+  const years = [
+    { value: now.getFullYear() - 1, label: String(now.getFullYear() - 1) },
+    { value: now.getFullYear(), label: String(now.getFullYear()) },
+    { value: now.getFullYear() + 1, label: String(now.getFullYear() + 1) },
+  ];
+
+  // Toast Alerts
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -53,6 +72,7 @@ export default function ReportsPage() {
       setExpenseBreakdown(exp.breakdown);
     } catch (e) {
       console.error(e);
+      showToast('Failed to load report data.', 'error');
     } finally {
       setLoading(false);
     }
@@ -60,11 +80,81 @@ export default function ReportsPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  const exportToCSV = () => {
+    let headers: string[] = [];
+    let rows: any[][] = [];
+    let filename = '';
+
+    if (activeTab === 'cashflow') {
+      if (cashflow.length === 0) {
+        showToast('No cash flow data to export', 'error');
+        return;
+      }
+      headers = ['Period', 'Income (MMK)', 'Expenses (MMK)', 'Net Cash Flow (MMK)', 'Cumulative (MMK)'];
+      rows = cashflow.map((item) => [
+        item.period,
+        item.income,
+        item.expense,
+        item.net_cashflow,
+        item.cumulative,
+      ]);
+      filename = `cashflow_report_${year}_${new Date().toISOString().slice(0, 10)}.csv`;
+    } else if (activeTab === 'income') {
+      if (incomeBreakdown.length === 0) {
+        showToast('No income breakdown data to export', 'error');
+        return;
+      }
+      headers = ['Category Name', 'Total Amount (MMK)', 'Transaction Count', 'Percentage (%)'];
+      rows = incomeBreakdown.map((item) => [
+        item.name,
+        item.total,
+        item.count,
+        item.percentage,
+      ]);
+      filename = `income_breakdown_report_${year}_${new Date().toISOString().slice(0, 10)}.csv`;
+    } else { // expenses
+      if (expenseBreakdown.length === 0) {
+        showToast('No expense breakdown data to export', 'error');
+        return;
+      }
+      headers = ['Category Name', 'Total Amount (MMK)', 'Transaction Count', 'Percentage (%)'];
+      rows = expenseBreakdown.map((item) => [
+        item.name,
+        item.total,
+        item.count,
+        item.percentage,
+      ]);
+      filename = `expense_breakdown_report_${year}_${new Date().toISOString().slice(0, 10)}.csv`;
+    }
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [
+        headers.join(','),
+        ...rows.map((e) => e.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(',')),
+      ].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('CSV report exported successfully!');
+  };
+
   const tabs: { key: Tab; label: string }[] = [
     { key: 'cashflow', label: 'Cash Flow' },
     { key: 'income', label: 'Income Breakdown' },
     { key: 'expenses', label: 'Expense Breakdown' },
   ];
+
+  // Annual Overview Calculations
+  const totalIncome = incomeBreakdown.reduce((sum, item) => sum + item.total, 0);
+  const totalExpense = expenseBreakdown.reduce((sum, item) => sum + item.total, 0);
+  const netSavings = totalIncome - totalExpense;
+  const savingsRate = totalIncome > 0 ? (netSavings / totalIncome) * 100 : 0;
 
   if (loading) {
     return (
@@ -77,7 +167,120 @@ export default function ReportsPage() {
   const breakdown = activeTab === 'income' ? incomeBreakdown : expenseBreakdown;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12 font-sans relative">
+      {/* Header Panel */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-dark-900">Financial Reports</h1>
+          <p className="text-dark-500 mt-1">Deep-dive analysis of your business's income, expenses, and cash flow trends.</p>
+        </div>
+        
+        {/* Filters & Export Actions */}
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            onClick={exportToCSV}
+            variant="secondary"
+            size="sm"
+            className="text-xs flex items-center gap-1.5"
+            title="Export current tab data as a CSV spreadsheet"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export CSV
+          </Button>
+
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm">
+            <Calendar className="w-4 h-4 text-dark-400 ml-2" />
+            <select
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              className="bg-transparent text-sm font-semibold text-dark-700 focus:outline-none border-none py-1 px-2 cursor-pointer"
+            >
+              {years.map(y => <option key={y.value} value={y.value}>{y.label}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Inline Toast Notification Banner */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className={`flex items-center justify-between px-4 py-3 rounded-2xl border text-sm font-semibold shadow-sm mb-2 ${
+              toast.type === 'success'
+                ? 'bg-success/10 border-success/20 text-success'
+                : 'bg-danger/10 border-danger/20 text-danger'
+            }`}>
+              <span className="flex items-center gap-2">
+                <span>{toast.type === 'success' ? '✓' : '⚠'}</span>
+                {toast.message}
+              </span>
+              <button type="button" onClick={() => setToast(null)} className="ml-2 opacity-65 hover:opacity-100 font-bold">
+                ✕
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Annual Summary KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Total Income */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 border border-emerald-100">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Annual Income ({year})</p>
+          <p className="text-dark-900 text-xl font-bold">{fmt(totalIncome)}</p>
+        </div>
+
+        {/* Total Expenses */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-50 text-rose-600 border border-rose-100">
+              <TrendingDown className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Annual Expenses ({year})</p>
+          <p className="text-dark-900 text-xl font-bold">{fmt(totalExpense)}</p>
+        </div>
+
+        {/* Net Savings */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+          <div className="flex items-start justify-between mb-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
+              netSavings < 0 ? 'bg-danger/10 text-danger border-danger/20' : 'bg-brand-50 text-brand-600 border-brand-100'
+            }`}>
+              <DollarSign className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Net Savings ({year})</p>
+          <p className="text-dark-900 text-xl font-bold">
+            {netSavings < 0 ? `-${fmt(Math.abs(netSavings))}` : fmt(netSavings)}
+          </p>
+        </div>
+
+        {/* Savings Rate */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 text-purple-600 border border-purple-100">
+              <Percent className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Savings Rate ({year})</p>
+          <p className="text-dark-900 text-xl font-bold">
+            {savingsRate.toFixed(1)}%
+          </p>
+        </div>
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-white border border-dark-100 rounded-xl w-fit shadow-soft">
         {tabs.map((t) => (
@@ -205,3 +408,4 @@ export default function ReportsPage() {
     </div>
   );
 }
+

@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Bot, User, Sparkles, Trash2 } from 'lucide-react';
 import { chatApi } from '../../api/chat';
 import type { ChatMessage } from '../../types';
+import { useAuthStore } from '../../store/authStore';
 
 export default function ChatWidget() {
+  const aiDisclaimerEnabled = useAuthStore((s) => s.aiDisclaimerEnabled);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -64,6 +66,131 @@ export default function ChatWidget() {
     setSessionId(null);
   };
 
+  const renderMarkdown = (text: string) => {
+    const blocks = text.split(/\n\n+/);
+
+    const parseInlineStyles = (rawText: string) => {
+      const parts = rawText.split(/\*\*([^*]+)\*\*/g);
+      if (parts.length === 1) return rawText;
+      return parts.map((part, index) => {
+        if (index % 2 === 1) {
+          return <strong key={index} className="font-bold text-[#2D1A54] bg-[#EFE6FD] px-1 rounded text-sm">{part}</strong>;
+        }
+        return part;
+      });
+    };
+
+    return blocks.map((block, bIdx) => {
+      const trimmedBlock = block.trim();
+      if (!trimmedBlock) return null;
+
+      // Headers
+      if (trimmedBlock.startsWith('# ')) {
+        return (
+          <h3 key={bIdx} className="text-sm font-extrabold text-[#2D1A54] mt-4 mb-2 first:mt-0 border-b border-[#E5DCFC] pb-1">
+            {parseInlineStyles(trimmedBlock.slice(2))}
+          </h3>
+        );
+      }
+      if (trimmedBlock.startsWith('## ')) {
+        return (
+          <h4 key={bIdx} className="text-sm font-extrabold text-[#5B39A8] mt-4 mb-2 first:mt-0">
+            {parseInlineStyles(trimmedBlock.slice(3))}
+          </h4>
+        );
+      }
+      if (trimmedBlock.startsWith('### ')) {
+        return (
+          <h5 key={bIdx} className="text-sm font-bold text-[#7C3AED] mt-3 mb-1">
+            {parseInlineStyles(trimmedBlock.slice(4))}
+          </h5>
+        );
+      }
+
+      // Check if block represents a list
+      const lines = trimmedBlock.split('\n');
+      const isListBlock = lines.some(line => {
+        const tLine = line.trim();
+        return tLine.match(/^[-*]\s+/) || tLine.match(/^\*\*[-*]\s*/) || tLine.match(/^(\d+)\.\s+/) || tLine.match(/^\*\*(\d+)\.\s*/);
+      });
+
+      if (isListBlock) {
+        return (
+          <div key={bIdx} className="space-y-1.5 my-1.5">
+            {lines.map((line, lIdx) => {
+              const trimmedLine = line.trim();
+              
+              // Bullet lists
+              let isBullet = false;
+              let bulletRestText = '';
+              const matchNormalBullet = trimmedLine.match(/^[-*]\s+(.*)/);
+              const matchBoldBullet = trimmedLine.match(/^\*\*[-*]\s*(.*)/);
+
+              if (matchBoldBullet) {
+                isBullet = true;
+                bulletRestText = matchBoldBullet[1].includes('**') ? '**' + matchBoldBullet[1] : matchBoldBullet[1];
+              } else if (matchNormalBullet) {
+                isBullet = true;
+                bulletRestText = matchNormalBullet[1];
+              }
+
+              if (isBullet) {
+                return (
+                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                    <span className="flex-1">{parseInlineStyles(bulletRestText)}</span>
+                  </div>
+                );
+              }
+
+              // Numbered lists
+              let isNumbered = false;
+              let numRestText = '';
+              const matchNormalNum = trimmedLine.match(/^(\d+)\.\s+(.*)/);
+              const matchBoldStartNum = trimmedLine.match(/^\*\*(\d+)\.\s*(.*)/);
+              const matchBoldBothNum = trimmedLine.match(/^\*\*(\d+)\.\*\*\s*(.*)/);
+
+              if (matchBoldBothNum) {
+                isNumbered = true;
+                numRestText = matchBoldBothNum[2];
+              } else if (matchBoldStartNum) {
+                isNumbered = true;
+                numRestText = matchBoldStartNum[2].includes('**') ? '**' + matchBoldStartNum[2] : matchBoldStartNum[2];
+              } else if (matchNormalNum) {
+                isNumbered = true;
+                numRestText = matchNormalNum[2];
+              }
+
+              if (isNumbered) {
+                return (
+                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                    <span className="flex-1">{parseInlineStyles(numRestText)}</span>
+                  </div>
+                );
+              }
+
+              return (
+                <p key={lIdx} className="text-sm text-[#3B3054] leading-relaxed pl-6">
+                  {parseInlineStyles(trimmedLine)}
+                </p>
+              );
+            })}
+          </div>
+        );
+      }
+
+      // Standard paragraph - merge single-line hard breaks
+      const mergedText = lines.map(line => line.trim()).join(' ');
+
+      return (
+        <p key={bIdx} className="text-sm text-[#3B3054] leading-relaxed my-1.5">
+          {parseInlineStyles(mergedText)}
+        </p>
+      );
+    });
+  };
+
   const SUGGESTIONS = [
     'What is my net balance?',
     'Which expenses are highest?',
@@ -116,7 +243,7 @@ export default function ChatWidget() {
                 <p className="text-dark-900 text-sm font-bold">FinanceAI Assistant</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                  <p className="text-dark-400 text-xs font-medium">Powered by Gemini Flash</p>
+                  <p className="text-dark-400 text-xs font-medium">Powered by Gemini 2.5 Flash</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -166,8 +293,8 @@ export default function ChatWidget() {
                 >
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
                     msg.role === 'user'
-                      ? 'bg-brand-50 text-brand-600'
-                      : 'bg-dark-50 text-dark-600'
+                      ? 'bg-brand-50 text-brand-600 border border-brand-100 shadow-sm'
+                      : 'bg-[#EDE5FC] text-[#7C3AED] border border-[#E5DCFC] shadow-sm'
                   }`}>
                     {msg.role === 'user'
                       ? <User className="w-3.5 h-3.5" />
@@ -176,10 +303,14 @@ export default function ChatWidget() {
                   </div>
                   <div className={`max-w-[80%] px-3.5 py-2.5 rounded-xl text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-brand-600 text-white rounded-tr-sm shadow-sm'
-                      : 'bg-white border border-dark-100 text-dark-800 rounded-tl-sm shadow-sm font-medium'
+                      ? 'bg-brand-600 text-white rounded-tr-sm shadow-sm font-medium'
+                      : 'bg-[#F8F5FE] border border-[#E5DCFC] text-[#3B3054] rounded-tl-sm shadow-sm font-medium'
                   }`}>
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                    {msg.role === 'user' ? (
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                    ) : (
+                      <div className="space-y-2">{renderMarkdown(msg.content)}</div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -229,9 +360,11 @@ export default function ChatWidget() {
                   <Send className="w-4 h-4" />
                 </motion.button>
               </div>
-              <p className="text-dark-400 text-[10px] font-medium mt-2 text-center">
-                AI response is for guidance only and does not replace professional financial advice.
-              </p>
+              {aiDisclaimerEnabled !== false && (
+                <p className="text-dark-400 text-[10px] font-medium mt-2 text-center">
+                  AI response is for guidance only and does not replace professional financial advice.
+                </p>
+              )}
             </div>
           </motion.div>
         )}

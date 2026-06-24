@@ -15,6 +15,7 @@ class Transaction(db.Model):
     payment_method = db.Column(db.String(20), default="cash")
     # cash | bank | card | mobile | other
     note = db.Column(db.Text, nullable=True)
+    receipt_url = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
@@ -38,6 +39,7 @@ class Transaction(db.Model):
             "date": self.date.isoformat(),
             "payment_method": self.payment_method,
             "note": self.note,
+            "receipt_url": self.receipt_url,
             "created_at": self.created_at.isoformat(),
             "updated_at": updated.isoformat() if updated else None,
         }

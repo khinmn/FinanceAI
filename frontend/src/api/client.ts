@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// API Client — Base fetch wrapper with automatic JWT token injection
-// ─────────────────────────────────────────────────────────────────────────────
+import { useAuthStore } from '../store/authStore';
 
 // Direct URL to Flask backend — CORS is enabled on the backend for all origins
 // so direct cross-origin requests work without needing the Vite proxy.
@@ -21,9 +19,12 @@ async function request<T>(
   const { skipAuth = false, ...fetchOptions } = options;
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(fetchOptions.headers as Record<string, string>),
   };
+
+  if (!(fetchOptions.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (!skipAuth) {
     const token = getToken();
@@ -42,8 +43,7 @@ async function request<T>(
 
   // Handle 401 — token expired, clear auth and redirect
   if (response.status === 401) {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    useAuthStore.getState().logout();
     window.location.href = '/login';
     throw new Error('Session expired. Please log in again.');
   }
@@ -73,12 +73,14 @@ export const api = {
   get: <T>(path: string, options?: RequestOptions) =>
     request<T>(path, { method: 'GET', ...options }),
 
-  post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
-    request<T>(path, {
+  post: <T>(path: string, body?: unknown, options?: RequestOptions) => {
+    const isFormData = body instanceof FormData;
+    return request<T>(path, {
       method: 'POST',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: isFormData ? (body as any) : (body !== undefined ? JSON.stringify(body) : undefined),
       ...options,
-    }),
+    });
+  },
 
   put: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>(path, {

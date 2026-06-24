@@ -100,8 +100,8 @@ def register():
     # Seed default categories
     _seed_default_categories(user.id)
 
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
 
     return (
         jsonify(
@@ -132,8 +132,8 @@ def login():
     if not user.is_active:
         return jsonify({"error": "This account has been deactivated."}), 403
 
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
 
     return jsonify(
         {
@@ -150,7 +150,7 @@ def login():
 @jwt_required(refresh=True)
 def refresh():
     user_id = get_jwt_identity()
-    access_token = create_access_token(identity=user_id)
+    access_token = create_access_token(identity=str(user_id))
     return jsonify({"access_token": access_token}), 200
 
 

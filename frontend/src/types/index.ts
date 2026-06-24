@@ -57,6 +57,7 @@ export interface Transaction {
   date: string;
   payment_method: PaymentMethod;
   note: string | null;
+  receipt_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -69,6 +70,7 @@ export interface TransactionFormData {
   category_id: number | null;
   payment_method: PaymentMethod;
   note: string;
+  receipt_url: string | null;
 }
 
 export interface Pagination {
@@ -187,4 +189,62 @@ export interface CashflowItem {
 // ── API response wrappers ─────────────────────────────────────────────────────
 export interface ApiError {
   error: string;
+}
+
+// ── Budget ────────────────────────────────────────────────────────────────────
+export interface Budget {
+  id: number;
+  user_id: number;
+  category_id: number | null;
+  category_name: string | null;
+  name: string;
+  amount: number;
+  month: number;
+  year: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface BudgetSummaryItem {
+  category_id: number;
+  category_name: string;
+  category_color: string;
+  budget_id: number | null;
+  budget_amount: number;
+  actual_spent: number;
+  remaining: number;
+  is_exceeded: boolean;
+}
+
+export interface BudgetSummaryResponse {
+  month: number;
+  year: number;
+  summary: BudgetSummaryItem[];
+  total_budgeted: number;
+  total_spent: number;
+}
+
+// ── Goal ──────────────────────────────────────────────────────────────────────
+export interface Goal {
+  id: number;
+  user_id: number;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  target_date: string;
+  monthly_savings: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+// ── Team ──────────────────────────────────────────────────────────────────────
+export interface TeamMember {
+  id: number;
+  business_id: number;
+  name: string;
+  email: string;
+  role: 'Owner' | 'Accountant' | 'Manager' | 'Employee';
+  status: 'Active' | 'Pending';
+  created_at: string | null;
+  updated_at: string | null;
 }

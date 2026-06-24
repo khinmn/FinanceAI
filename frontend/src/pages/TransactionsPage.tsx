@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { transactionsApi } from '../api/transactions';
 import { categoriesApi } from '../api/categories';
+import { uploadApi } from '../api/upload';
 import type { Transaction, Category, TransactionFormData } from '../types';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
@@ -29,6 +30,7 @@ const emptyForm: TransactionFormData = {
   category_id: null,
   payment_method: 'cash',
   note: '',
+  receipt_url: null,
 };
 
 export default function TransactionsPage() {
@@ -51,11 +53,58 @@ export default function TransactionsPage() {
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingFile(true);
+    try {
+      const res = await uploadApi.uploadReceipt(file);
+      setForm((f) => ({ ...f, receipt_url: res.receipt_url }));
+      showToast('Receipt uploaded successfully!');
+    } catch (err: any) {
+      showToast(err.message || 'File upload failed.', 'error');
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const exportToCSV = () => {
+    if (transactions.length === 0) {
+      showToast('No data to export', 'error');
+      return;
+    }
+    const headers = ['Date', 'Type', 'Description', 'Category', 'Payment Method', 'Amount', 'Note', 'Receipt URL'];
+    const rows = transactions.map((t) => [
+      t.date,
+      t.type,
+      t.description,
+      t.category_name,
+      t.payment_method,
+      t.amount,
+      t.note || '',
+      t.receipt_url ? `http://127.0.0.1:5000${t.receipt_url}` : '',
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((e) => e.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `transactions_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('CSV report exported successfully!');
   };
 
   const loadCategories = useCallback(async () => {
@@ -102,6 +151,7 @@ export default function TransactionsPage() {
       category_id: tx.category_id,
       payment_method: tx.payment_method,
       note: tx.note || '',
+      receipt_url: tx.receipt_url || null,
     });
     setFormError('');
     setModalOpen(true);
@@ -113,13 +163,21 @@ export default function TransactionsPage() {
     setFormLoading(true);
     try {
       if (editingTx) {
-        await transactionsApi.update(editingTx.id, form);
+        const res = await transactionsApi.update(editingTx.id, form);
         setModalOpen(false);
-        showToast('Transaction updated successfully!');
+        if (res.budget_alert) {
+          showToast('Warning: Expense exceeds monthly category budget!', 'error');
+        } else {
+          showToast('Transaction updated successfully!');
+        }
       } else {
-        await transactionsApi.create(form);
+        const res = await transactionsApi.create(form);
         setModalOpen(false);
-        showToast('Transaction added successfully!');
+        if (res.budget_alert) {
+          showToast('Warning: Expense exceeds monthly category budget!', 'error');
+        } else {
+          showToast('Transaction added successfully!');
+        }
       }
       load();
     } catch (err: unknown) {
@@ -151,19 +209,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-4">
-      {/* Toast */}
-      {toast && (
-        <div className={`fixed top-4 right-4 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-xl text-sm font-semibold transition-all ${
-          toast.type === 'success'
-            ? 'bg-success/10 border-success/20 text-success'
-            : 'bg-danger/10 border-danger/20 text-danger'
-        }`}>
-          {toast.message}
-          <button onClick={() => setToast(null)} className="ml-2 opacity-60 hover:opacity-100">
-            ✕
-          </button>
-        </div>
-      )}
+
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
@@ -209,15 +255,48 @@ export default function TransactionsPage() {
           </div>
         </div>
 
-        <Button onClick={openAdd} size="sm" className="flex-shrink-0">
-          <Plus className="w-4 h-4" />
-          Add Transaction
-        </Button>
+        <div className="flex gap-2 flex-shrink-0">
+          <Button onClick={exportToCSV} variant="secondary" size="sm">
+            Export CSV
+          </Button>
+          <Button onClick={openAdd} size="sm">
+            <Plus className="w-4 h-4" />
+            Add Transaction
+          </Button>
+        </div>
       </div>
 
-      {/* Stats bar */}
-      <div className="text-dark-500 text-xs font-medium">
-        {total} transaction{total !== 1 ? 's' : ''} found
+      {/* Stats and Alerts Bar */}
+      <div className="flex items-center gap-4 min-h-[36px]">
+        <div className="text-dark-500 text-xs font-semibold flex-shrink-0 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1">
+          {total} transaction{total !== 1 ? 's' : ''} found
+        </div>
+        
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+              className="flex-1 max-w-lg"
+            >
+              <div className={`flex items-center justify-between px-3.5 py-1.5 rounded-xl border text-xs font-bold shadow-sm ${
+                toast.type === 'success'
+                  ? 'bg-success/10 border-success/20 text-success'
+                  : 'bg-danger/10 border-danger/20 text-danger'
+              }`}>
+                <span className="flex items-center gap-1.5">
+                  <span>{toast.type === 'success' ? '✓' : '⚠'}</span>
+                  {toast.message}
+                </span>
+                <button type="button" onClick={() => setToast(null)} className="ml-2 opacity-60 hover:opacity-100 font-bold">
+                  ✕
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Table */}
@@ -258,7 +337,21 @@ export default function TransactionsPage() {
                     >
                       <td className="px-4 py-3 text-dark-400 whitespace-nowrap text-xs font-medium">{tx.date}</td>
                       <td className="px-4 py-3 max-w-[180px]">
-                        <p className="text-dark-800 font-semibold truncate">{tx.description}</p>
+                        <p className="text-dark-800 font-semibold truncate flex items-center gap-2">
+                          {tx.description}
+                          {tx.receipt_url && (
+                            <a
+                              href={`http://127.0.0.1:5000${tx.receipt_url}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-brand-50 border border-brand-200 text-[10px] text-brand-600 font-bold hover:bg-brand-100 transition-colors"
+                              title="Click to view receipt"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              📎 Receipt
+                            </a>
+                          )}
+                        </p>
                         {tx.note && <p className="text-dark-400 text-xs truncate">{tx.note}</p>}
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
@@ -371,6 +464,24 @@ export default function TransactionsPage() {
           />
           <Input label="Note (optional)" type="text" placeholder="Additional details…" value={form.note}
             onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))} />
+
+          {/* Receipt File Uploader */}
+          <div>
+            <label className="text-dark-700 text-sm font-semibold block mb-1.5">Receipt Attachment (optional)</label>
+            {form.receipt_url ? (
+              <div className="flex items-center justify-between p-3 bg-brand-50 border border-brand-200 rounded-xl text-brand-800 text-sm">
+                <span className="truncate max-w-[200px] font-medium">Receipt Attached ({form.receipt_url.split('/').pop()})</span>
+                <button type="button" onClick={() => setForm(f => ({ ...f, receipt_url: null }))} className="text-xs text-danger font-bold hover:underline">Remove</button>
+              </div>
+            ) : (
+              <div className="relative border-2 border-dashed border-dark-200 hover:border-brand-400 rounded-xl p-4 transition-all text-center cursor-pointer bg-dark-50/50 hover:bg-white group">
+                <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf" disabled={uploadingFile} />
+                <p className="text-xs text-dark-500 font-semibold group-hover:text-brand-600 transition-colors">
+                  {uploadingFile ? 'Uploading...' : 'Drag & drop or click to upload receipt (PDF, JPG, PNG)'}
+                </p>
+              </div>
+            )}
+          </div>
 
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="secondary" className="flex-1" onClick={() => setModalOpen(false)}>
