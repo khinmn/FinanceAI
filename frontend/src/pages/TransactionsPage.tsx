@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Search, Edit2, Trash2, ChevronLeft, ChevronRight, X,
@@ -60,6 +60,19 @@ export default function TransactionsPage() {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
+
+  // ── Debounced search: auto-trigger 300ms after user stops typing ──────────
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchInput]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -222,8 +235,7 @@ export default function TransactionsPage() {
               placeholder="Search transactions…"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { setSearch(searchInput); setPage(1); } }}
-              className="pl-9 pr-8 py-2 rounded-xl bg-white border border-gray-200 text-dark-800 text-sm placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20 focus:border-brand-400 w-44 lg:w-56 transition-all"
+              className="pl-9 pr-8 py-2 rounded-xl bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 text-dark-800 dark:text-white text-sm placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20 focus:border-brand-400 w-44 lg:w-56 transition-all"
             />
             {searchInput && (
               <button onClick={() => { setSearchInput(''); setSearch(''); setPage(1); }}

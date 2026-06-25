@@ -7,10 +7,10 @@ import { useAuthStore } from '../store/authStore';
 // Reusable animated section wrapper
 const FadeInSection = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
   <motion.div
-    initial={{ opacity: 0, y: 30 }}
+    initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-100px" }}
-    transition={{ duration: 0.8, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
+    viewport={{ once: true, margin: "-60px" }}
+    transition={{ duration: 0.5, delay, ease: "easeOut" }}
     className={className}
   >
     {children}
@@ -103,7 +103,7 @@ export default function LandingPage() {
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
+              transition={{ duration: 0.5, delay: 0.08 }}
               className="text-5xl lg:text-[48px] xl:text-[60px] 2xl:text-[72px] leading-[1.05] font-extrabold tracking-[-0.03em] mb-8 text-dark-900"
             >
               Core Finance<br />
@@ -114,7 +114,7 @@ export default function LandingPage() {
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
               className="text-xl text-dark-600 mb-12 max-w-xl font-medium leading-relaxed"
             >
               End-to-end AI financial platform. Automate tracking, uncover gaps, and accelerate your business growth with enterprise-grade intelligence.
@@ -123,7 +123,7 @@ export default function LandingPage() {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.22 }}
               className="flex flex-wrap items-center gap-4"
             >
               <Link to="/register" className="flex items-center gap-2 px-8 py-4 bg-brand-600 text-white rounded-full font-bold text-lg hover:bg-brand-500 transition-all shadow-[0_8px_30px_rgb(139,92,246,0.3)] hover:shadow-[0_8px_40px_rgb(139,92,246,0.5)] hover:-translate-y-1 group">
@@ -143,9 +143,9 @@ export default function LandingPage() {
           >
             <div className="absolute top-0 left-0 origin-top-left w-[800px] h-[550px] lg:scale-[0.55] xl:scale-[0.7] 2xl:scale-[0.85] transition-transform duration-300">
               <motion.div
-                initial={{ opacity: 0, rotateY: 20, rotateX: 10, scale: 0.8, x: 100 }}
+                initial={{ opacity: 0, rotateY: 10, rotateX: 5, scale: 0.9, x: 60 }}
                 animate={{ opacity: 1, rotateY: -15, rotateX: 5, scale: 1, x: 0 }}
-                transition={{ duration: 1.2, ease: "easeOut" }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
                 className="absolute inset-0 bg-white dark:bg-dark-800 rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-dark-700/80 overflow-hidden transition-all duration-300"
                 style={{ transformStyle: 'preserve-3d' }}
               >
@@ -266,7 +266,7 @@ export default function LandingPage() {
               { icon: Zap, title: "Real-time Sync", desc: "Connect multiple accounts and see all your transactions updated instantly.", color: "bg-amber-50 text-amber-600" },
               { icon: BarChart3, title: "Custom Reports", desc: "Generate pixel-perfect financial reports for stakeholders with a single click.", color: "bg-pink-50 text-pink-600" },
             ].map((f, i) => (
-              <FadeInSection key={i} delay={i * 0.1}>
+              <FadeInSection key={i} delay={i * 0.07}>
                 <div className="glass-card dark:bg-dark-800/80 dark:border-dark-700/50 p-10 h-full group">
                   <div className={`w-14 h-14 rounded-2xl ${f.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300`}>
                     <f.icon className="w-7 h-7" />

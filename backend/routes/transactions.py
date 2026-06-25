@@ -56,7 +56,13 @@ def get_transactions():
         if d:
             query = query.filter(Transaction.date <= d)
     if search:
-        query = query.filter(Transaction.description.ilike(f"%{search}%"))
+        safe_search = f"%{search}%"
+        query = query.filter(
+            db.or_(
+                Transaction.description.ilike(safe_search),
+                Transaction.note.ilike(safe_search),
+            )
+        )
 
     query = query.order_by(Transaction.date.desc(), Transaction.created_at.desc())
     paginated = query.paginate(page=page, per_page=per_page, error_out=False)

@@ -126,12 +126,12 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-4xl pb-12 font-sans">
       
       {/* Title Header with Ambient Glow */}
-      <div className="relative p-6 rounded-3xl border border-gray-100 bg-white shadow-soft overflow-hidden">
+      <div className="relative p-6 rounded-3xl border border-gray-100 dark:border-dark-700/50 bg-white dark:bg-dark-800 shadow-soft overflow-hidden">
         <div className="absolute top-0 right-0 w-60 h-60 bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
         
         <div className="relative z-10">
-          <h1 className="text-2xl font-black text-dark-900 tracking-tight">Settings</h1>
-          <p className="text-[15px] text-dark-400 font-semibold mt-1">
+          <h1 className="text-2xl font-black text-dark-900 dark:text-white tracking-tight">Settings</h1>
+          <p className="text-[15px] text-dark-400 dark:text-dark-400 font-semibold mt-1">
             Manage your account profiles, standard currency options, security passwords, and AI helper settings.
           </p>
         </div>
@@ -168,13 +168,13 @@ export default function SettingsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         
         {/* Profile Settings */}
-        <section className="bg-white rounded-3xl border border-gray-100 p-6 shadow-soft flex flex-col justify-between hover:border-brand-200 transition-all duration-300">
+        <section className="bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700/50 p-6 shadow-soft flex flex-col justify-between hover:border-brand-200 dark:hover:border-brand-700 transition-all duration-300">
           <div>
-            <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 pb-3">
-              <div className="p-2 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 flex items-center justify-center">
+            <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 dark:border-dark-700 pb-3">
+              <div className="p-2 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 border border-brand-100 dark:border-brand-800 flex items-center justify-center">
                 <User className="w-5 h-5" />
               </div>
-              <h2 className="text-dark-900 font-bold text-lg">Profile Settings</h2>
+              <h2 className="text-dark-900 dark:text-white font-bold text-lg">Profile Settings</h2>
             </div>
             <div className="space-y-4">
               <Input label="Full Name" value={profile.name} onChange={(e) => setProfile(p => ({...p, name: e.target.value}))} />
@@ -197,18 +197,18 @@ export default function SettingsPage() {
         </section>
 
         {/* Business Preferences */}
-        <section className="bg-white rounded-3xl border border-gray-100 p-6 shadow-soft flex flex-col justify-between hover:border-brand-200 transition-all duration-300">
+        <section className="bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700/50 p-6 shadow-soft flex flex-col justify-between hover:border-brand-200 dark:hover:border-brand-700 transition-all duration-300">
           <div>
-            <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 pb-3">
-              <div className="p-2 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 flex items-center justify-center">
+            <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 dark:border-dark-700 pb-3">
+              <div className="p-2 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 border border-brand-100 dark:border-brand-800 flex items-center justify-center">
                 <Briefcase className="w-5 h-5" />
               </div>
-              <h2 className="text-dark-900 font-bold text-lg">Business Preferences</h2>
+              <h2 className="text-dark-900 dark:text-white font-bold text-lg">Business Preferences</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <p className="text-dark-800 text-sm font-semibold mb-1">Currency</p>
-                <p className="text-dark-500 text-[15px] font-semibold bg-gray-50 border border-gray-100 p-2.5 rounded-xl">
+                <p className="text-dark-800 dark:text-dark-300 text-sm font-semibold mb-1">Currency</p>
+                <p className="text-dark-500 dark:text-dark-400 text-[15px] font-semibold bg-gray-50 dark:bg-dark-900/50 border border-gray-100 dark:border-dark-700 p-2.5 rounded-xl">
                   MMK (Myanmar Kyat) — Fixed for local compliance
                 </p>
               </div>
@@ -236,19 +236,19 @@ export default function SettingsPage() {
         </section>
 
         {/* AI Assistant Settings */}
-        <section className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 p-6 shadow-soft hover:border-brand-200 transition-all duration-300">
-          <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 pb-3">
-            <div className="p-2 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 flex items-center justify-center">
+        <section className="lg:col-span-2 bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700/50 p-6 shadow-soft hover:border-brand-200 dark:hover:border-brand-700 transition-all duration-300">
+          <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 dark:border-dark-700 pb-3">
+            <div className="p-2 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 border border-brand-100 dark:border-brand-800 flex items-center justify-center">
               <Sparkles className="w-5 h-5" />
             </div>
-            <h2 className="text-dark-900 font-bold text-lg">AI Assistant Settings</h2>
+            <h2 className="text-dark-900 dark:text-white font-bold text-lg">AI Assistant Settings</h2>
           </div>
           
-          <div className="space-y-6 text-[15px] text-dark-700">
+          <div className="space-y-6 text-[15px] text-dark-700 dark:text-dark-300">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="font-bold text-dark-900">Enable AI Copilot</p>
-                <p className="text-dark-500 mt-0.5 font-semibold">
+                <p className="font-bold text-dark-900 dark:text-white">Enable AI Copilot</p>
+                <p className="text-dark-500 dark:text-dark-400 mt-0.5 font-semibold">
                   Toggle the in-app AI assistant for smart insights and transaction advice.
                 </p>
               </div>
@@ -257,15 +257,15 @@ export default function SettingsPage() {
                 <span className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all ${
                   aiCopilotEnabled !== false
                     ? 'bg-brand-50 text-brand-700 border-brand-100'
-                    : 'bg-gray-50 text-dark-400 border-gray-150'
+                    : 'bg-gray-50 dark:bg-dark-700 text-dark-400 border-gray-150 dark:border-dark-600'
                 }`}>
                   {aiCopilotEnabled !== false ? 'Active' : 'Disabled'}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setAiCopilotEnabled(aiCopilotEnabled === false ? true : false)}
+                  onClick={() => setAiCopilotEnabled(!aiCopilotEnabled)}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
-                    aiCopilotEnabled !== false ? 'bg-brand-600' : 'bg-gray-250'
+                    aiCopilotEnabled !== false ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
                 >
                   <span
@@ -277,10 +277,10 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-50">
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-50 dark:border-dark-700">
               <div>
-                <p className="font-bold text-dark-900">Show AI Disclaimer</p>
-                <p className="text-dark-500 mt-0.5 font-semibold">
+                <p className="font-bold text-dark-900 dark:text-white">Show AI Disclaimer</p>
+                <p className="text-dark-500 dark:text-dark-400 mt-0.5 font-semibold">
                   Display advisor details and guidance warnings inside AI chat responses.
                 </p>
               </div>
@@ -289,15 +289,15 @@ export default function SettingsPage() {
                 <span className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all ${
                   aiDisclaimerEnabled !== false
                     ? 'bg-brand-50 text-brand-700 border-brand-100'
-                    : 'bg-gray-50 text-dark-400 border-gray-150'
+                    : 'bg-gray-50 dark:bg-dark-700 text-dark-400 border-gray-150 dark:border-dark-600'
                 }`}>
                   {aiDisclaimerEnabled !== false ? 'Active' : 'Disabled'}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setAiDisclaimerEnabled(aiDisclaimerEnabled === false ? true : false)}
+                  onClick={() => setAiDisclaimerEnabled(!aiDisclaimerEnabled)}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
-                    aiDisclaimerEnabled !== false ? 'bg-brand-600' : 'bg-gray-250'
+                    aiDisclaimerEnabled !== false ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
                 >
                   <span
@@ -319,20 +319,20 @@ export default function SettingsPage() {
         </section>
 
         {/* Notification Settings */}
-        <section className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 p-6 shadow-soft hover:border-brand-200 transition-all duration-300">
-          <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 pb-3">
-            <div className="p-2 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 flex items-center justify-center">
+        <section className="lg:col-span-2 bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700/50 p-6 shadow-soft hover:border-brand-200 dark:hover:border-brand-700 transition-all duration-300">
+          <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 dark:border-dark-700 pb-3">
+            <div className="p-2 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 border border-brand-100 dark:border-brand-800 flex items-center justify-center">
               <Bell className="w-5 h-5" />
             </div>
-            <h2 className="text-dark-900 font-bold text-lg">Notification Preferences</h2>
+            <h2 className="text-dark-900 dark:text-white font-bold text-lg">Notification Preferences</h2>
           </div>
           
-          <div className="space-y-6 text-[15px] text-dark-700">
+          <div className="space-y-6 text-[15px] text-dark-700 dark:text-dark-300">
             {/* Weekly Summary */}
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="font-bold text-dark-900">Weekly Finance Summary</p>
-                <p className="text-dark-500 mt-0.5 font-semibold">
+                <p className="font-bold text-dark-900 dark:text-white">Weekly Finance Summary</p>
+                <p className="text-dark-500 dark:text-dark-400 mt-0.5 font-semibold">
                   Receive a weekly email recap summarizing expenses, income, and overall budget health.
                 </p>
               </div>
@@ -341,15 +341,15 @@ export default function SettingsPage() {
                 <span className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all ${
                   notifyWeeklySummary !== false
                     ? 'bg-brand-50 text-brand-700 border-brand-100'
-                    : 'bg-gray-50 text-dark-400 border-gray-200'
+                    : 'bg-gray-50 dark:bg-dark-700 text-dark-400 border-gray-200 dark:border-dark-600'
                 }`}>
                   {notifyWeeklySummary !== false ? 'Active' : 'Disabled'}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setNotifyWeeklySummary?.(notifyWeeklySummary === false ? true : false)}
+                  onClick={() => setNotifyWeeklySummary?.(!notifyWeeklySummary)}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
-                    notifyWeeklySummary !== false ? 'bg-brand-600' : 'bg-gray-250'
+                    notifyWeeklySummary !== false ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
                 >
                   <span
@@ -362,10 +362,10 @@ export default function SettingsPage() {
             </div>
 
             {/* Budget Alerts */}
-            <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-50">
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-50 dark:border-dark-700">
               <div>
-                <p className="font-bold text-dark-900">Budget Threshold Alerts</p>
-                <p className="text-dark-500 mt-0.5 font-semibold">
+                <p className="font-bold text-dark-900 dark:text-white">Budget Threshold Alerts</p>
+                <p className="text-dark-500 dark:text-dark-400 mt-0.5 font-semibold">
                   Notify me in-app and by email when category spending exceeds 80% and 100% of limits.
                 </p>
               </div>
@@ -374,15 +374,15 @@ export default function SettingsPage() {
                 <span className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all ${
                   notifyBudgetThreshold !== false
                     ? 'bg-brand-50 text-brand-700 border-brand-100'
-                    : 'bg-gray-50 text-dark-400 border-gray-200'
+                    : 'bg-gray-50 dark:bg-dark-700 text-dark-400 border-gray-200 dark:border-dark-600'
                 }`}>
                   {notifyBudgetThreshold !== false ? 'Active' : 'Disabled'}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setNotifyBudgetThreshold?.(notifyBudgetThreshold === false ? true : false)}
+                  onClick={() => setNotifyBudgetThreshold?.(!notifyBudgetThreshold)}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
-                    notifyBudgetThreshold !== false ? 'bg-brand-600' : 'bg-gray-250'
+                    notifyBudgetThreshold !== false ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
                 >
                   <span
@@ -395,10 +395,10 @@ export default function SettingsPage() {
             </div>
 
             {/* AI Proactive Insights */}
-            <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-50">
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-50 dark:border-dark-700">
               <div>
-                <p className="font-bold text-dark-900">Proactive AI Insights</p>
-                <p className="text-dark-500 mt-0.5 font-semibold">
+                <p className="font-bold text-dark-900 dark:text-white">Proactive AI Insights</p>
+                <p className="text-dark-500 dark:text-dark-400 mt-0.5 font-semibold">
                   Get real-time AI warnings for unusual spending patterns or cash flow projections.
                 </p>
               </div>
@@ -407,15 +407,15 @@ export default function SettingsPage() {
                 <span className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all ${
                   notifyAiInsights === true
                     ? 'bg-brand-50 text-brand-700 border-brand-100'
-                    : 'bg-gray-50 text-dark-400 border-gray-200'
+                    : 'bg-gray-50 dark:bg-dark-700 text-dark-400 border-gray-200 dark:border-dark-600'
                 }`}>
                   {notifyAiInsights === true ? 'Active' : 'Disabled'}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setNotifyAiInsights?.(notifyAiInsights === true ? false : true)}
+                  onClick={() => setNotifyAiInsights?.(!notifyAiInsights)}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
-                    notifyAiInsights === true ? 'bg-brand-600' : 'bg-gray-250'
+                    notifyAiInsights === true ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
                 >
                   <span
@@ -430,16 +430,16 @@ export default function SettingsPage() {
         </section>
 
         {/* Security & Access */}
-        <section className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 p-6 shadow-soft hover:border-brand-200 transition-all duration-300">
-          <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 pb-3">
-            <div className="p-2 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 flex items-center justify-center">
+        <section className="lg:col-span-2 bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700/50 p-6 shadow-soft hover:border-brand-200 dark:hover:border-brand-700 transition-all duration-300">
+          <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 dark:border-dark-700 pb-3">
+            <div className="p-2 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 border border-brand-100 dark:border-brand-800 flex items-center justify-center">
               <Shield className="w-5 h-5" />
             </div>
-            <h2 className="text-dark-900 font-bold text-lg">Privacy & Security</h2>
+            <h2 className="text-dark-900 dark:text-white font-bold text-lg">Privacy & Security</h2>
           </div>
           
-          <div className="space-y-4 text-[15px] text-dark-700">
-            <p className="text-dark-500 font-semibold leading-relaxed">
+          <div className="space-y-4 text-[15px] text-dark-700 dark:text-dark-300">
+            <p className="text-dark-500 dark:text-dark-400 font-semibold leading-relaxed">
               Your financial records are encrypted end-to-end and stored securely. We do not sell or disclose details of your corporate bookkeeping to third parties.
             </p>
             
@@ -482,13 +482,13 @@ export default function SettingsPage() {
               initial={{ scale: 0.95, y: 15, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 15, opacity: 0 }}
-              className="bg-white rounded-3xl border border-gray-100 shadow-2xl w-full max-w-md overflow-hidden relative z-10 p-6 space-y-6"
+              className="bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700 shadow-2xl w-full max-w-md overflow-hidden relative z-10 p-6 space-y-6"
             >
-              <div className="flex items-center justify-between border-b border-gray-50 pb-4">
-                <h3 className="text-lg font-bold text-dark-900">Change Account Password</h3>
+              <div className="flex items-center justify-between border-b border-gray-50 dark:border-dark-700 pb-4">
+                <h3 className="text-lg font-bold text-dark-900 dark:text-white">Change Account Password</h3>
                 <button
                   onClick={() => setIsPasswordModalOpen(false)}
-                  className="p-1.5 rounded-lg text-dark-400 hover:bg-gray-100 hover:text-dark-700"
+                  className="p-1.5 rounded-lg text-dark-400 hover:bg-gray-100 dark:hover:bg-dark-700 hover:text-dark-700 dark:hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -503,7 +503,7 @@ export default function SettingsPage() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter current password"
-                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-[15px] placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 font-medium"
+                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-dark-900/50 border border-gray-200 dark:border-dark-700 text-[15px] text-dark-900 dark:text-white placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 font-medium"
                       required
                     />
                     <button

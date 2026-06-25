@@ -27,12 +27,19 @@ _SYSTEM_PROMPT = """You are FinanceAI Assistant — a friendly, practical financ
 for small and medium-sized business owners in Myanmar.
 
 Your responsibilities:
-1. Analyse the financial summary provided in each message.
-2. Explain risks and findings in plain, simple language.
-3. Provide concrete, actionable recommendations.
+1. Analyse the specific financial data provided in each user message.
+2. Explain risks and findings in plain, clear language — adapt your explanation to the data.
+3. Provide concrete, actionable recommendations tailored to the user's situation.
 4. Always use Myanmar Kyat (K) when mentioning currency amounts.
-5. Structure longer answers with clear headings:
-   ## Summary | ## Key Concerns | ## Recommendations | ## Disclaimer
+5. Structure longer answers with clear headings when appropriate:
+   ## Overview | ## Key Findings | ## Recommendations | ## Disclaimer
+
+Variety rules (CRITICAL — follow these on every response):
+- NEVER start your response with the same opening phrase you used before.
+- Vary your sentence structure and vocabulary with each response.
+- If the user's data is different from a previous message, address those differences specifically.
+- Avoid repeating the same recommendations word-for-word — find fresh angles each time.
+- Adapt the tone to the data: be encouraging when healthy, urgent when critical, neutral when stable.
 
 Rules you must NEVER break:
 - Only comment on the data provided — never invent or assume figures.
@@ -121,7 +128,9 @@ def _call_openrouter(messages: list[dict], max_tokens: int = 1000) -> tuple[str 
         "model": model,
         "messages": messages,
         "max_tokens": max_tokens,
-        "temperature": 0.35,
+        "temperature": 0.75,      # Higher for more varied, non-repetitive responses
+        "presence_penalty": 0.6,  # Penalise reuse of the same phrases
+        "frequency_penalty": 0.3, # Reduce frequency of repeated tokens
     }
 
     try:
@@ -151,18 +160,41 @@ def _call_openrouter(messages: list[dict], max_tokens: int = 1000) -> tuple[str 
 
 def _build_fallback_response(context: str = "general") -> str:
     """
-    Return a structured, user-friendly fallback when the AI API is unavailable.
+    Return a varied, user-friendly fallback when the AI API is unavailable.
+    Randomly selects from multiple tip sets so repeated offline states aren't identical.
     """
+    import random
+    tip_sets = [
+        (
+            "**General financial tips for SMEs:**\n"
+            "- Track all income and expenses consistently every week\n"
+            "- Keep your expense-to-income ratio below 80% for healthy cash flow\n"
+            "- Maintain 2-3 months of operating expenses as an emergency reserve\n"
+            "- Review your largest expense categories monthly for savings opportunities"
+        ),
+        (
+            "**Cash flow management reminders:**\n"
+            "- Invoice clients promptly and follow up on late payments\n"
+            "- Negotiate better payment terms with suppliers where possible\n"
+            "- Separate business and personal finances with dedicated accounts\n"
+            "- Set a monthly budget for each expense category and track it weekly"
+        ),
+        (
+            "**SME growth tips:**\n"
+            "- Aim to save at least 10% of monthly revenue as a business reserve\n"
+            "- Review your pricing regularly — inflation may erode your margins\n"
+            "- Categorise all transactions to identify your biggest cost drivers\n"
+            "- Run a gap analysis monthly to catch inefficiencies early"
+        ),
+    ]
+    tips = random.choice(tip_sets)
     return (
-        "## FinanceAI Assistant — Offline Mode\n\n"
-        "I'm currently unable to reach the AI service. "
-        "Please check your internet connection or try again in a moment.\n\n"
-        "**In the meantime, here are general financial tips for SMEs:**\n"
-        "- Track all income and expenses consistently every week\n"
-        "- Keep your expense-to-income ratio below 80% for healthy cash flow\n"
-        "- Maintain 2-3 months of operating expenses as an emergency reserve\n"
-        "- Review your largest expense categories monthly for savings opportunities\n\n"
-        "_Disclaimer: This is automated guidance only, not professional financial advice._"
+        "## FinanceAI Assistant — Temporarily Offline\n\n"
+        "I'm unable to reach the AI service right now. "
+        "Please check your connection or try again shortly.\n\n"
+        f"{tips}\n\n"
+        "_Disclaimer: This is automated guidance only and does not constitute "
+        "professional financial, tax, or legal advice._"
     )
 
 
