@@ -83,8 +83,10 @@ def create_app() -> Flask:
     app.config["JWT_SECRET_KEY"] = os.getenv(
         "JWT_SECRET_KEY", "change-this-secret-in-production"
     )
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+    # Access tokens expire in 1 hour (OWASP best practice)
+    # Refresh tokens expire in 7 days
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 
     # ── OpenRouter AI ─────────────────────────────────────────────────────────
     app.config["OPENROUTER_API_KEY"] = os.getenv("OPENROUTER_API_KEY", "")
@@ -93,8 +95,34 @@ def create_app() -> Flask:
     )
 
     # ── Extensions ────────────────────────────────────────────────────────────
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
-    JWTManager(app)
+    # CORS: restrict to known development and production origins
+    allowed_origins = [
+        "http://localhost:5173",   # Vite dev server
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",   # fallback
+        os.getenv("FRONTEND_URL", ""),  # production URL from .env
+    ]
+    # Filter out empty strings
+    allowed_origins = [o for o in allowed_origins if o]
+    CORS(app, resources={r"/api/*": {
+        "origins": allowed_origins,
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+    }})
+    jwt = JWTManager(app)
+
+    # ── JWT error handlers ────────────────────────────────────────────────────
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({"error": "Token has expired. Please log in again."}), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return jsonify({"error": "Invalid token. Please log in again."}), 401
+
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return jsonify({"error": "Authentication required. Please provide a valid token."}), 401
 
     from models import db
     db.init_app(app)
@@ -150,6 +178,19 @@ def create_app() -> Flask:
             return jsonify({"status": "ok", "database": "connected"})
         except Exception as exc:
             return jsonify({"status": "error", "database": str(exc)}), 500
+
+    # ── Global error handlers ─────────────────────────────────────────────────
+    @app.errorhandler(404)
+    def not_found(e):
+        return jsonify({"error": "Endpoint not found."}), 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(e):
+        return jsonify({"error": "HTTP method not allowed for this endpoint."}), 405
+
+    @app.errorhandler(500)
+    def internal_error(e):
+        return jsonify({"error": "Internal server error. Please try again."}), 500
 
     return app
 

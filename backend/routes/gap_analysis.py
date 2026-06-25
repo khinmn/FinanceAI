@@ -4,6 +4,12 @@ Gap Analysis Routes  –  /api/gap-analysis
 POST /api/gap-analysis/run         – run full analysis (rule-based + AI explanation)
 GET  /api/gap-analysis/history     – paginated history of past results
 GET  /api/gap-analysis/<id>        – get a single past result
+
+Security:
+  - All routes require JWT authentication (@jwt_required)
+  - All queries filtered by user_id (data ownership enforced)
+  - AI receives ONLY aggregated summaries (no raw transactions)
+  - months_back is clamped to 1-12 (no unbounded queries)
 """
 
 from datetime import date as date_type
@@ -23,6 +29,15 @@ gap_bp = Blueprint("gap_analysis", __name__, url_prefix="/api/gap-analysis")
 @gap_bp.route("/run", methods=["POST"])
 @jwt_required()
 def run_analysis():
+    """
+    Run the full gap analysis for the authenticated user.
+
+    Optional body: { "months_back": 1-12 }  (default: 3)
+
+    Returns:
+        200 with analysis result including risk_score, score_label, findings, and AI explanation
+        400 if no transactions exist
+    """
     user = get_current_user()
 
     # Need at least one transaction to analyse
@@ -45,8 +60,10 @@ def run_analysis():
     findings = analysis["findings"]
     monthly_data = analysis["monthly_data"]
     overall_health = analysis["overall_health"]
+    risk_score = analysis.get("risk_score", 0)
+    score_label = analysis.get("score_label", "healthy")
 
-    # ── Step 2: Build AI prompt ───────────────────────────────────────────────
+    # ── Step 2: Build AI prompt (aggregated summary only) ─────────────────────
     summary_text = build_financial_summary(monthly_data, findings)
     ai_prompt = (
         summary_text
@@ -54,7 +71,7 @@ def run_analysis():
         "with practical recommendations for this SME owner."
     )
 
-    # ── Step 3: AI explanation ────────────────────────────────────────────────
+    # ── Step 3: AI explanation with fallback ──────────────────────────────────
     ai_text, ai_error = get_ai_explanation(ai_prompt)
     if ai_error:
         ai_text = (
@@ -89,6 +106,8 @@ def run_analysis():
             "result": result.to_dict(),
             "monthly_data": monthly_data,
             "analysis_period": analysis["analysis_period"],
+            "risk_score": risk_score,
+            "score_label": score_label,
         }
     ), 200
 
@@ -96,8 +115,9 @@ def run_analysis():
 @gap_bp.route("/history", methods=["GET"])
 @jwt_required()
 def history():
+    """Return paginated history of past gap analysis results for the current user."""
     user = get_current_user()
-    page = request.args.get("page", 1, type=int)
+    page = max(1, request.args.get("page", 1, type=int))
 
     paginated = (
         GapAnalysisResult.query.filter_by(user_id=user.id)
@@ -117,6 +137,7 @@ def history():
 @gap_bp.route("/<int:result_id>", methods=["GET"])
 @jwt_required()
 def get_result(result_id):
+    """Return a single past gap analysis result. Enforces user ownership."""
     user = get_current_user()
     result = GapAnalysisResult.query.filter_by(
         id=result_id, user_id=user.id

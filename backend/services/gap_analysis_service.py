@@ -1,23 +1,46 @@
 """
-Gap Analysis Service
-====================
-Runs five rule-based financial risk checks against the user's transaction history
-and returns structured findings with severity levels (high / medium / low).
+Gap Analysis Service  (Enhanced)
+=================================
+Rule-based financial risk detection engine for SME financial health.
 
-Rules:
-  R001 – Expense ratio ≥ 90% of income (current month)
-  R002 – Negative net balance for 2+ consecutive months
-  R003 – Single expense category > 50% of total expenses (current month)
+Rules implemented:
+  R001 – High expense-to-income ratio (overspending vs income)
+  R002 – Consecutive negative net months (cash flow instability)
+  R003 – Single category dominates expenses (concentration risk)
   R004 – Zero income recorded in current month
-  R005 – Expense growth > 20% month-over-month
+  R005 – Expense growth > 20% month-over-month (rapid expense growth)
+  R006 – Budget exceeded for any tracked category
+  R007 – Low savings rate (< 10% of income)
+
+Output includes:
+  - findings: list of structured risk dicts
+  - risk_score: integer 0-100 (0 = healthy, 100 = critical)
+  - score_label: 'healthy' | 'low risk' | 'moderate risk' | 'high risk' | 'critical'
+  - overall_health: 'good' | 'fair' | 'warning' | 'critical'
+  - monthly_data: historical income/expense per month
+  - analysis_period: human-readable date range string
 """
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import func, extract
 
-from models import db, Transaction
+from models import db
+from models.transaction import Transaction
 from models.category import Category
+
+
+# ── Weights for risk scoring (must sum to 100) ─────────────────────────────────
+# Each rule has a maximum contribution to the 0-100 score.
+_RULE_WEIGHTS = {
+    "R001": 25,   # High expense ratio / no income + expense
+    "R002": 20,   # Consecutive monthly losses
+    "R003": 15,   # Category concentration
+    "R004": 15,   # Zero income
+    "R005": 10,   # Rapid expense growth
+    "R006": 10,   # Budget exceeded
+    "R007": 5,    # Low savings rate
+}
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -43,17 +66,62 @@ def _monthly_totals(user_id: int, month: int, year: int) -> tuple[float, float]:
     return income, expense
 
 
+def _calc_risk_score(findings: list[dict]) -> int:
+    """
+    Calculate an overall risk score from 0 to 100.
+
+    - Each triggered rule contributes its full weight.
+    - High-severity rules contribute 100% of their weight.
+    - Medium-severity rules contribute 60% of their weight.
+    - Low-severity rules contribute 25% of their weight.
+    - Score is capped at 100.
+    """
+    severity_multipliers = {"high": 1.0, "medium": 0.6, "low": 0.25}
+    score = 0.0
+
+    seen_rules = set()
+    for finding in findings:
+        rule_id = finding.get("rule_id", "")
+        if rule_id in seen_rules:
+            continue  # Don't double-count same rule
+        seen_rules.add(rule_id)
+
+        weight = _RULE_WEIGHTS.get(rule_id, 5)
+        severity = finding.get("severity", "low")
+        multiplier = severity_multipliers.get(severity, 0.25)
+        score += weight * multiplier
+
+    return min(100, round(score))
+
+
+def _score_label(score: int) -> str:
+    """Convert numeric score to human-readable label."""
+    if score == 0:
+        return "healthy"
+    elif score <= 20:
+        return "low risk"
+    elif score <= 45:
+        return "moderate risk"
+    elif score <= 70:
+        return "high risk"
+    else:
+        return "critical"
+
+
 # ── Main analysis function ─────────────────────────────────────────────────────
 
 def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
     """
-    Run all five rule-based checks and return:
-      {
+    Run all seven rule-based checks and return structured results:
+
+    {
         'findings':        list of finding dicts,
+        'risk_score':      int 0-100,
+        'score_label':     str,
         'overall_health':  'good' | 'fair' | 'warning' | 'critical',
         'monthly_data':    list of monthly summary dicts,
         'analysis_period': str,
-      }
+    }
     """
     now = datetime.utcnow()
     findings: list[dict] = []
@@ -101,7 +169,7 @@ def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
         findings.append(
             {
                 "rule_id": "R001",
-                "title": "Expenses Recorded With No Income",
+                "title": "Expenses With No Income",
                 "description": (
                     f"Expenses are recorded this month ({current['month']}) "
                     "but no income has been entered. This may signal a cash-flow gap."
@@ -115,7 +183,7 @@ def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
             }
         )
 
-    # ── R002: Consecutive negative months ────────────────────────────────────
+    # ── R002: Consecutive negative months (cash flow instability) ─────────────
     streak = 0
     for m in monthly_data:
         has_data = m["income"] > 0 or m["expense"] > 0
@@ -128,7 +196,7 @@ def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
         findings.append(
             {
                 "rule_id": "R002",
-                "title": "Consecutive Monthly Losses",
+                "title": "Cash Flow Instability — Consecutive Monthly Losses",
                 "description": (
                     f"Your business has spent more than it earned for "
                     f"{streak} consecutive months. Sustained losses deplete "
@@ -138,12 +206,12 @@ def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
                 "metric": f"{streak} months of negative net balance",
                 "recommendation": (
                     "Review pricing strategy, cut non-essential expenses, or "
-                    "explore new revenue streams."
+                    "explore new revenue streams immediately."
                 ),
             }
         )
 
-    # ── R003: Single category dominance ──────────────────────────────────────
+    # ── R003: Single category concentration (high spending in one category) ──
     cat_rows = (
         db.session.query(
             Category.name,
@@ -168,22 +236,22 @@ def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
                 findings.append(
                     {
                         "rule_id": "R003",
-                        "title": "Over-Reliance on a Single Expense Category",
+                        "title": "High Spending in a Single Category",
                         "description": (
                             f'"{row.name}" accounts for {pct:.1f}% of your total '
                             f"expenses this month. High concentration creates "
                             "financial vulnerability."
                         ),
                         "severity": "medium",
-                        "metric": f"{pct:.1f}% in {row.name}",
+                        "metric": f"{pct:.1f}% in '{row.name}'",
                         "recommendation": (
-                            f"Review whether {row.name} expenses can be reduced, "
-                            "renegotiated, or redistributed across categories."
+                            f"Review whether '{row.name}' expenses can be reduced, "
+                            "renegotiated, or redistributed across other categories."
                         ),
                     }
                 )
 
-    # ── R004: Zero income ────────────────────────────────────────────────────
+    # ── R004: Zero income ─────────────────────────────────────────────────────
     if current["income"] == 0:
         findings.append(
             {
@@ -203,7 +271,7 @@ def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
             }
         )
 
-    # ── R005: Expense growth > 20% MoM ───────────────────────────────────────
+    # ── R005: Rapid expense growth > 20% MoM ─────────────────────────────────
     if len(monthly_data) >= 2:
         prev = monthly_data[-2]
         curr = monthly_data[-1]
@@ -228,21 +296,111 @@ def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
                     }
                 )
 
-    # ── Determine overall health ──────────────────────────────────────────────
-    high = sum(1 for f in findings if f["severity"] == "high")
-    medium = sum(1 for f in findings if f["severity"] == "medium")
+    # ── R006: Budget exceeded ─────────────────────────────────────────────────
+    try:
+        from models.budget import Budget
+        exceeded_budgets = []
 
-    if high >= 2:
+        # Get all budgets for current month
+        month_budgets = Budget.query.filter_by(
+            user_id=user_id,
+            month=current["month_num"],
+            year=current["year"],
+        ).all()
+
+        for budget in month_budgets:
+            total_spent = (
+                db.session.query(func.sum(Transaction.amount))
+                .filter(
+                    Transaction.user_id == user_id,
+                    Transaction.category_id == budget.category_id,
+                    Transaction.type == "expense",
+                    extract("month", Transaction.date) == current["month_num"],
+                    extract("year", Transaction.date) == current["year"],
+                )
+                .scalar()
+            ) or 0.0
+
+            if float(total_spent) > float(budget.amount):
+                overage = float(total_spent) - float(budget.amount)
+                overage_pct = (overage / float(budget.amount)) * 100
+                exceeded_budgets.append({
+                    "category": budget.name or "Unknown",
+                    "budget": float(budget.amount),
+                    "spent": float(total_spent),
+                    "overage": overage,
+                    "overage_pct": overage_pct,
+                })
+
+        if exceeded_budgets:
+            categories_str = ", ".join(
+                f"'{b['category']}' (over by K{b['overage']:,.0f})"
+                for b in exceeded_budgets
+            )
+            findings.append(
+                {
+                    "rule_id": "R006",
+                    "title": "Budget Exceeded",
+                    "description": (
+                        f"You have exceeded your budget in {len(exceeded_budgets)} "
+                        f"category/categories this month: {categories_str}."
+                    ),
+                    "severity": "high" if len(exceeded_budgets) > 1 else "medium",
+                    "metric": f"{len(exceeded_budgets)} budgets exceeded",
+                    "recommendation": (
+                        "Review your spending in over-budget categories. Consider "
+                        "reducing discretionary spending or adjusting budget limits "
+                        "to reflect realistic spending patterns."
+                    ),
+                    "details": exceeded_budgets,
+                }
+            )
+    except Exception:
+        pass  # Budget model may not exist in all deployments; silently skip
+
+    # ── R007: Low savings rate ────────────────────────────────────────────────
+    if current["income"] > 0:
+        savings_rate = ((current["income"] - current["expense"]) / current["income"]) * 100
+        if savings_rate < 10:
+            findings.append(
+                {
+                    "rule_id": "R007",
+                    "title": "Low Savings Rate",
+                    "description": (
+                        f"Your savings rate this month is only {savings_rate:.1f}% "
+                        f"({current['month']}). A healthy SME should aim to retain "
+                        "at least 10% of income as savings or working capital."
+                    ),
+                    "severity": "medium" if savings_rate >= 0 else "high",
+                    "metric": f"{savings_rate:.1f}% savings rate",
+                    "recommendation": (
+                        "Aim to reduce discretionary expenses. Even small reductions "
+                        "across multiple categories can meaningfully improve your savings rate."
+                    ),
+                }
+            )
+
+    # ── Risk score calculation ────────────────────────────────────────────────
+    risk_score = _calc_risk_score(findings)
+    label = _score_label(risk_score)
+
+    # ── Overall health determination ──────────────────────────────────────────
+    high_count = sum(1 for f in findings if f["severity"] == "high")
+    medium_count = sum(1 for f in findings if f["severity"] == "medium")
+
+    if high_count >= 2:
         overall_health = "critical"
-    elif high == 1 or medium >= 2:
+    elif high_count == 1 or medium_count >= 2:
         overall_health = "warning"
-    elif medium == 1:
+    elif medium_count == 1:
         overall_health = "fair"
     else:
         overall_health = "good"
 
     return {
         "findings": findings,
+        "risk_score": risk_score,
+        "score_label": label,
         "overall_health": overall_health,
         "monthly_data": monthly_data,
         "analysis_period": (
@@ -257,8 +415,10 @@ def run_gap_analysis(user_id: int, months_back: int = 3) -> dict:
 
 def build_financial_summary(monthly_data: list, findings: list) -> str:
     """
-    Build a structured, privacy-safe summary to send to OpenRouter.
-    Uses only aggregated figures — never individual transaction details.
+    Build a structured, privacy-safe aggregated summary to send to OpenRouter.
+
+    SECURITY: Uses only aggregated figures — never individual transaction details.
+    This prevents raw data leakage to the AI model.
     """
     current = monthly_data[-1] if monthly_data else {}
 
@@ -285,6 +445,7 @@ Current Month ({current.get('month', 'N/A')}):
   • Total Income : K {current.get('income', 0):,.0f}
   • Total Expense: K {current.get('expense', 0):,.0f}
   • Net Balance  : K {current.get('net', 0):,.0f}
+  • Savings Rate : {((current.get('income', 0) - current.get('expense', 0)) / current.get('income', 1) * 100) if current.get('income', 0) > 0 else 0:.1f}%
 
 Monthly Trend:
 {trend_lines}
