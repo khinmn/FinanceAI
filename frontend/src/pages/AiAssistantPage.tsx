@@ -305,7 +305,7 @@ export default function AiAssistantPage() {
   ];
 
   return (
-    <div className="flex h-[calc(100vh-100px)] border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-soft font-sans relative">
+    <div className="flex h-[calc(100vh-100px)] border border-gray-200 dark:border-dark-700 rounded-2xl overflow-hidden bg-white dark:bg-dark-800 shadow-soft font-sans relative">
       
       {/* Session History Sidebar */}
       <AnimatePresence initial={false}>
@@ -314,14 +314,14 @@ export default function AiAssistantPage() {
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 280, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            className="flex-shrink-0 bg-gray-50 border-r border-gray-100 flex flex-col h-full overflow-hidden"
+            className="flex-shrink-0 bg-gray-50 dark:bg-dark-900 border-r border-gray-100 dark:border-dark-700 flex flex-col h-full overflow-hidden"
           >
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <span className="text-[15px] font-bold text-dark-500 uppercase tracking-wider">Chat History</span>
+            <div className="p-4 border-b border-gray-100 dark:border-dark-700 flex items-center justify-between">
+              <span className="text-[15px] font-bold text-dark-500 dark:text-dark-400 uppercase tracking-wider">Chat History</span>
               <button
                 type="button"
                 onClick={() => setSidebarOpen(false)}
-                className="lg:hidden p-1.5 rounded-lg text-dark-400 hover:bg-gray-100"
+                className="lg:hidden p-1.5 rounded-lg text-dark-400 dark:text-dark-550 hover:bg-gray-100 dark:hover:bg-dark-800"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -346,7 +346,7 @@ export default function AiAssistantPage() {
                   <div className="w-5 h-5 border-2 border-brand-400/30 border-t-brand-500 rounded-full animate-spin" />
                 </div>
               ) : sessions.length === 0 ? (
-                <p className="text-[15px] text-dark-400 text-center py-8 font-medium">No previous conversations.</p>
+                <p className="text-[15px] text-dark-400 dark:text-dark-500 text-center py-8 font-medium">No previous conversations.</p>
               ) : (
                 sessions.map((s) => {
                   const isActive = activeSessionId === s.id;
@@ -359,12 +359,12 @@ export default function AiAssistantPage() {
                       }}
                       className={`group flex items-center justify-between px-3 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
                         isActive
-                          ? 'bg-[#EDE5FC] text-[#2D1A54] border border-[#E5DCFC] font-semibold'
-                          : 'text-dark-600 hover:bg-gray-100 hover:text-dark-900 border border-transparent'
+                          ? 'bg-[#EDE5FC] dark:bg-brand-950/20 text-[#2D1A54] dark:text-brand-300 border border-[#E5DCFC] dark:border-brand-900/50 font-semibold'
+                          : 'text-dark-600 dark:text-dark-300 hover:bg-gray-100 dark:hover:bg-dark-800 hover:text-dark-900 dark:hover:text-white border border-transparent'
                       }`}
                     >
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <MessageSquare className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#7C3AED]' : 'text-dark-400'}`} />
+                        <MessageSquare className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#7C3AED] dark:text-brand-400' : 'text-dark-400 dark:text-dark-500'}`} />
                         <span className="text-[15px] truncate block pr-2 leading-tight">
                           {s.title || 'Finance Chat'}
                         </span>
@@ -372,7 +372,7 @@ export default function AiAssistantPage() {
                       
                       <button
                         onClick={(e) => handleDeleteSession(s.id, e)}
-                        className={`p-1 rounded hover:bg-danger/10 hover:text-danger text-dark-400 transition-opacity ${
+                        className={`p-1 rounded hover:bg-danger/10 hover:text-danger text-dark-400 dark:text-dark-500 transition-opacity ${
                           isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                         }`}
                         title="Delete Session"
@@ -389,26 +389,26 @@ export default function AiAssistantPage() {
       </AnimatePresence>
 
       {/* Main Chat Panel */}
-      <div className="flex-1 flex flex-col h-full min-w-0 bg-[#FDFDFD]">
+      <div className="flex-1 flex flex-col h-full min-w-0 bg-[#FDFDFD] dark:bg-dark-850">
         
         {/* Chat Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-dark-700 bg-white dark:bg-dark-800">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 -ml-2 rounded-xl text-dark-500 hover:bg-gray-50 focus:outline-none"
+              className="p-2 -ml-2 rounded-xl text-dark-500 dark:text-dark-400 hover:bg-gray-50 dark:hover:bg-dark-700 focus:outline-none"
               title="Toggle Sidebar"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#EDE5FC] text-[#7C3AED] border border-[#E5DCFC]">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#EDE5FC] dark:bg-brand-950/20 text-[#7C3AED] dark:text-brand-400 border border-[#E5DCFC] dark:border-brand-900/50">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-bold text-dark-900 text-[15px] leading-tight">FinanceAI Assistant</h2>
+              <h2 className="font-bold text-dark-900 dark:text-white text-[15px] leading-tight">FinanceAI Assistant</h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                <span className="text-[12px] text-dark-400 font-bold">Powered by Gemini 2.5 Flash</span>
+                <span className="text-[12px] text-dark-400 dark:text-dark-400 font-bold">Powered by Gemini 2.5 Flash</span>
               </div>
             </div>
           </div>
@@ -441,19 +441,19 @@ export default function AiAssistantPage() {
         </AnimatePresence>
 
         {/* Messages List Area */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0 bg-gray-50/30">
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0 bg-gray-50/30 dark:bg-dark-900/20">
           {chatLoading ? (
             <div className="flex flex-col items-center justify-center h-full gap-2">
               <div className="w-8 h-8 border-3 border-brand-100 border-t-brand-500 rounded-full animate-spin" />
-              <span className="text-[15px] text-dark-400 font-semibold">Loading messages...</span>
+              <span className="text-[15px] text-dark-400 dark:text-dark-400 font-semibold">Loading messages...</span>
             </div>
           ) : messages.length === 0 ? (
             /* Suggestions Splash screen */
             <div className="max-w-2xl mx-auto h-full flex flex-col justify-center space-y-6">
               <div className="text-center space-y-2">
-                <Sparkles className="w-12 h-12 text-[#7C3AED] mx-auto opacity-75" />
-                <h3 className="text-lg font-bold text-dark-900">How can I assist your business today?</h3>
-                <p className="text-[15px] text-dark-400 font-semibold max-w-md mx-auto">
+                <Sparkles className="w-12 h-12 text-[#7C3AED] dark:text-brand-400 mx-auto opacity-75 animate-pulse" />
+                <h3 className="text-lg font-bold text-dark-900 dark:text-white">How can I assist your business today?</h3>
+                <p className="text-[15px] text-dark-400 dark:text-dark-400 font-semibold max-w-md mx-auto">
                   I can analyze your transactions, review your category budgets, explain cash flow warnings, and suggest optimizations.
                 </p>
               </div>
@@ -463,10 +463,10 @@ export default function AiAssistantPage() {
                   <button
                     key={idx}
                     onClick={() => handleSendMessage(s.text)}
-                    className="p-4 rounded-2xl bg-white border border-gray-100 text-dark-700 text-[15px] font-semibold hover:text-brand-600 hover:border-brand-200 hover:shadow-soft transition-all text-left flex flex-col justify-between h-28 hover:-translate-y-0.5 duration-200 group"
+                    className="p-4 rounded-2xl bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700 text-dark-700 dark:text-dark-300 text-[15px] font-semibold hover:text-brand-600 hover:border-brand-200 dark:hover:border-brand-700 hover:shadow-soft transition-all text-left flex flex-col justify-between h-28 hover:-translate-y-0.5 duration-200 group"
                   >
                     <span>{s.label}</span>
-                    <span className="text-dark-400 font-medium group-hover:text-brand-500 truncate w-full mt-2 text-[13px]">
+                    <span className="text-dark-400 dark:text-dark-500 font-medium group-hover:text-brand-500 truncate w-full mt-2 text-[13px]">
                       {s.text}
                     </span>
                   </button>
@@ -484,8 +484,8 @@ export default function AiAssistantPage() {
                   >
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 border shadow-sm ${
                       isUser
-                        ? 'bg-brand-50 text-brand-600 border-brand-100'
-                        : 'bg-[#EDE5FC] text-[#7C3AED] border-[#E5DCFC]'
+                        ? 'bg-brand-50 dark:bg-brand-950/20 text-brand-600 dark:text-brand-400 border-brand-100 dark:border-brand-900/50'
+                        : 'bg-[#EDE5FC] dark:bg-brand-950/20 text-[#7C3AED] dark:text-brand-400 border-[#E5DCFC] dark:border-brand-900/50'
                     }`}>
                       {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                     </div>
@@ -494,19 +494,19 @@ export default function AiAssistantPage() {
                       <div className={`rounded-2xl leading-relaxed shadow-sm ${
                         isUser
                           ? 'px-6 py-4 text-[15px] bg-brand-600 text-white rounded-tr-none'
-                          : 'p-6 md:p-8 text-[15px] bg-[#F8F5FE] border border-[#E5DCFC] text-[#3B3054] rounded-tl-none'
+                          : 'p-6 md:p-8 text-[15px] bg-[#F8F5FE] dark:bg-dark-800 border border-[#E5DCFC] dark:border-dark-700 text-[#3B3054] dark:text-dark-300 rounded-tl-none'
                       }`}>
                         {isUser ? (
                           <p className="whitespace-pre-wrap font-medium">{msg.content}</p>
                         ) : (
-                          <div className="max-w-none text-[#3B3054] leading-relaxed font-sans space-y-4">
+                          <div className="max-w-none text-[#3B3054] dark:text-dark-300 leading-relaxed font-sans space-y-4">
                             {renderMarkdown(msg.content)}
                           </div>
                         )}
                       </div>
                       
                       {/* Timestamp */}
-                      <span className="text-[12px] text-dark-400 font-bold px-1.5 flex items-center gap-1">
+                      <span className="text-[12px] text-dark-400 dark:text-dark-450 font-bold px-1.5 flex items-center gap-1">
                         <Clock className="w-3 h-3 opacity-60" />
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
@@ -518,15 +518,15 @@ export default function AiAssistantPage() {
               {/* Server/AI Typing Indicator */}
               {sendLoading && (
                 <div className="flex gap-3.5">
-                  <div className="w-8 h-8 rounded-xl bg-[#EDE5FC] text-[#7C3AED] border-[#E5DCFC] flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="w-8 h-8 rounded-xl bg-[#EDE5FC] dark:bg-brand-950/20 text-[#7C3AED] dark:text-brand-400 border-[#E5DCFC] dark:border-brand-900/50 flex items-center justify-center flex-shrink-0 shadow-sm">
                     <Bot className="w-4 h-4 animate-pulse" />
                   </div>
-                  <div className="px-4.5 py-3.5 rounded-2xl rounded-tl-none bg-[#F8F5FE] border border-[#E5DCFC] shadow-sm">
+                  <div className="px-4.5 py-3.5 rounded-2xl rounded-tl-none bg-[#F8F5FE] dark:bg-dark-800 border border-[#E5DCFC] dark:border-dark-700 shadow-sm">
                     <div className="flex gap-1.5 items-center h-4">
                       {[0, 1, 2].map((i) => (
                         <div
                           key={i}
-                          className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-bounce"
+                          className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] dark:bg-brand-400 animate-bounce"
                           style={{ animationDelay: `${i * 0.15}s` }}
                         />
                       ))}
@@ -541,7 +541,7 @@ export default function AiAssistantPage() {
         </div>
 
         {/* Input Bar Section */}
-        <div className="px-6 py-4 border-t border-gray-100 bg-white">
+        <div className="px-6 py-4 border-t border-gray-100 dark:border-dark-700 bg-white dark:bg-dark-800">
           <div className="max-w-3xl mx-auto flex gap-3">
             <input
               ref={inputRef}
@@ -555,7 +555,7 @@ export default function AiAssistantPage() {
                 }
               }}
               placeholder="Ask me about budgets, cash flow, or transactions..."
-              className="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-dark-800 text-[15px] placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all font-medium"
+              className="flex-1 px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-900 border border-gray-200 dark:border-dark-700 text-dark-800 dark:text-white text-[15px] placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all font-medium"
               disabled={sendLoading}
             />
             
@@ -571,7 +571,7 @@ export default function AiAssistantPage() {
             </motion.button>
           </div>
           {aiDisclaimerEnabled !== false && (
-            <p className="text-dark-400 text-[12px] font-bold mt-2.5 text-center">
+            <p className="text-dark-400 dark:text-dark-500 text-[12px] font-bold mt-2.5 text-center">
               AI Assistant responses are guidance notes. They do not constitute formal legal, accounting, or professional financial advice.
             </p>
           )}

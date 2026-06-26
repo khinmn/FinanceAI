@@ -63,20 +63,26 @@ def _create_database_if_not_exists() -> None:
 # ── App factory ────────────────────────────────────────────────────────────────
 
 def create_app() -> Flask:
-    _create_database_if_not_exists()
+    is_testing = os.getenv("TESTING") == "true"
+
+    if not is_testing:
+        _create_database_if_not_exists()
 
     app = Flask(__name__)
 
     # ── SQLAlchemy ────────────────────────────────────────────────────────────
-    _user = os.getenv("DB_USER", "postgres")
-    _pw = quote_plus(os.getenv("DB_PASSWORD", ""))  # encode @, $, # etc.
-    _host = os.getenv("DB_HOST", "localhost")
-    _port = os.getenv("DB_PORT", "5432")
-    _name = os.getenv("DB_NAME", "fia")
+    if is_testing:
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    else:
+        _user = os.getenv("DB_USER", "postgres")
+        _pw = quote_plus(os.getenv("DB_PASSWORD", ""))  # encode @, $, # etc.
+        _host = os.getenv("DB_HOST", "localhost")
+        _port = os.getenv("DB_PORT", "5432")
+        _name = os.getenv("DB_NAME", "fia")
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
-        f"postgresql://{_user}:{_pw}@{_host}:{_port}/{_name}"
-    )
+        app.config["SQLALCHEMY_DATABASE_URI"] = (
+            f"postgresql://{_user}:{_pw}@{_host}:{_port}/{_name}"
+        )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # ── JWT ───────────────────────────────────────────────────────────────────

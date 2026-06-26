@@ -314,8 +314,8 @@ export default function BudgetPage() {
       {/* Header Panel */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-dark-900">Budget Planner</h1>
-          <p className="text-dark-500 mt-1">Set monthly limits for category spending and track compliance.</p>
+          <h1 className="text-2xl font-bold text-dark-900 dark:text-white">Budget Planner</h1>
+          <p className="text-dark-500 dark:text-dark-400 mt-1">Set monthly limits for category spending and track compliance.</p>
         </div>
         
         {/* Date Selectors & Copy Last Month's Budget */}
@@ -331,21 +331,21 @@ export default function BudgetPage() {
             Copy Last Month's Budgets
           </Button>
 
-          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm">
+          <div className="flex items-center gap-2 bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-xl p-1.5 shadow-sm">
             <Calendar className="w-4 h-4 text-dark-400 ml-2" />
             <select
               value={month}
               onChange={(e) => setMonth(Number(e.target.value))}
-              className="bg-transparent text-sm font-semibold text-dark-700 focus:outline-none border-none py-1 px-2 cursor-pointer"
+              className="bg-transparent text-sm font-semibold text-dark-700 dark:text-dark-300 focus:outline-none border-none py-1 px-2 cursor-pointer"
             >
-              {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+              {months.map(m => <option key={m.value} value={m.value} className="bg-white dark:bg-dark-800">{m.label}</option>)}
             </select>
             <select
               value={year}
               onChange={(e) => setYear(Number(e.target.value))}
-              className="bg-transparent text-sm font-semibold text-dark-700 focus:outline-none border-none py-1 px-2 cursor-pointer"
+              className="bg-transparent text-sm font-semibold text-dark-700 dark:text-dark-300 focus:outline-none border-none py-1 px-2 cursor-pointer"
             >
-              {years.map(y => <option key={y.value} value={y.value}>{y.label}</option>)}
+              {years.map(y => <option key={y.value} value={y.value} className="bg-white dark:bg-dark-800">{y.label}</option>)}
             </select>
           </div>
         </div>
@@ -387,22 +387,22 @@ export default function BudgetPage() {
       )}
 
       {/* AI Budget Coach Insights */}
-      <div className="bg-[#F8F5FE] border border-[#E5DCFC] rounded-2xl p-5 text-[#3B3054] shadow-soft relative overflow-hidden">
+      <div className="bg-brand-50/60 dark:bg-brand-950/20 border border-brand-100 dark:border-brand-900/40 rounded-2xl p-5 text-dark-900 dark:text-white shadow-soft relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#EDE5FC] text-[#7C3AED] border border-[#E5DCFC]">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800">
                 <Sparkles className="w-5 h-5 animate-pulse" />
               </div>
               <div>
-                <h3 className="font-bold text-[#2D1A54] text-base leading-tight">AI Budget Coach</h3>
-                <p className="text-xs text-[#7A6E99] font-semibold mt-0.5">Automated rule analysis and spending advice</p>
+                <h3 className="font-bold text-dark-900 dark:text-white text-base leading-tight">AI Budget Coach</h3>
+                <p className="text-xs text-dark-500 dark:text-dark-400 font-semibold mt-0.5">Automated rule analysis and spending advice</p>
               </div>
             </div>
             <button
               onClick={handleToggleAiCoach}
               type="button"
-              className="px-4 py-2 rounded-xl text-xs font-bold border border-[#E5DCFC] text-[#7C3AED] hover:bg-[#EDE5FC] bg-white transition-all shadow-sm flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl text-xs font-bold border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/40 bg-white dark:bg-dark-800 transition-all shadow-sm flex items-center gap-1.5"
             >
               {aiCoachOpen ? 'Hide Insights' : 'Get Budget Analysis'}
             </button>
@@ -414,19 +414,19 @@ export default function BudgetPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-4 pt-4 border-t border-[#E5DCFC] overflow-hidden"
+                className="mt-4 pt-4 border-t border-brand-200/50 dark:border-brand-800/50 overflow-hidden"
               >
                 {aiCoachLoading ? (
-                  <div className="flex items-center gap-2.5 py-4 text-[#3B3054]">
-                    <div className="w-4 h-4 border-2 border-[#E5DCFC] border-t-[#7C3AED] rounded-full animate-spin" />
+                  <div className="flex items-center gap-2.5 py-4 text-dark-600 dark:text-dark-300">
+                    <div className="w-4 h-4 border-2 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
                     <span className="text-sm font-semibold">Analyzing budget limits and current expenses...</span>
                   </div>
                 ) : aiCoachInsights ? (
-                  <div className="max-w-none text-[#3B3054] leading-relaxed font-sans space-y-3">
+                  <div className="max-w-none text-dark-800 dark:text-dark-200 leading-relaxed font-sans space-y-3">
                     {renderMarkdown(aiCoachInsights)}
                   </div>
                 ) : (
-                  <p className="text-sm text-[#7A6E99] font-medium">No insights generated yet. Click analyze to evaluate your spending rules.</p>
+                  <p className="text-sm text-dark-500 dark:text-dark-400 font-medium">No insights generated yet. Click analyze to evaluate your spending rules.</p>
                 )}
               </motion.div>
             )}
@@ -435,18 +435,18 @@ export default function BudgetPage() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {/* Total Budgeted */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700/80 p-5 shadow-soft">
           <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-brand-50 text-brand-600 border border-brand-100">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-brand-50 dark:bg-brand-900/30 text-brand-600 border border-brand-100 dark:border-brand-800">
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Total Budgeted</p>
-          <p className="text-dark-900 text-xl font-bold">{fmt(totalBudgeted)}</p>
+          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Total Budgeted</p>
+          <p className="text-dark-900 dark:text-white text-xl font-bold">{fmt(totalBudgeted)}</p>
         </div>
 
         {/* Total Spent */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700/80 p-5 shadow-soft">
           <div className="flex items-start justify-between mb-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
               isOverallExceeded ? 'bg-danger/10 text-danger border-danger/20' : 'bg-success/10 text-success border-success/20'
@@ -454,32 +454,32 @@ export default function BudgetPage() {
               <TrendingDown className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Total Spent</p>
-          <p className="text-dark-900 text-xl font-bold">{fmt(totalSpent)}</p>
+          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Total Spent</p>
+          <p className="text-dark-900 dark:text-white text-xl font-bold">{fmt(totalSpent)}</p>
         </div>
 
         {/* Remaining */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700/80 p-5 shadow-soft">
           <div className="flex items-start justify-between mb-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
-              remainingBalance < 0 ? 'bg-danger/10 text-danger border-danger/20' : 'bg-purple-100 text-purple-600 border-purple-200'
+              remainingBalance < 0 ? 'bg-danger/10 text-danger border-danger/20' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 border-purple-200 dark:border-purple-800'
             }`}>
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Remaining Balance</p>
-          <p className="text-dark-900 text-xl font-bold">
+          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Remaining Balance</p>
+          <p className="text-dark-900 dark:text-white text-xl font-bold">
             {remainingBalance < 0 ? `-${fmt(Math.abs(remainingBalance))}` : fmt(remainingBalance)}
           </p>
         </div>
       </div>
 
       {/* Categories Budgets section */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-soft">
+      <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-200 dark:border-dark-700 p-6 shadow-soft">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-dark-900 font-bold text-lg">Category Spent vs. Budget</h2>
-            <p className="text-dark-500 text-sm">Monthly breakdowns and progress meters.</p>
+            <h2 className="text-dark-900 dark:text-white font-bold text-lg">Category Spent vs. Budget</h2>
+            <p className="text-dark-500 dark:text-dark-400 text-sm">Monthly breakdowns and progress meters.</p>
           </div>
           <Button onClick={() => handleOpenSetBudget()} size="sm" className="flex items-center gap-1">
             <Plus className="w-4 h-4" />
@@ -504,12 +504,12 @@ export default function BudgetPage() {
               const isExceeded = item.is_exceeded;
               
               return (
-                <div key={item.category_id} className="p-4 bg-gray-50/50 border border-gray-100 rounded-2xl hover:border-brand-200 transition-all duration-300 group">
+                <div key={item.category_id} className="p-4 bg-gray-50/50 dark:bg-dark-700/30 border border-gray-100 dark:border-dark-700 rounded-2xl hover:border-brand-200 dark:hover:border-brand-700 transition-all duration-300 group">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-3.5 h-3.5 rounded-full shadow-sm" style={{ background: item.category_color }} />
                       <div>
-                        <h4 className="font-bold text-dark-800 text-sm">{item.category_name}</h4>
+                        <h4 className="font-bold text-dark-800 dark:text-white text-sm">{item.category_name}</h4>
                         {!hasBudget && (
                           <span className="inline-flex items-center gap-1 text-[10px] text-dark-400 font-semibold mt-0.5">
                             <Info className="w-3 h-3" /> No budget limit configured
@@ -530,8 +530,8 @@ export default function BudgetPage() {
 
                     <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
                       <div className="text-right">
-                        <p className="text-xs text-dark-500 font-semibold">
-                          <span className="text-dark-800 font-extrabold">{fmt(item.actual_spent)}</span>
+                        <p className="text-xs text-dark-500 dark:text-dark-400 font-semibold">
+                          <span className="text-dark-800 dark:text-white font-extrabold">{fmt(item.actual_spent)}</span>
                           {hasBudget ? ` of ${fmt(item.budget_amount)}` : ' spent'}
                         </p>
                         {hasBudget && (
@@ -561,7 +561,7 @@ export default function BudgetPage() {
                   </div>
 
                   {hasBudget && (
-                    <div className="h-2 w-full bg-gray-200/60 rounded-full overflow-hidden relative shadow-inner">
+                    <div className="h-2 w-full bg-gray-200/60 dark:bg-dark-600/60 rounded-full overflow-hidden relative shadow-inner">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: formattedRatio }}

@@ -246,7 +246,7 @@ export default function TransactionsPage() {
           </div>
 
           {/* Type filter */}
-          <div className="flex gap-1 p-1 bg-white border border-gray-200 rounded-xl">
+          <div className="flex gap-1 p-1 bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-xl">
             {['', 'income', 'expense'].map((t) => (
               <button
                 key={t}
@@ -257,8 +257,8 @@ export default function TransactionsPage() {
                       ? 'bg-success/15 text-success'
                       : t === 'expense'
                       ? 'bg-danger/15 text-danger'
-                      : 'bg-brand-100 text-brand-700 border border-brand-200'
-                    : 'text-dark-500 hover:text-dark-700'
+                      : 'bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800'
+                    : 'text-dark-500 dark:text-dark-400 hover:text-dark-700 dark:hover:text-white'
                 }`}
               >
                 {t === '' ? 'All' : t.charAt(0).toUpperCase() + t.slice(1)}
@@ -280,7 +280,7 @@ export default function TransactionsPage() {
 
       {/* Stats and Alerts Bar */}
       <div className="flex items-center gap-4 min-h-[36px]">
-        <div className="text-dark-500 text-xs font-semibold flex-shrink-0 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1">
+        <div className="text-dark-500 dark:text-dark-400 text-xs font-semibold flex-shrink-0 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg px-2.5 py-1">
           {total} transaction{total !== 1 ? 's' : ''} found
         </div>
         
@@ -312,15 +312,15 @@ export default function TransactionsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-soft">
+      <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 overflow-hidden shadow-soft">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <div className="w-8 h-8 border-2 border-brand-400/30 border-t-brand-500 rounded-full animate-spin" />
           </div>
         ) : transactions.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-dark-400 text-sm">No transactions found.</p>
-            <button onClick={openAdd} className="text-brand-600 font-semibold text-sm mt-2 hover:text-brand-500 transition-colors">
+            <p className="text-dark-400 dark:text-dark-500 text-sm">No transactions found.</p>
+            <button onClick={openAdd} className="text-brand-600 dark:text-brand-400 font-semibold text-sm mt-2 hover:text-brand-500 transition-colors">
               Add your first transaction
             </button>
           </div>
@@ -328,12 +328,12 @@ export default function TransactionsPage() {
           <div className="overflow-x-auto w-full">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left px-4 py-3.5 text-dark-500 font-semibold text-xs uppercase tracking-wide whitespace-nowrap">Date</th>
-                  <th className="text-left px-4 py-3.5 text-dark-500 font-semibold text-xs uppercase tracking-wide">Description</th>
-                  <th className="text-left px-4 py-3.5 text-dark-500 font-semibold text-xs uppercase tracking-wide hidden md:table-cell">Category</th>
-                  <th className="text-left px-4 py-3.5 text-dark-500 font-semibold text-xs uppercase tracking-wide hidden lg:table-cell">Method</th>
-                  <th className="text-right px-4 py-3.5 text-dark-500 font-semibold text-xs uppercase tracking-wide whitespace-nowrap">Amount</th>
+                <tr className="border-b border-gray-100 dark:border-dark-700">
+                  <th className="text-left px-4 py-3.5 text-dark-500 dark:text-dark-400 font-semibold text-xs uppercase tracking-wide whitespace-nowrap">Date</th>
+                  <th className="text-left px-4 py-3.5 text-dark-500 dark:text-dark-400 font-semibold text-xs uppercase tracking-wide">Description</th>
+                  <th className="text-left px-4 py-3.5 text-dark-500 dark:text-dark-400 font-semibold text-xs uppercase tracking-wide hidden md:table-cell">Category</th>
+                  <th className="text-left px-4 py-3.5 text-dark-500 dark:text-dark-400 font-semibold text-xs uppercase tracking-wide hidden lg:table-cell">Method</th>
+                  <th className="text-right px-4 py-3.5 text-dark-500 dark:text-dark-400 font-semibold text-xs uppercase tracking-wide whitespace-nowrap">Amount</th>
                   <th className="px-4 py-3 w-16" />
                 </tr>
               </thead>
@@ -345,18 +345,18 @@ export default function TransactionsPage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="border-b border-gray-50 hover:bg-brand-50/30 transition-colors group"
+                      className="border-b border-gray-50 dark:border-dark-700/50 hover:bg-brand-50/30 dark:hover:bg-brand-950/20 transition-colors group"
                     >
-                      <td className="px-4 py-3 text-dark-400 whitespace-nowrap text-xs font-medium">{tx.date}</td>
+                      <td className="px-4 py-3 text-dark-400 dark:text-dark-400 whitespace-nowrap text-xs font-medium">{tx.date}</td>
                       <td className="px-4 py-3 max-w-[180px]">
-                        <p className="text-dark-800 font-semibold truncate flex items-center gap-2">
+                        <p className="text-dark-800 dark:text-white font-semibold truncate flex items-center gap-2">
                           {tx.description}
                           {tx.receipt_url && (
                             <a
                               href={`http://127.0.0.1:5000${tx.receipt_url}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-brand-50 border border-brand-200 text-[10px] text-brand-600 font-bold hover:bg-brand-100 transition-colors"
+                              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-850 text-[10px] text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-colors"
                               title="Click to view receipt"
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -364,16 +364,16 @@ export default function TransactionsPage() {
                             </a>
                           )}
                         </p>
-                        {tx.note && <p className="text-dark-400 text-xs truncate">{tx.note}</p>}
+                        {tx.note && <p className="text-dark-400 dark:text-dark-500 text-xs truncate">{tx.note}</p>}
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: tx.category_color }} />
-                          <span className="text-dark-500 text-xs truncate max-w-[100px]">{tx.category_name}</span>
+                          <span className="text-dark-500 dark:text-dark-300 text-xs truncate max-w-[100px]">{tx.category_name}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 hidden lg:table-cell">
-                        <span className="text-dark-400 text-xs capitalize">{tx.payment_method}</span>
+                        <span className="text-dark-400 dark:text-dark-400 text-xs capitalize">{tx.payment_method}</span>
                       </td>
                       <td className={`px-4 py-3 text-right font-bold whitespace-nowrap ${
                         tx.type === 'income' ? 'text-success' : 'text-danger'
@@ -384,13 +384,13 @@ export default function TransactionsPage() {
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openEdit(tx)}
-                            className="p-1.5 rounded-lg text-dark-400 hover:text-brand-600 hover:bg-brand-50"
+                            className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-dark-700"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => setDeleteId(tx.id)}
-                            className="p-1.5 rounded-lg text-dark-400 hover:text-danger hover:bg-danger/10"
+                            className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:text-danger dark:hover:text-rose-450 hover:bg-danger/10 dark:hover:bg-rose-950/20"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -411,17 +411,17 @@ export default function TransactionsPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="p-2 rounded-xl bg-white border border-gray-200 text-dark-500 hover:text-brand-600 hover:border-brand-300 disabled:opacity-30 transition-all"
+            className="p-2 rounded-xl bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 text-dark-500 dark:text-dark-400 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-300 dark:hover:border-brand-700 disabled:opacity-30 dark:disabled:opacity-20 transition-all"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <span className="text-dark-500 text-sm font-medium">
+          <span className="text-dark-500 dark:text-dark-400 text-sm font-medium">
             Page {page} of {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="p-2 rounded-xl bg-white border border-gray-200 text-dark-500 hover:text-brand-600 hover:border-brand-300 disabled:opacity-30 transition-all"
+            className="p-2 rounded-xl bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 text-dark-500 dark:text-dark-400 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-300 dark:hover:border-brand-700 disabled:opacity-30 dark:disabled:opacity-20 transition-all"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -439,7 +439,7 @@ export default function TransactionsPage() {
 
           {/* Type toggle */}
           <div>
-            <label className="text-dark-700 text-sm font-semibold block mb-1.5">Type</label>
+            <label className="text-dark-700 dark:text-dark-300 text-sm font-semibold block mb-1.5">Type</label>
             <div className="flex gap-2">
               {(['income', 'expense'] as const).map((t) => (
                 <button
@@ -450,7 +450,7 @@ export default function TransactionsPage() {
                       ? t === 'income'
                         ? 'bg-success/15 text-success border-success/30'
                         : 'bg-danger/15 text-danger border-danger/30'
-                      : 'bg-gray-50 text-dark-600 border-gray-200 hover:bg-gray-100'
+                      : 'bg-gray-50 dark:bg-dark-900/50 text-dark-600 dark:text-dark-300 border-gray-200 dark:border-dark-700 hover:bg-gray-100 dark:hover:bg-dark-700'
                   }`}
                 >
                   {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -479,16 +479,16 @@ export default function TransactionsPage() {
 
           {/* Receipt File Uploader */}
           <div>
-            <label className="text-dark-700 text-sm font-semibold block mb-1.5">Receipt Attachment (optional)</label>
+            <label className="text-dark-700 dark:text-dark-300 text-sm font-semibold block mb-1.5">Receipt Attachment (optional)</label>
             {form.receipt_url ? (
-              <div className="flex items-center justify-between p-3 bg-brand-50 border border-brand-200 rounded-xl text-brand-800 text-sm">
+              <div className="flex items-center justify-between p-3 bg-brand-50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-800 rounded-xl text-brand-800 dark:text-brand-300 text-sm">
                 <span className="truncate max-w-[200px] font-medium">Receipt Attached ({form.receipt_url.split('/').pop()})</span>
                 <button type="button" onClick={() => setForm(f => ({ ...f, receipt_url: null }))} className="text-xs text-danger font-bold hover:underline">Remove</button>
               </div>
             ) : (
-              <div className="relative border-2 border-dashed border-dark-200 hover:border-brand-400 rounded-xl p-4 transition-all text-center cursor-pointer bg-dark-50/50 hover:bg-white group">
+              <div className="relative border-2 border-dashed border-dark-200 dark:border-dark-700 hover:border-brand-400 dark:hover:border-brand-500 rounded-xl p-4 transition-all text-center cursor-pointer bg-dark-50/50 dark:bg-dark-900/50 hover:bg-white dark:hover:bg-dark-800 group">
                 <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf" disabled={uploadingFile} />
-                <p className="text-xs text-dark-500 font-semibold group-hover:text-brand-600 transition-colors">
+                <p className="text-xs text-dark-500 dark:text-dark-400 font-semibold group-hover:text-brand-600 transition-colors">
                   {uploadingFile ? 'Uploading...' : 'Drag & drop or click to upload receipt (PDF, JPG, PNG)'}
                 </p>
               </div>
@@ -508,7 +508,7 @@ export default function TransactionsPage() {
 
       {/* Delete Confirm Modal */}
       <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Delete Transaction" maxWidth="max-w-sm">
-        <p className="text-dark-600 text-sm mb-5">
+        <p className="text-dark-600 dark:text-dark-350 text-sm mb-5">
           Are you sure you want to delete this transaction? This action cannot be undone.
         </p>
         <div className="flex gap-3">

@@ -40,13 +40,13 @@ export default function Modal({
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop — separate from modal so z-index works cleanly */}
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50"
           />
 
           {/* Scroll container */}
@@ -58,15 +58,15 @@ export default function Modal({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 transition={{ duration: 0.2, ease: 'easeOut' }}
-                className={`relative w-full ${maxWidth} bg-white border border-slate-200 rounded-2xl shadow-2xl shadow-slate-200/30 z-10`}
+                className={`relative w-full ${maxWidth} bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700 rounded-2xl shadow-2xl z-10`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-                  <h2 className="text-slate-900 font-semibold text-base">{title}</h2>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-dark-700">
+                  <h2 className="text-dark-900 dark:text-white font-semibold text-base">{title}</h2>
                   <button
                     onClick={onClose}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-dark-400 dark:text-dark-500 hover:text-dark-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700 transition-all"
                   >
                     <X className="w-4 h-4" />
                   </button>

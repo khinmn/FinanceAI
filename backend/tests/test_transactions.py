@@ -19,6 +19,7 @@ import unittest
 # Allow importing from the backend root
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+os.environ["TESTING"] = "true"
 from app import create_app
 from models import db
 

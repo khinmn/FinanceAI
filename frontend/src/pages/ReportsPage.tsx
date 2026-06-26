@@ -10,6 +10,7 @@ import {
 import { reportsApi } from '../api/reports';
 import type { CashflowItem, CategoryReportItem } from '../types';
 import Button from '../components/ui/Button';
+import { useAuthStore } from '../store/authStore';
 
 const fmt = (n: number) =>
   'K ' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
@@ -38,6 +39,7 @@ type Tab = 'cashflow' | 'income' | 'expenses';
 
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('cashflow');
+  const darkMode = useAuthStore((s) => s.darkMode);
   const [cashflow, setCashflow] = useState<CashflowItem[]>([]);
   const [incomeBreakdown, setIncomeBreakdown] = useState<CategoryReportItem[]>([]);
   const [expenseBreakdown, setExpenseBreakdown] = useState<CategoryReportItem[]>([]);
@@ -171,8 +173,8 @@ export default function ReportsPage() {
       {/* Header Panel */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-dark-900">Financial Reports</h1>
-          <p className="text-dark-500 mt-1">Deep-dive analysis of your business's income, expenses, and cash flow trends.</p>
+          <h1 className="text-2xl font-bold text-dark-900 dark:text-white">Financial Reports</h1>
+          <p className="text-dark-500 dark:text-dark-400 mt-1">Deep-dive analysis of your business's income, expenses, and cash flow trends.</p>
         </div>
         
         {/* Filters & Export Actions */}
@@ -188,14 +190,14 @@ export default function ReportsPage() {
             Export CSV
           </Button>
 
-          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm">
+          <div className="flex items-center gap-2 bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-xl p-1.5 shadow-sm">
             <Calendar className="w-4 h-4 text-dark-400 ml-2" />
             <select
               value={year}
               onChange={(e) => setYear(Number(e.target.value))}
-              className="bg-transparent text-sm font-semibold text-dark-700 focus:outline-none border-none py-1 px-2 cursor-pointer"
+              className="bg-transparent text-sm font-semibold text-dark-700 dark:text-white focus:outline-none border-none py-1 px-2 cursor-pointer"
             >
-              {years.map(y => <option key={y.value} value={y.value}>{y.label}</option>)}
+              {years.map(y => <option key={y.value} value={y.value} className="dark:bg-dark-800">{y.label}</option>)}
             </select>
           </div>
         </div>
@@ -231,58 +233,58 @@ export default function ReportsPage() {
       {/* Annual Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Income */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
           <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 border border-emerald-100">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 border border-emerald-100 dark:border-emerald-900/40">
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Annual Income ({year})</p>
-          <p className="text-dark-900 text-xl font-bold">{fmt(totalIncome)}</p>
+          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Annual Income ({year})</p>
+          <p className="text-dark-900 dark:text-white text-xl font-bold">{fmt(totalIncome)}</p>
         </div>
 
         {/* Total Expenses */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
           <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-50 text-rose-600 border border-rose-100">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-50 dark:bg-rose-950/20 text-rose-600 border border-rose-100 dark:border-rose-900/40">
               <TrendingDown className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Annual Expenses ({year})</p>
-          <p className="text-dark-900 text-xl font-bold">{fmt(totalExpense)}</p>
+          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Annual Expenses ({year})</p>
+          <p className="text-dark-900 dark:text-white text-xl font-bold">{fmt(totalExpense)}</p>
         </div>
 
         {/* Net Savings */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
           <div className="flex items-start justify-between mb-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
-              netSavings < 0 ? 'bg-danger/10 text-danger border-danger/20' : 'bg-brand-50 text-brand-600 border-brand-100'
+              netSavings < 0 ? 'bg-danger/10 text-danger border-danger/20' : 'bg-brand-50 dark:bg-brand-950/20 text-brand-600 border border-brand-100 dark:border-brand-900/40'
             }`}>
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Net Savings ({year})</p>
-          <p className="text-dark-900 text-xl font-bold">
+          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Net Savings ({year})</p>
+          <p className="text-dark-900 dark:text-white text-xl font-bold">
             {netSavings < 0 ? `-${fmt(Math.abs(netSavings))}` : fmt(netSavings)}
           </p>
         </div>
 
         {/* Savings Rate */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-soft">
+        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
           <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 text-purple-600 border border-purple-100">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 dark:bg-purple-950/20 text-purple-600 border border-purple-100 dark:border-purple-900/40">
               <Percent className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-1">Savings Rate ({year})</p>
-          <p className="text-dark-900 text-xl font-bold">
+          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Savings Rate ({year})</p>
+          <p className="text-dark-900 dark:text-white text-xl font-bold">
             {savingsRate.toFixed(1)}%
           </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-white border border-dark-100 rounded-xl w-fit shadow-soft">
+      <div className="flex gap-1 p-1 bg-white dark:bg-dark-800 border border-dark-100 dark:border-dark-700 rounded-xl w-fit shadow-soft">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -290,7 +292,7 @@ export default function ReportsPage() {
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-250 ${
               activeTab === t.key
                 ? 'bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-md shadow-brand-500/20'
-                : 'text-dark-500 hover:text-dark-900'
+                : 'text-dark-500 dark:text-dark-400 hover:text-dark-900 dark:hover:text-white'
             }`}
           >
             {t.label}
@@ -301,9 +303,9 @@ export default function ReportsPage() {
       {activeTab === 'cashflow' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
           {/* Cumulative cashflow area chart */}
-          <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-dark-900 font-bold text-base mb-1">Cumulative Cash Flow</h3>
-            <p className="text-dark-400 text-xs mb-5 font-medium">Running total over last 6 months</p>
+          <div className="bg-white dark:bg-dark-800 border border-dark-100 dark:border-dark-700 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-dark-900 dark:text-white font-bold text-base mb-1">Cumulative Cash Flow</h3>
+            <p className="text-dark-400 dark:text-dark-400 text-xs mb-5 font-medium">Running total over last 6 months</p>
             <ResponsiveContainer width="100%" height={240}>
               <AreaChart data={cashflow}>
                 <defs>
@@ -312,7 +314,7 @@ export default function ReportsPage() {
                     <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#374151' : '#E5E7EB'} />
                 <XAxis dataKey="period" tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
                 <YAxis tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dx={-10}
                   tickFormatter={(v) => `K${(v / 1000).toFixed(0)}k`} />
@@ -324,16 +326,16 @@ export default function ReportsPage() {
           </div>
 
           {/* Monthly income/expense bars */}
-          <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-dark-900 font-bold text-base mb-1">Monthly Net Cash Flow</h3>
-            <p className="text-dark-400 text-xs mb-5 font-medium">Income vs expenses per month</p>
+          <div className="bg-white dark:bg-dark-800 border border-dark-100 dark:border-dark-700 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-dark-900 dark:text-white font-bold text-base mb-1">Monthly Net Cash Flow</h3>
+            <p className="text-dark-400 dark:text-dark-400 text-xs mb-5 font-medium">Income vs expenses per month</p>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={cashflow} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#374151' : '#E5E7EB'} />
                 <XAxis dataKey="period" tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
                 <YAxis tick={{ fill: '#6B7280', fontSize: 12 }} axisLine={false} tickLine={false} dx={-10}
                   tickFormatter={(v) => `K${(v / 1000).toFixed(0)}k`} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F3F4F6' }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: darkMode ? '#374151' : '#F3F4F6' }} />
                 <Bar dataKey="income" name="Income" fill="#10B981" radius={[6, 6, 0, 0]} />
                 <Bar dataKey="expense" name="Expenses" fill="#EF4444" radius={[6, 6, 0, 0]} />
               </BarChart>
@@ -345,13 +347,13 @@ export default function ReportsPage() {
       {(activeTab === 'income' || activeTab === 'expenses') && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pie Chart */}
-          <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-dark-900 font-bold text-base mb-1">
+          <div className="bg-white dark:bg-dark-800 border border-dark-100 dark:border-dark-700 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-dark-900 dark:text-white font-bold text-base mb-1">
               {activeTab === 'income' ? 'Income' : 'Expense'} by Category
             </h3>
-            <p className="text-dark-400 text-xs mb-3 font-medium">Year {year}</p>
+            <p className="text-dark-400 dark:text-dark-400 text-xs mb-3 font-medium">Year {year}</p>
             {breakdown.length === 0 ? (
-              <div className="flex items-center justify-center h-48 text-dark-400 text-sm">No data</div>
+              <div className="flex items-center justify-center h-48 text-dark-400 dark:text-dark-500 text-sm">No data</div>
             ) : (
               <>
                 <ResponsiveContainer width="100%" height={220}>
@@ -370,10 +372,10 @@ export default function ReportsPage() {
           </div>
 
           {/* Category table */}
-          <div className="bg-white border border-dark-100 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-dark-900 font-bold text-base mb-4">Breakdown</h3>
+          <div className="bg-white dark:bg-dark-800 border border-dark-100 dark:border-dark-700 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-dark-900 dark:text-white font-bold text-base mb-4">Breakdown</h3>
             {breakdown.length === 0 ? (
-              <div className="flex items-center justify-center h-48 text-dark-400 text-sm">No data for this period</div>
+              <div className="flex items-center justify-center h-48 text-dark-400 dark:text-dark-500 text-sm">No data for this period</div>
             ) : (
               <div className="space-y-4">
                 {breakdown.map((item) => (
@@ -381,15 +383,15 @@ export default function ReportsPage() {
                     <div className="flex items-center justify-between text-xs mb-1.5">
                       <div className="flex items-center gap-2">
                         <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                        <span className="text-dark-700 font-semibold">{item.name}</span>
+                        <span className="text-dark-700 dark:text-dark-300 font-semibold">{item.name}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-dark-400 font-medium">{item.count} txn{item.count !== 1 ? 's' : ''}</span>
-                        <span className="text-dark-900 font-bold">{fmt(item.total)}</span>
-                        <span className="text-dark-500 w-10 text-right font-semibold">{item.percentage}%</span>
+                        <span className="text-dark-400 dark:text-dark-400 font-medium">{item.count} txn{item.count !== 1 ? 's' : ''}</span>
+                        <span className="text-dark-900 dark:text-white font-bold">{fmt(item.total)}</span>
+                        <span className="text-dark-500 dark:text-dark-400 w-10 text-right font-semibold">{item.percentage}%</span>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-dark-50 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-dark-50 dark:bg-dark-700 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${item.percentage}%` }}

@@ -189,7 +189,7 @@ export default function SettingsPage() {
               ]} />
             </div>
           </div>
-          <div className="flex gap-3 mt-6 pt-4 border-t border-gray-50">
+          <div className="flex gap-3 mt-6 pt-4 border-t border-gray-50 dark:border-dark-700">
             <Button onClick={saveProfile} loading={savingProfile} className="w-full sm:w-auto text-[15px] font-bold py-2.5 rounded-xl bg-brand-600 text-white">
               Save Changes
             </Button>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
               <Input label="Country / Region" value={prefs.country} onChange={(e) => setPrefs(p => ({...p, country: e.target.value}))} />
             </div>
           </div>
-          <div className="flex gap-3 mt-6 pt-4 border-t border-gray-50">
+          <div className="flex gap-3 mt-6 pt-4 border-t border-gray-50 dark:border-dark-700">
             <Button variant="secondary" onClick={savePrefs} loading={savingPrefs} className="w-full sm:w-auto text-[15px] font-bold py-2.5 rounded-xl">
               Save Preferences
             </Button>
@@ -309,8 +309,8 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="bg-[#F8F5FE] border border-[#E5DCFC] rounded-2xl p-4 mt-2 flex items-start gap-2 text-[#3B3054]">
-              <Sparkles className="w-5 h-5 text-[#7C3AED] flex-shrink-0 mt-0.5 animate-pulse" />
+            <div className="bg-[#F8F5FE] dark:bg-brand-950/20 border border-[#E5DCFC] dark:border-brand-900/50 rounded-2xl p-4 mt-2 flex items-start gap-2 text-[#3B3054] dark:text-brand-300">
+              <Sparkles className="w-5 h-5 text-[#7C3AED] dark:text-brand-400 flex-shrink-0 mt-0.5 animate-pulse" />
               <p className="text-[12px] font-semibold leading-relaxed">
                 💡 AI advice is generated automatically based on your financial history. It does not replace certified professional audit or tax filing consultation.
               </p>
@@ -517,14 +517,14 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-1.5 relative">
-                  <label className="text-[12px] font-bold text-dark-400 uppercase tracking-wider">New Password *</label>
+                  <label className="text-[12px] font-bold text-dark-400 dark:text-dark-450 uppercase tracking-wider">New Password *</label>
                   <div className="relative">
                     <input
                       type={showNewPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="At least 8 characters"
-                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-[15px] placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 font-medium"
+                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-dark-900/50 border border-gray-200 dark:border-dark-700 text-[15px] text-dark-900 dark:text-white placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 font-medium"
                       required
                     />
                     <button
@@ -538,26 +538,26 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[12px] font-bold text-dark-400 uppercase tracking-wider">Confirm New Password *</label>
+                  <label className="text-[12px] font-bold text-dark-400 dark:text-dark-450 uppercase tracking-wider">Confirm New Password *</label>
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repeat new password"
-                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-[15px] placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 font-medium"
+                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-dark-900/50 border border-gray-200 dark:border-dark-700 text-[15px] text-dark-900 dark:text-white placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 font-medium"
                     required
                   />
                 </div>
 
                 {/* Password requirement disclaimer block */}
-                <div className="p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs text-dark-500 flex gap-2">
+                <div className="p-3 bg-gray-50 dark:bg-dark-900/30 border border-gray-100 dark:border-dark-750 rounded-xl text-xs text-dark-500 dark:text-dark-400 flex gap-2">
                   <AlertCircle className="w-4.5 h-4.5 text-warning flex-shrink-0 mt-0.5" />
                   <p className="font-semibold leading-relaxed">
                     Password must be at least 8 characters long and contain both letters and numbers.
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-gray-50 flex items-center justify-end gap-3">
+                <div className="pt-4 border-t border-gray-50 dark:border-dark-700 flex items-center justify-end gap-3">
                   <Button
                     type="button"
                     variant="secondary"

@@ -62,18 +62,18 @@ function FindingCard({ finding, index }: { finding: GapFinding; index: number })
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5 space-y-3.5 border-t border-dark-100/50 pt-4">
+            <div className="px-5 pb-5 space-y-3.5 border-t border-dark-100/50 dark:border-dark-700/50 pt-4">
               <div>
-                <p className="text-dark-400 text-xs uppercase tracking-wider font-bold mb-1">Metric</p>
+                <p className="text-dark-400 dark:text-dark-500 text-xs uppercase tracking-wider font-bold mb-1">Metric</p>
                 <p className={`text-sm font-bold ${cfg.color}`}>{finding.metric}</p>
               </div>
               <div>
-                <p className="text-dark-400 text-xs uppercase tracking-wider font-bold mb-1">What this means</p>
-                <p className="text-dark-700 text-sm font-medium leading-relaxed">{finding.description}</p>
+                <p className="text-dark-400 dark:text-dark-500 text-xs uppercase tracking-wider font-bold mb-1">What this means</p>
+                <p className="text-dark-700 dark:text-dark-300 text-sm font-medium leading-relaxed">{finding.description}</p>
               </div>
               <div>
-                <p className="text-dark-400 text-xs uppercase tracking-wider font-bold mb-1">Recommendation</p>
-                <p className="text-dark-700 text-sm font-medium leading-relaxed">{finding.recommendation}</p>
+                <p className="text-dark-400 dark:text-dark-500 text-xs uppercase tracking-wider font-bold mb-1">Recommendation</p>
+                <p className="text-dark-700 dark:text-dark-300 text-sm font-medium leading-relaxed">{finding.recommendation}</p>
               </div>
             </div>
           </motion.div>
@@ -114,7 +114,7 @@ export default function GapAnalysisPage() {
       if (parts.length === 1) return rawText;
       return parts.map((part, index) => {
         if (index % 2 === 1) {
-          return <strong key={index} className="font-bold text-[#2D1A54] bg-[#EFE6FD] px-1 rounded text-sm">{part}</strong>;
+          return <strong key={index} className="font-bold text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30 px-1 rounded text-sm">{part}</strong>;
         }
         return part;
       });
@@ -127,21 +127,21 @@ export default function GapAnalysisPage() {
       // Headers
       if (trimmedBlock.startsWith('# ')) {
         return (
-          <h3 key={bIdx} className="text-sm font-extrabold text-[#2D1A54] mt-4 mb-2 first:mt-0 border-b border-[#E5DCFC] pb-1">
+          <h3 key={bIdx} className="text-sm font-extrabold text-brand-800 dark:text-brand-300 mt-4 mb-2 first:mt-0 border-b border-brand-200 dark:border-brand-800/50 pb-1">
             {parseInlineStyles(trimmedBlock.slice(2))}
           </h3>
         );
       }
       if (trimmedBlock.startsWith('## ')) {
         return (
-          <h4 key={bIdx} className="text-sm font-extrabold text-[#5B39A8] mt-4 mb-2 first:mt-0">
+          <h4 key={bIdx} className="text-sm font-extrabold text-brand-700 dark:text-brand-400 mt-4 mb-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(3))}
           </h4>
         );
       }
       if (trimmedBlock.startsWith('### ')) {
         return (
-          <h5 key={bIdx} className="text-sm font-bold text-[#7C3AED] mt-3 mb-1">
+          <h5 key={bIdx} className="text-sm font-bold text-brand-600 dark:text-brand-400 mt-3 mb-1">
             {parseInlineStyles(trimmedBlock.slice(4))}
           </h5>
         );
@@ -176,8 +176,8 @@ export default function GapAnalysisPage() {
 
               if (isBullet) {
                 return (
-                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-sm text-dark-700 dark:text-dark-300 leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-dark-500 dark:text-dark-400 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(bulletRestText)}</span>
                   </div>
                 );
@@ -203,15 +203,15 @@ export default function GapAnalysisPage() {
 
               if (isNumbered) {
                 return (
-                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-sm text-dark-700 dark:text-dark-300 leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-dark-500 dark:text-dark-400 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(numRestText)}</span>
                   </div>
                 );
               }
 
               return (
-                <p key={lIdx} className="text-sm text-[#3B3054] leading-relaxed pl-6">
+                <p key={lIdx} className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed pl-6">
                   {parseInlineStyles(trimmedLine)}
                 </p>
               );

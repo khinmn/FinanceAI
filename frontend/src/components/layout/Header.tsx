@@ -82,7 +82,7 @@ export default function Header() {
 
         {/* Light/Dark Theme Toggle */}
         <button
-          onClick={() => setDarkMode?.(darkMode === true ? false : true)}
+          onClick={() => setDarkMode?.(!darkMode)}
           className="p-2.5 rounded-full hover:bg-brand-50 dark:hover:bg-dark-800 text-dark-500 hover:text-brand-600 dark:text-dark-400 dark:hover:text-brand-400 transition-colors border border-transparent hover:border-brand-100 dark:hover:border-dark-700/50"
           aria-label="Toggle theme"
         >

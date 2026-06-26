@@ -331,13 +331,13 @@ export default function GoalsPage() {
     <div className="space-y-6 font-sans">
       
       {/* Header section with ambient glow */}
-      <div className="relative p-6 md:p-8 rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-soft">
+      <div className="relative p-6 md:p-8 rounded-3xl overflow-hidden border border-gray-100 dark:border-dark-700/50 bg-white dark:bg-dark-800 shadow-soft">
         <div className="absolute top-0 right-0 w-80 h-80 bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
         
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
           <div>
-            <h1 className="text-2xl font-black text-dark-900 tracking-tight">Savings Goals</h1>
-            <p className="text-[15px] text-dark-400 font-semibold mt-1">
+            <h1 className="text-2xl font-black text-dark-900 dark:text-white tracking-tight">Savings Goals</h1>
+            <p className="text-[15px] text-dark-400 dark:text-dark-400 font-semibold mt-1">
               Define your business savings milestones, track balances, and use AI projection narratives to reach them.
             </p>
           </div>
@@ -353,44 +353,44 @@ export default function GoalsPage() {
         </div>
 
         {/* Dashboard Progress Ribbon */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-6 border-t border-gray-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-6 border-t border-gray-100 dark:border-dark-700">
           
-          <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-600">
+          <div className="p-4 bg-gray-50/50 dark:bg-dark-900/30 rounded-2xl border border-gray-100 dark:border-dark-700/50 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/20 border border-brand-100 dark:border-brand-900/50 flex items-center justify-center text-brand-600">
               <Target className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[12px] text-dark-400 font-bold uppercase tracking-wider">Active Goals</p>
-              <h3 className="text-xl font-black text-dark-900 mt-0.5">{totalGoals}</h3>
+              <p className="text-[12px] text-dark-400 dark:text-dark-400 font-bold uppercase tracking-wider">Active Goals</p>
+              <h3 className="text-xl font-black text-dark-900 dark:text-white mt-0.5">{totalGoals}</h3>
             </div>
           </div>
 
-          <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100 flex items-center gap-4">
+          <div className="p-4 bg-gray-50/50 dark:bg-dark-900/30 rounded-2xl border border-gray-100 dark:border-dark-700/50 flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center text-success">
               <Coins className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[12px] text-dark-400 font-bold uppercase tracking-wider">Total Saved Progress</p>
-              <h3 className="text-xl font-black text-dark-900 mt-0.5">K {totalCurrentAmt.toLocaleString()}</h3>
+              <p className="text-[12px] text-dark-400 dark:text-dark-400 font-bold uppercase tracking-wider">Total Saved Progress</p>
+              <h3 className="text-xl font-black text-dark-900 dark:text-white mt-0.5">K {totalCurrentAmt.toLocaleString()}</h3>
             </div>
           </div>
 
-          <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+          <div className="p-4 bg-gray-50/50 dark:bg-dark-900/30 rounded-2xl border border-gray-100 dark:border-dark-700/50 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-indigo-600">
               <TrendingUp className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[12px] text-dark-400 font-bold uppercase tracking-wider">Monthly Savings Rate</p>
-              <h3 className="text-xl font-black text-dark-900 mt-0.5">K {totalMonthlySavings.toLocaleString()}</h3>
+              <p className="text-[12px] text-dark-400 dark:text-dark-400 font-bold uppercase tracking-wider">Monthly Savings Rate</p>
+              <h3 className="text-xl font-black text-dark-900 dark:text-white mt-0.5">K {totalMonthlySavings.toLocaleString()}</h3>
             </div>
           </div>
 
-          <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100 flex flex-col justify-center">
+          <div className="p-4 bg-gray-50/50 dark:bg-dark-900/30 rounded-2xl border border-gray-100 dark:border-dark-700/50 flex flex-col justify-center">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-[12px] text-dark-400 font-bold uppercase tracking-wider">Overall Progress</p>
-              <span className="text-[12px] font-black text-brand-600">{overallPercentage}%</span>
+              <p className="text-[12px] text-dark-400 dark:text-dark-400 font-bold uppercase tracking-wider">Overall Progress</p>
+              <span className="text-[12px] font-black text-brand-600 dark:text-brand-400">{overallPercentage}%</span>
             </div>
-            <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="w-full h-2.5 bg-gray-100 dark:bg-dark-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-brand-600 transition-all duration-500 rounded-full"
                 style={{ width: `${Math.min(overallPercentage, 100)}%` }}
@@ -430,18 +430,18 @@ export default function GoalsPage() {
 
       {/* Loading state / Goals Grid */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white rounded-3xl border border-gray-100 shadow-soft">
+        <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700/50 shadow-soft">
           <Loader2 className="w-10 h-10 text-brand-600 animate-spin" />
-          <span className="text-[15px] text-dark-400 font-semibold">Loading your savings goals...</span>
+          <span className="text-[15px] text-dark-400 dark:text-dark-400 font-semibold">Loading your savings goals...</span>
         </div>
       ) : goals.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-3xl border border-gray-100 shadow-soft text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-500">
+        <div className="flex flex-col items-center justify-center py-16 px-4 bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700/50 shadow-soft text-center space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-brand-50 dark:bg-brand-950/20 border border-brand-100 dark:border-brand-900/50 flex items-center justify-center text-brand-500">
             <Target className="w-8 h-8" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-dark-900">No Saving Goals Defined</h3>
-            <p className="text-[15px] text-dark-400 font-semibold max-w-sm mx-auto">
+            <h3 className="text-lg font-bold text-dark-900 dark:text-white">No Saving Goals Defined</h3>
+            <p className="text-[15px] text-dark-400 dark:text-dark-450 font-semibold max-w-sm mx-auto">
               Setting savings goals is the first step towards sound business health. Define your targets to track and build AI forecasts.
             </p>
           </div>
@@ -473,18 +473,18 @@ export default function GoalsPage() {
               <motion.div
                 layout
                 key={g.id}
-                className="bg-white rounded-3xl border border-gray-100 hover:border-brand-200 shadow-soft hover:shadow-soft-lg transition-all duration-300 p-6 flex flex-col justify-between"
+                className="bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700/50 hover:border-brand-200 dark:hover:border-brand-700 shadow-soft hover:shadow-soft-lg transition-all duration-300 p-6 flex flex-col justify-between"
               >
                 <div>
                   {/* Card Header */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#EDE5FC] text-[#7C3AED] border border-[#E5DCFC] flex items-center justify-center flex-shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[#EDE5FC] dark:bg-brand-950/40 text-[#7C3AED] dark:text-brand-400 border border-[#E5DCFC] dark:border-brand-900/50 flex items-center justify-center flex-shrink-0">
                         <Target className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-dark-900 text-[15px] leading-snug">{g.name}</h4>
-                        <span className="text-[12px] text-dark-400 font-bold flex items-center gap-1.5 mt-0.5">
+                        <h4 className="font-bold text-dark-900 dark:text-white text-[15px] leading-snug">{g.name}</h4>
+                        <span className="text-[12px] text-dark-400 dark:text-dark-400 font-bold flex items-center gap-1.5 mt-0.5">
                           <Calendar className="w-3.5 h-3.5 opacity-70" />
                           By {new Date(g.target_date).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })}
                         </span>
@@ -494,14 +494,14 @@ export default function GoalsPage() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleOpenEditModal(g)}
-                        className="p-1.5 rounded-lg text-dark-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                        className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-dark-700 transition-colors"
                         title="Edit Goal"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(g.id)}
-                        className="p-1.5 rounded-lg text-dark-400 hover:text-danger hover:bg-danger/10 transition-colors"
+                        className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:text-danger dark:hover:text-rose-400 hover:bg-danger/10 dark:hover:bg-rose-950/20 transition-colors"
                         title="Delete Goal"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -512,42 +512,42 @@ export default function GoalsPage() {
                   {/* Progress Stats */}
                   <div className="mt-6 space-y-4">
                     <div>
-                      <div className="flex items-center justify-between text-[12px] font-bold text-dark-400 mb-1.5">
+                      <div className="flex items-center justify-between text-[12px] font-bold text-dark-400 dark:text-dark-400 mb-1.5">
                         <span className="uppercase tracking-wider">Progress</span>
-                        <span className="text-brand-600 font-black">{pct}%</span>
+                        <span className="text-brand-600 dark:text-brand-400 font-black">{pct}%</span>
                       </div>
-                      <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="w-full h-3 bg-gray-100 dark:bg-dark-700 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <div className="flex items-center justify-between mt-2 text-[12px] font-bold text-dark-400">
+                      <div className="flex items-center justify-between mt-2 text-[12px] font-bold text-dark-400 dark:text-dark-450">
                         <span>K {current.toLocaleString()} saved</span>
                         <span>Goal: K {target.toLocaleString()}</span>
                       </div>
                     </div>
 
                     {/* Meta info fields */}
-                    <div className="pt-4 border-t border-gray-50 space-y-2">
-                      <div className="flex justify-between items-center text-[12px] font-bold text-dark-400">
+                    <div className="pt-4 border-t border-gray-50 dark:border-dark-700 space-y-2">
+                      <div className="flex justify-between items-center text-[12px] font-bold text-dark-400 dark:text-dark-450">
                         <span>Remaining:</span>
-                        <span className="text-dark-900 font-extrabold">K {remaining.toLocaleString()}</span>
+                        <span className="text-dark-900 dark:text-white font-extrabold">K {remaining.toLocaleString()}</span>
                       </div>
-                      <div className="flex justify-between items-center text-[12px] font-bold text-dark-400">
+                      <div className="flex justify-between items-center text-[12px] font-bold text-dark-400 dark:text-dark-450">
                         <span>Savings Rate:</span>
-                        <span className="text-dark-900 font-extrabold">K {Number(g.monthly_savings).toLocaleString()} / month</span>
+                        <span className="text-dark-900 dark:text-white font-extrabold">K {Number(g.monthly_savings).toLocaleString()} / month</span>
                       </div>
-                      <div className="flex justify-between items-center text-[12px] font-bold text-dark-400">
+                      <div className="flex justify-between items-center text-[12px] font-bold text-dark-400 dark:text-dark-450">
                         <span>Timeline:</span>
-                        <span className="text-brand-600 font-black">{monthsStr}</span>
+                        <span className="text-brand-600 dark:text-brand-400 font-black">{monthsStr}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Card Actions */}
-                <div className="mt-6 pt-4 border-t border-gray-50 flex flex-col gap-2">
+                <div className="mt-6 pt-4 border-t border-gray-50 dark:border-dark-700 flex flex-col gap-2">
                   
                   {quickAddId === g.id ? (
                     <div className="flex items-center gap-1.5">
@@ -556,7 +556,7 @@ export default function GoalsPage() {
                         value={quickAddAmount}
                         onChange={(e) => setQuickAddAmount(e.target.value)}
                         placeholder="Amt (K)"
-                        className="flex-1 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-dark-800 placeholder:text-dark-400 focus:outline-none focus:ring-1 focus:ring-brand-500/20 focus:border-brand-500/40"
+                        className="flex-1 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900 text-xs font-semibold text-dark-800 dark:text-white placeholder:text-dark-400 focus:outline-none focus:ring-1 focus:ring-brand-500/20 focus:border-brand-500/40"
                       />
                       <button
                         onClick={() => handleQuickAddSavings(g)}
@@ -566,7 +566,7 @@ export default function GoalsPage() {
                       </button>
                       <button
                         onClick={() => setQuickAddId(null)}
-                        className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-dark-500"
+                        className="p-1.5 rounded-lg bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 text-dark-500 dark:text-dark-400"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -574,7 +574,7 @@ export default function GoalsPage() {
                   ) : (
                     <button
                       onClick={() => { setQuickAddId(g.id); setQuickAddAmount(''); }}
-                      className="w-full py-2 border border-gray-200 hover:border-brand-300 hover:bg-brand-50/20 text-brand-600 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5"
+                      className="w-full py-2 border border-gray-200 dark:border-dark-750 hover:border-brand-300 dark:hover:border-brand-500 hover:bg-brand-50/20 dark:hover:bg-brand-950/20 text-brand-600 dark:text-brand-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5"
                     >
                       <Coins className="w-4 h-4" />
                       Add Savings
@@ -583,7 +583,7 @@ export default function GoalsPage() {
 
                   <button
                     onClick={() => handleGetAiProjection(g)}
-                    className="w-full py-2.5 bg-[#EDE5FC] text-[#7C3AED] hover:bg-[#E5DCFC] text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 border border-[#E5DCFC]"
+                    className="w-full py-2.5 bg-[#EDE5FC] dark:bg-brand-950/30 text-[#7C3AED] dark:text-brand-400 hover:bg-[#E5DCFC] dark:hover:bg-brand-900/40 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 border border-[#E5DCFC] dark:border-brand-900/30"
                   >
                     <Sparkles className="w-4 h-4 animate-pulse" />
                     Get AI Savings Plan
@@ -612,15 +612,15 @@ export default function GoalsPage() {
               initial={{ scale: 0.95, y: 15, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 15, opacity: 0 }}
-              className="bg-white rounded-3xl border border-gray-100 shadow-2xl w-full max-w-md overflow-hidden relative z-10 p-6 space-y-6"
+              className="bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700 shadow-2xl w-full max-w-md overflow-hidden relative z-10 p-6 space-y-6"
             >
-              <div className="flex items-center justify-between border-b border-gray-50 pb-4">
-                <h3 className="text-lg font-bold text-dark-900">
+              <div className="flex items-center justify-between border-b border-gray-50 dark:border-dark-700 pb-4">
+                <h3 className="text-lg font-bold text-dark-900 dark:text-white">
                   {editingGoal ? 'Edit Savings Goal' : 'Add New Savings Goal'}
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="p-1.5 rounded-lg text-dark-400 hover:bg-gray-100 hover:text-dark-700"
+                  className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:bg-gray-100 dark:hover:bg-dark-700 hover:text-dark-700 dark:hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -735,41 +735,41 @@ export default function GoalsPage() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col z-10 border-l border-gray-100 overflow-hidden"
+              className="relative w-full max-w-2xl bg-white dark:bg-dark-800 h-full shadow-2xl flex flex-col z-10 border-l border-gray-100 dark:border-dark-700 overflow-hidden"
             >
               {/* Drawer Header */}
-              <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-white relative z-10">
+              <div className="px-6 py-5 border-b border-gray-100 dark:border-dark-700 flex items-center justify-between bg-white dark:bg-dark-800 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#EDE5FC] text-[#7C3AED] border border-[#E5DCFC] flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#EDE5FC] dark:bg-brand-950/40 text-[#7C3AED] dark:text-brand-400 border border-[#E5DCFC] dark:border-brand-900/50 flex items-center justify-center flex-shrink-0">
                     <Brain className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-dark-900 text-lg">AI Savings Plan</h3>
-                    <p className="text-[12px] text-dark-400 font-bold mt-0.5">Custom projection for: {activeGoalForAI?.name}</p>
+                    <h3 className="font-bold text-dark-900 dark:text-white text-lg">AI Savings Plan</h3>
+                    <p className="text-[12px] text-dark-400 dark:text-dark-400 font-bold mt-0.5">Custom projection for: {activeGoalForAI?.name}</p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setIsDrawerOpen(false)}
-                  className="p-2 rounded-xl text-dark-400 hover:bg-gray-150 hover:text-dark-700"
+                  className="p-2 rounded-xl text-dark-400 dark:text-dark-500 hover:bg-gray-150 dark:hover:bg-dark-700 hover:text-dark-700 dark:hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Drawer Content */}
-              <div className="flex-1 overflow-y-auto p-6 bg-gray-50/20">
+              <div className="flex-1 overflow-y-auto p-6 bg-gray-50/20 dark:bg-dark-900/20">
                 {aiLoading ? (
                   <div className="flex flex-col items-center justify-center h-full gap-3 py-10">
                     <Loader2 className="w-10 h-10 text-brand-600 animate-spin" />
-                    <span className="text-[15px] text-dark-400 font-semibold">Analyzing savings metrics and projecting data...</span>
+                    <span className="text-[15px] text-dark-400 dark:text-dark-400 font-semibold">Analyzing savings metrics and projecting data...</span>
                   </div>
                 ) : aiProjection ? (
-                  <div className="bg-[#F8F5FE] border border-[#E5DCFC] p-6 md:p-8 rounded-3xl text-[15px] leading-relaxed shadow-sm font-sans space-y-4">
+                  <div className="bg-[#F8F5FE] dark:bg-dark-900/40 border border-[#E5DCFC] dark:border-dark-700 p-6 md:p-8 rounded-3xl text-[15px] dark:text-dark-300 leading-relaxed shadow-sm font-sans space-y-4">
                     {renderMarkdown(aiProjection)}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center p-6 text-dark-400">
+                  <div className="flex flex-col items-center justify-center h-full text-center p-6 text-dark-400 dark:text-dark-500">
                     <AlertCircle className="w-12 h-12 text-warning mb-2" />
                     <span className="text-[15px] font-semibold">No projection generated.</span>
                   </div>
@@ -777,7 +777,7 @@ export default function GoalsPage() {
               </div>
 
               {/* Drawer Footer */}
-              <div className="px-6 py-4 border-t border-gray-100 bg-white flex items-center justify-end relative z-10">
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-dark-700 bg-white dark:bg-dark-800 flex items-center justify-end relative z-10">
                 <Button
                   onClick={() => setIsDrawerOpen(false)}
                   className="text-[15px] px-5 py-2.5 rounded-xl font-bold bg-brand-600 hover:bg-brand-700 text-white"
