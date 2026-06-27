@@ -81,10 +81,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: '#FDFDFD' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#FDFDFD] dark:bg-dark-900 transition-colors duration-300">
       {/* Matching landing page blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-brand-400/20 blur-[120px] pointer-events-none animate-blob" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-indigo-400/15 blur-[100px] pointer-events-none animate-blob-reverse" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-brand-400/20 dark:bg-brand-500/10 blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-indigo-400/15 dark:bg-brand-500/5 blur-[100px] pointer-events-none animate-blob-reverse" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -93,7 +93,7 @@ export default function RegisterPage() {
         className="w-full max-w-md relative z-10"
       >
         {/* Back to home */}
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-dark-500 hover:text-brand-600 transition-colors mb-8">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-dark-500 hover:text-brand-600 dark:text-dark-400 dark:hover:text-brand-400 transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to Home
         </Link>
 
@@ -103,8 +103,8 @@ export default function RegisterPage() {
             style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)' }}>
             <div className="w-7 h-7 rounded-full border-[3px] border-white border-t-transparent animate-spin" />
           </div>
-          <h1 className="text-dark-900 text-3xl font-extrabold tracking-tight">Create your account</h1>
-          <p className="text-dark-500 text-sm mt-2 font-medium">
+          <h1 className="text-dark-900 dark:text-white text-3xl font-extrabold tracking-tight">Create your account</h1>
+          <p className="text-dark-500 dark:text-dark-300 text-sm mt-2 font-medium">
             {step === 1 ? 'Step 1 of 2 — Personal details' : 'Step 2 of 2 — Business profile'}
           </p>
         </div>
@@ -115,13 +115,13 @@ export default function RegisterPage() {
             <div
               key={s}
               className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
-                s <= step ? 'bg-brand-500' : 'bg-gray-200'
+                s <= step ? 'bg-brand-500' : 'bg-gray-200 dark:bg-dark-700'
               }`}
             />
           ))}
         </div>
 
-        <div className="bg-white/80 backdrop-blur-xl border border-white/80 rounded-3xl p-8 shadow-soft">
+        <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-xl border border-white/80 dark:border-dark-700/50 rounded-3xl p-8 shadow-soft">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
@@ -152,17 +152,17 @@ export default function RegisterPage() {
                 required
               />
               <div>
-                <label className="text-sm font-semibold text-dark-700 block mb-2">Role</label>
+                <label className="text-sm font-semibold text-dark-700 dark:text-dark-300 block mb-2">Role</label>
                 <select
                   value={form.role}
                   onChange={(e) => setField('role', e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-dark-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400 transition-all"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 text-dark-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400 transition-all"
                 >
-                  <option>SME Owner</option>
-                  <option>Freelancer</option>
-                  <option>Shop Owner</option>
-                  <option>Accountant / Finance Staff</option>
-                  <option>Admin</option>
+                  <option className="dark:bg-dark-800">SME Owner</option>
+                  <option className="dark:bg-dark-800">Freelancer</option>
+                  <option className="dark:bg-dark-800">Shop Owner</option>
+                  <option className="dark:bg-dark-800">Accountant / Finance Staff</option>
+                  <option className="dark:bg-dark-800">Admin</option>
                 </select>
               </div>
               <div className="relative">
@@ -178,7 +178,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPw((s) => !s)}
-                  className="absolute right-3 top-9 text-dark-400 hover:text-brand-600 transition-colors"
+                  className="absolute right-3 top-9 text-dark-400 hover:text-brand-600 dark:text-dark-500 dark:hover:text-brand-400 transition-colors"
                 >
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -235,9 +235,9 @@ export default function RegisterPage() {
             </form>
           )}
 
-          <p className="text-center text-dark-500 text-sm mt-6">
+          <p className="text-center text-dark-500 dark:text-dark-300 text-sm mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-brand-600 hover:text-brand-500 font-bold transition-colors">
+            <Link to="/login" className="text-brand-600 dark:text-brand-400 hover:text-brand-500 font-bold transition-colors">
               Sign in
             </Link>
           </p>

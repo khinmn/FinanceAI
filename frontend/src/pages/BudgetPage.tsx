@@ -168,7 +168,7 @@ export default function BudgetPage() {
       if (parts.length === 1) return rawText;
       return parts.map((part, index) => {
         if (index % 2 === 1) {
-          return <strong key={index} className="font-bold text-[#2D1A54] bg-[#EFE6FD] px-1 rounded text-sm">{part}</strong>;
+          return <strong key={index} className="font-bold text-[#2D1A54] dark:text-brand-300 bg-[#EFE6FD] dark:bg-brand-950/40 px-1 rounded text-sm">{part}</strong>;
         }
         return part;
       });
@@ -181,21 +181,21 @@ export default function BudgetPage() {
       // Headers
       if (trimmedBlock.startsWith('# ')) {
         return (
-          <h3 key={bIdx} className="text-sm font-extrabold text-[#2D1A54] mt-4 mb-2 first:mt-0 border-b border-[#E5DCFC] pb-1">
+          <h3 key={bIdx} className="text-sm font-extrabold text-[#2D1A54] dark:text-white mt-4 mb-2 first:mt-0 border-b border-[#E5DCFC] dark:border-dark-700 pb-1">
             {parseInlineStyles(trimmedBlock.slice(2))}
           </h3>
         );
       }
       if (trimmedBlock.startsWith('## ')) {
         return (
-          <h4 key={bIdx} className="text-sm font-extrabold text-[#5B39A8] mt-4 mb-2 first:mt-0">
+          <h4 key={bIdx} className="text-sm font-extrabold text-[#5B39A8] dark:text-brand-300 mt-4 mb-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(3))}
           </h4>
         );
       }
       if (trimmedBlock.startsWith('### ')) {
         return (
-          <h5 key={bIdx} className="text-sm font-bold text-[#7C3AED] mt-3 mb-1">
+          <h5 key={bIdx} className="text-sm font-bold text-[#7C3AED] dark:text-brand-400 mt-3 mb-1">
             {parseInlineStyles(trimmedBlock.slice(4))}
           </h5>
         );
@@ -230,8 +230,8 @@ export default function BudgetPage() {
 
               if (isBullet) {
                 return (
-                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(bulletRestText)}</span>
                   </div>
                 );
@@ -257,15 +257,15 @@ export default function BudgetPage() {
 
               if (isNumbered) {
                 return (
-                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(numRestText)}</span>
                   </div>
                 );
               }
 
               return (
-                <p key={lIdx} className="text-sm text-[#3B3054] leading-relaxed pl-6">
+                <p key={lIdx} className="text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed pl-6">
                   {parseInlineStyles(trimmedLine)}
                 </p>
               );
@@ -278,7 +278,7 @@ export default function BudgetPage() {
       const mergedText = lines.map(line => line.trim()).join(' ');
 
       return (
-        <p key={bIdx} className="text-sm text-[#3B3054] leading-relaxed my-1.5">
+        <p key={bIdx} className="text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed my-1.5">
           {parseInlineStyles(mergedText)}
         </p>
       );

@@ -180,7 +180,7 @@ export default function AiAssistantPage() {
       if (parts.length === 1) return rawText;
       return parts.map((part, index) => {
         if (index % 2 === 1) {
-          return <strong key={index} className="font-bold text-[#2D1A54] bg-[#EFE6FD] px-1 rounded">{part}</strong>;
+          return <strong key={index} className="font-bold text-[#2D1A54] dark:text-brand-300 bg-[#EFE6FD] dark:bg-brand-950/40 px-1 rounded">{part}</strong>;
         }
         return part;
       });
@@ -193,21 +193,21 @@ export default function AiAssistantPage() {
       // Headers
       if (trimmedBlock.startsWith('# ')) {
         return (
-          <h3 key={bIdx} className="text-[15px] font-extrabold text-[#2D1A54] border-b border-[#E5DCFC] pb-2 mt-2 first:mt-0">
+          <h3 key={bIdx} className="text-[15px] font-extrabold text-[#2D1A54] dark:text-white border-b border-[#E5DCFC] dark:border-dark-700 pb-2 mt-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(2))}
           </h3>
         );
       }
       if (trimmedBlock.startsWith('## ')) {
         return (
-          <h4 key={bIdx} className="text-[15px] font-extrabold text-[#5B39A8] mt-2 first:mt-0">
+          <h4 key={bIdx} className="text-[15px] font-extrabold text-[#5B39A8] dark:text-brand-300 mt-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(3))}
           </h4>
         );
       }
       if (trimmedBlock.startsWith('### ')) {
         return (
-          <h5 key={bIdx} className="text-[15px] font-bold text-[#7C3AED] mt-2 first:mt-0">
+          <h5 key={bIdx} className="text-[15px] font-bold text-[#7C3AED] dark:text-brand-400 mt-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(4))}
           </h5>
         );
@@ -242,8 +242,8 @@ export default function AiAssistantPage() {
 
               if (isBullet) {
                 return (
-                  <div key={lIdx} className="flex gap-1 text-[15px] text-[#3B3054] leading-relaxed items-start pl-4">
-                    <span className="flex-shrink-0 w-5 flex justify-end items-center pr-1.5 h-6 text-[15px] text-[#3B3054] select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-4">
+                    <span className="flex-shrink-0 w-5 flex justify-end items-center pr-1.5 h-6 text-[15px] text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(bulletRestText)}</span>
                   </div>
                 );
@@ -269,15 +269,15 @@ export default function AiAssistantPage() {
 
               if (isNumbered) {
                 return (
-                  <div key={lIdx} className="flex gap-1 text-[15px] text-[#3B3054] leading-relaxed items-start pl-4">
-                    <span className="flex-shrink-0 w-5 flex justify-end items-center pr-1.5 h-6 text-[15px] text-[#3B3054] select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-4">
+                    <span className="flex-shrink-0 w-5 flex justify-end items-center pr-1.5 h-6 text-[15px] text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(numRestText)}</span>
                   </div>
                 );
               }
 
               return (
-                <p key={lIdx} className="text-[15px] text-[#3B3054] leading-relaxed pl-4">
+                <p key={lIdx} className="text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed pl-4">
                   {parseInlineStyles(trimmedLine)}
                 </p>
               );
@@ -290,7 +290,7 @@ export default function AiAssistantPage() {
       const mergedText = lines.map(line => line.trim()).join(' ');
 
       return (
-        <p key={bIdx} className="text-[15px] text-[#3B3054] leading-relaxed">
+        <p key={bIdx} className="text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed">
           {parseInlineStyles(mergedText)}
         </p>
       );
@@ -441,7 +441,7 @@ export default function AiAssistantPage() {
         </AnimatePresence>
 
         {/* Messages List Area */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0 bg-gray-50/30 dark:bg-dark-900/20">
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0 bg-gray-50/50 dark:bg-dark-900">
           {chatLoading ? (
             <div className="flex flex-col items-center justify-center h-full gap-2">
               <div className="w-8 h-8 border-3 border-brand-100 border-t-brand-500 rounded-full animate-spin" />
@@ -484,8 +484,8 @@ export default function AiAssistantPage() {
                   >
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 border shadow-sm ${
                       isUser
-                        ? 'bg-brand-50 dark:bg-brand-950/20 text-brand-600 dark:text-brand-400 border-brand-100 dark:border-brand-900/50'
-                        : 'bg-[#EDE5FC] dark:bg-brand-950/20 text-[#7C3AED] dark:text-brand-400 border-[#E5DCFC] dark:border-brand-900/50'
+                        ? 'bg-brand-100 dark:bg-brand-600 text-brand-600 dark:text-white border-brand-200 dark:border-brand-500'
+                        : 'bg-[#EDE5FC] dark:bg-brand-700 text-[#7C3AED] dark:text-white border-[#E5DCFC] dark:border-brand-600'
                     }`}>
                       {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                     </div>
@@ -518,7 +518,7 @@ export default function AiAssistantPage() {
               {/* Server/AI Typing Indicator */}
               {sendLoading && (
                 <div className="flex gap-3.5">
-                  <div className="w-8 h-8 rounded-xl bg-[#EDE5FC] dark:bg-brand-950/20 text-[#7C3AED] dark:text-brand-400 border-[#E5DCFC] dark:border-brand-900/50 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="w-8 h-8 rounded-xl bg-[#EDE5FC] dark:bg-brand-700 text-[#7C3AED] dark:text-white border border-[#E5DCFC] dark:border-brand-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                     <Bot className="w-4 h-4 animate-pulse" />
                   </div>
                   <div className="px-4.5 py-3.5 rounded-2xl rounded-tl-none bg-[#F8F5FE] dark:bg-dark-800 border border-[#E5DCFC] dark:border-dark-700 shadow-sm">

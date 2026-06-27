@@ -31,10 +31,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: '#FDFDFD' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#FDFDFD] dark:bg-dark-900 transition-colors duration-300">
       {/* Matching landing page blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-brand-400/20 blur-[120px] pointer-events-none animate-blob" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-indigo-400/15 blur-[100px] pointer-events-none animate-blob-reverse" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-brand-400/20 dark:bg-brand-500/10 blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-indigo-400/15 dark:bg-brand-500/5 blur-[100px] pointer-events-none animate-blob-reverse" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -43,7 +43,7 @@ export default function LoginPage() {
         className="w-full max-w-md relative z-10"
       >
         {/* Back to home */}
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-dark-500 hover:text-brand-600 transition-colors mb-8">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-dark-500 hover:text-brand-600 dark:text-dark-400 dark:hover:text-brand-400 transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to Home
         </Link>
 
@@ -53,12 +53,12 @@ export default function LoginPage() {
             style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)' }}>
             <div className="w-7 h-7 rounded-full border-[3px] border-white border-t-transparent animate-spin" />
           </div>
-          <h1 className="text-dark-900 text-3xl font-extrabold tracking-tight">Welcome back</h1>
-          <p className="text-dark-500 text-sm mt-2 font-medium">Sign in to FinanceAI</p>
+          <h1 className="text-dark-900 dark:text-white text-3xl font-extrabold tracking-tight">Welcome back</h1>
+          <p className="text-dark-500 dark:text-dark-300 text-sm mt-2 font-medium">Sign in to FinanceAI</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white/80 backdrop-blur-xl border border-white/80 rounded-3xl p-8 shadow-soft">
+        <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-xl border border-white/80 dark:border-dark-700/50 rounded-3xl p-8 shadow-soft">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
@@ -81,7 +81,7 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
               />
-              <Mail className="absolute right-3 top-9 w-4 h-4 text-dark-400 pointer-events-none" />
+              <Mail className="absolute right-3 top-9 w-4 h-4 text-dark-400 dark:text-dark-500 pointer-events-none" />
             </div>
 
             <div className="relative">
@@ -97,7 +97,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPw((s) => !s)}
-                className="absolute right-3 top-9 text-dark-400 hover:text-brand-600 transition-colors"
+                className="absolute right-3 top-9 text-dark-400 hover:text-brand-600 dark:text-dark-500 dark:hover:text-brand-400 transition-colors"
               >
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -108,15 +108,15 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center text-dark-500 text-sm mt-6">
+          <p className="text-center text-dark-500 dark:text-dark-300 text-sm mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-brand-600 hover:text-brand-500 font-bold transition-colors">
+            <Link to="/register" className="text-brand-600 dark:text-brand-400 hover:text-brand-500 font-bold transition-colors">
               Create one
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-dark-400 text-xs mt-6 font-medium">
+        <p className="text-center text-dark-400 dark:text-dark-500 text-xs mt-6 font-medium">
           FinanceAI — AI-powered finance for SMEs
         </p>
       </motion.div>

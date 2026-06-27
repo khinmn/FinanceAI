@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, Target, TrendingUp, CheckCircle2, DollarSign, Brain, BarChart3, Fingerprint, Lock, Zap, Sun, Moon } from 'lucide-react';
@@ -7,10 +7,10 @@ import { useAuthStore } from '../store/authStore';
 // Reusable animated section wrapper
 const FadeInSection = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-60px" }}
-    transition={{ duration: 0.5, delay, ease: "easeOut" }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.8, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
     className={className}
   >
     {children}
@@ -20,6 +20,12 @@ const FadeInSection = ({ children, delay = 0, className = "" }: { children: Reac
 export default function LandingPage() {
   const { darkMode, setDarkMode } = useAuthStore();
   const containerRef = useRef(null);
+
+  // Reset scroll position on refresh to prevent animation bugs
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
@@ -55,7 +61,8 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-dark-600 dark:text-dark-400">
             <a href="#home" className="text-dark-900 dark:text-white transition-colors">Platform</a>
             <a href="#features" className="hover:text-dark-900 dark:hover:text-white transition-colors">Features</a>
-            <a href="#insights" className="hover:text-dark-900 dark:hover:text-white transition-colors">AI Insights</a>
+            <a href="#security" className="hover:text-dark-900 dark:hover:text-white transition-colors">Security</a>
+            <a href="#pricing" className="hover:text-dark-900 dark:hover:text-white transition-colors">Pricing</a>
           </div>
 
           <div className="flex items-center gap-3">
@@ -80,7 +87,7 @@ export default function LandingPage() {
       <main className="relative z-10">
         
         {/* --- HERO SECTION --- */}
-        <section id="home" className="relative pt-40 pb-12 lg:pt-48 lg:pb-16 px-6 lg:px-12 max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-10 xl:gap-16 min-h-[90vh]">
+        <section id="home" className="relative pt-40 pb-20 lg:pt-48 lg:pb-32 px-6 lg:px-12 max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-10 xl:gap-16 min-h-[90vh]">
           
           {/* Hero Content */}
           <motion.div 
@@ -91,7 +98,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm border border-white/80 shadow-sm text-sm font-bold text-brand-700 mb-8"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 dark:bg-dark-800/80 backdrop-blur-sm border border-white/80 dark:border-dark-700/50 shadow-sm text-sm font-bold text-brand-600 dark:text-brand-400 mb-8"
             >
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
@@ -103,8 +110,8 @@ export default function LandingPage() {
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.08 }}
-              className="text-5xl lg:text-[48px] xl:text-[60px] 2xl:text-[72px] leading-[1.05] font-extrabold tracking-[-0.03em] mb-8 text-dark-900"
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="text-5xl lg:text-[48px] xl:text-[60px] 2xl:text-[72px] leading-[1.05] font-extrabold tracking-[-0.03em] mb-8 text-dark-900 dark:text-white"
             >
               Core Finance<br />
               Management<br />
@@ -114,8 +121,8 @@ export default function LandingPage() {
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="text-xl text-dark-600 mb-12 max-w-xl font-medium leading-relaxed"
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-xl text-dark-700 dark:text-dark-300 mb-12 max-w-xl font-medium leading-relaxed"
             >
               End-to-end AI financial platform. Automate tracking, uncover gaps, and accelerate your business growth with enterprise-grade intelligence.
             </motion.p>
@@ -123,14 +130,14 @@ export default function LandingPage() {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.22 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
               className="flex flex-wrap items-center gap-4"
             >
               <Link to="/register" className="flex items-center gap-2 px-8 py-4 bg-brand-600 text-white rounded-full font-bold text-lg hover:bg-brand-500 transition-all shadow-[0_8px_30px_rgb(139,92,246,0.3)] hover:shadow-[0_8px_40px_rgb(139,92,246,0.5)] hover:-translate-y-1 group">
                 Create Free Account
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link to="/login" className="flex items-center gap-2 px-8 py-4 bg-white border-2 border-dark-900 text-dark-900 rounded-full font-bold text-lg hover:bg-dark-900 hover:text-white transition-all shadow-sm hover:-translate-y-1">
+              <Link to="/login" className="flex items-center gap-2 px-8 py-4 bg-white dark:bg-dark-800 border-2 border-dark-900 dark:border-dark-600 text-dark-900 dark:text-white rounded-full font-bold text-lg hover:bg-dark-900 hover:text-white dark:hover:bg-brand-600 dark:hover:border-brand-600 transition-all shadow-sm hover:-translate-y-1">
                 Log In
               </Link>
             </motion.div>
@@ -143,10 +150,10 @@ export default function LandingPage() {
           >
             <div className="absolute top-0 left-0 origin-top-left w-[800px] h-[550px] lg:scale-[0.55] xl:scale-[0.7] 2xl:scale-[0.85] transition-transform duration-300">
               <motion.div
-                initial={{ opacity: 0, rotateY: 10, rotateX: 5, scale: 0.9, x: 60 }}
+                initial={{ opacity: 0, rotateY: 20, rotateX: 10, scale: 0.8, x: 100 }}
                 animate={{ opacity: 1, rotateY: -15, rotateX: 5, scale: 1, x: 0 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-                className="absolute inset-0 bg-white dark:bg-dark-800 rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-dark-700/80 overflow-hidden transition-all duration-300"
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="absolute inset-0 bg-white dark:bg-dark-800 rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-dark-700/80 overflow-hidden"
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 {/* Mockup Sidebar */}
@@ -175,7 +182,7 @@ export default function LandingPage() {
                     </div>
                     <div className="flex gap-4">
                       <div className="w-10 h-10 rounded-full bg-white dark:bg-dark-800 shadow-sm border border-transparent dark:border-dark-700" />
-                      <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/30" />
+                      <div className="w-10 h-10 rounded-full bg-brand-100" />
                     </div>
                   </div>
  
@@ -216,27 +223,27 @@ export default function LandingPage() {
                   </div>
                 </div>
               </motion.div>
-
+ 
               {/* Floating Elements Over Mockup */}
               <motion.div 
                 animate={{ y: [-15, 15, -15] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -left-10 top-20 w-48 p-4 glass-panel z-20"
+                className="absolute -left-10 top-20 w-48 p-4 glass-panel z-20 text-dark-900 dark:text-white"
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success"><CheckCircle2 className="w-4 h-4"/></div>
-                  <div className="text-sm font-bold">Transfer complete</div>
+                  <div className="text-sm font-bold text-dark-900 dark:text-white">Transfer complete</div>
                 </div>
-                <div className="text-xl font-extrabold">+ $24,500</div>
+                <div className="text-xl font-extrabold text-dark-900 dark:text-white">+ $24,500</div>
               </motion.div>
 
               <motion.div 
                 animate={{ y: [15, -15, 15] }}
                 transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute -right-10 bottom-10 w-56 p-5 glass-panel z-20 border-brand-200/30"
+                className="absolute -right-10 bottom-10 w-56 p-5 glass-panel z-20 border-brand-200/30 text-dark-900 dark:text-white"
               >
-                <div className="text-xs font-bold text-brand-600 mb-1 uppercase tracking-wider">AI Insight</div>
-                <div className="text-sm text-dark-800 font-medium leading-snug">
+                <div className="text-xs font-bold text-brand-600 dark:text-brand-400 mb-1 uppercase tracking-wider">AI Insight</div>
+                <div className="text-sm text-dark-800 dark:text-dark-300 font-medium leading-snug">
                   Your runway extended by 2 months based on recent optimizations.
                 </div>
               </motion.div>
@@ -246,8 +253,8 @@ export default function LandingPage() {
 
 
         {/* --- FEATURES GRID --- */}
-        <section id="features" className="py-12 px-6 lg:px-12 max-w-[1400px] mx-auto relative z-10">
-          <FadeInSection className="max-w-2xl mb-12">
+        <section id="features" className="py-32 px-6 lg:px-12 max-w-[1400px] mx-auto relative z-10">
+          <FadeInSection className="max-w-2xl mb-20">
             <h2 className="text-5xl font-extrabold mb-6 tracking-tight dark:text-white">
               Core functionality – <br/>
               <span className="text-brand-600">everything you need</span>
@@ -259,14 +266,14 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: Brain, title: "AI Analytics Engine", desc: "Automated insights, anomaly detection, and predictive forecasting for your cash flow.", color: "bg-brand-50 text-brand-600" },
-              { icon: Target, title: "Gap Analysis", desc: "Identify inefficiencies in spending and get actionable recommendations to improve margins.", color: "bg-blue-50 text-blue-600" },
-              { icon: DollarSign, title: "Smart Budgeting", desc: "Dynamic budget allocation that learns from your spending habits and adjusts in real-time.", color: "bg-emerald-50 text-emerald-600" },
-              { icon: Lock, title: "Enterprise Security", desc: "Bank-grade encryption, role-based access control, and comprehensive audit logs.", color: "bg-slate-100 text-slate-700" },
-              { icon: Zap, title: "Real-time Sync", desc: "Connect multiple accounts and see all your transactions updated instantly.", color: "bg-amber-50 text-amber-600" },
-              { icon: BarChart3, title: "Custom Reports", desc: "Generate pixel-perfect financial reports for stakeholders with a single click.", color: "bg-pink-50 text-pink-600" },
+              { icon: Brain,     title: "AI Analytics Engine", desc: "Automated insights, anomaly detection, and predictive forecasting for your cash flow.",        color: "bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400" },
+              { icon: Target,    title: "Gap Analysis",         desc: "Identify inefficiencies in spending and get actionable recommendations to improve margins.",  color: "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400" },
+              { icon: DollarSign,title: "Smart Budgeting",      desc: "Dynamic budget allocation that learns from your spending habits and adjusts in real-time.",    color: "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400" },
+              { icon: Lock,      title: "Enterprise Security",  desc: "Bank-grade encryption, role-based access control, and comprehensive audit logs.",           color: "bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300" },
+              { icon: Zap,       title: "Real-time Sync",       desc: "Connect multiple accounts and see all your transactions updated instantly.",                 color: "bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400" },
+              { icon: BarChart3, title: "Custom Reports",       desc: "Generate pixel-perfect financial reports for stakeholders with a single click.",             color: "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400" },
             ].map((f, i) => (
-              <FadeInSection key={i} delay={i * 0.07}>
+              <FadeInSection key={i} delay={i * 0.1}>
                 <div className="glass-card dark:bg-dark-800/80 dark:border-dark-700/50 p-10 h-full group">
                   <div className={`w-14 h-14 rounded-2xl ${f.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300`}>
                     <f.icon className="w-7 h-7" />
@@ -280,7 +287,7 @@ export default function LandingPage() {
         </section>
 
         {/* --- INFO / VALUES SECTION --- */}
-        <section id="insights" className="py-12 relative overflow-hidden bg-dark-900 text-white rounded-[3rem] mx-4 lg:mx-12 my-6 shadow-2xl">
+        <section className="py-32 relative overflow-hidden bg-dark-900 text-white rounded-[3rem] mx-4 lg:mx-12 my-12 shadow-2xl">
           {/* Internal blobs for dark section */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600/30 rounded-full blur-[100px]" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/30 rounded-full blur-[100px]" />
@@ -291,11 +298,11 @@ export default function LandingPage() {
                 Always with <br/>FinanceAI
               </h2>
               
-              <div className="space-y-8 mt-8">
+              <div className="space-y-12 mt-12">
                 {[
-                  { step: "01", title: "Smart AI Financial Assistant", desc: "Interact with an intelligence engine that reviews transaction histories, updates budget forecasts, and offers saving insights." },
-                  { step: "02", title: "Automated Gap & Anomaly Checks", desc: "Run margin audits to surface recurring SaaS subscription updates, spending leaks, and cash flow alerts." },
-                  { step: "03", title: "Visual Saving Goals", desc: "Define milestone targets, track progress dynamically, and build savings timelines with auto-adjusting monthly metrics." }
+                  { step: "01", title: "Get what you need the most", desc: "Tailored IT solutions approved by regulators. Decades of software development expertise." },
+                  { step: "02", title: "Save your time and money", desc: "Minimal involvement of your team required. Ready-to-deploy integrations out of the box." },
+                  { step: "03", title: "Make changes easily", desc: "Add functionalities, customize workflows, and connect new APIs on demand." }
                 ].map((item, i) => (
                   <div key={i} className="flex gap-6">
                     <div className="text-brand-400 font-mono font-bold text-xl pt-1">{item.step}</div>
@@ -318,15 +325,13 @@ export default function LandingPage() {
                 <div className="w-[320px] h-[650px] bg-dark-800 rounded-[3rem] border-[8px] border-dark-950 shadow-2xl overflow-hidden relative">
                   {/* Phone screen UI */}
                   <div className="absolute inset-0 bg-white dark:bg-dark-900 transition-colors">
-                    <div className="bg-brand-600 h-[190px] rounded-b-3xl p-6 text-white pt-8 shadow-inner relative overflow-hidden flex flex-col justify-between">
-                      <div className="flex justify-between items-center mb-2">
+                    <div className="bg-brand-600 h-40 rounded-b-3xl p-6 text-white pt-12">
+                      <div className="flex justify-between items-center mb-6">
                         <div className="w-10 h-10 rounded-full bg-white/20" />
                         <div className="w-8 h-8 rounded-full bg-white/20" />
                       </div>
-                      <div className="mt-auto text-left pb-4">
-                        <div className="text-xs opacity-80 uppercase tracking-wider font-bold">Total Balance</div>
-                        <div className="text-3xl font-black mt-1">$124,590.00</div>
-                      </div>
+                      <div className="text-sm opacity-80">Total Balance</div>
+                      <div className="text-3xl font-bold">$124,590.00</div>
                     </div>
                     
                     <div className="p-6 space-y-4">
@@ -356,17 +361,17 @@ export default function LandingPage() {
         </section>
 
         {/* --- CTA SECTION --- */}
-        <section className="py-16 px-6 lg:px-12 max-w-[1400px] mx-auto text-center relative z-10">
+        <section className="py-32 px-6 lg:px-12 max-w-[1400px] mx-auto text-center relative z-10">
           <FadeInSection>
-            <h2 className="text-5xl lg:text-7xl font-extrabold mb-8 tracking-tight">
+            <h2 className="text-5xl lg:text-7xl font-extrabold mb-8 tracking-tight text-dark-900 dark:text-white">
               Run your Business<br />
               <span className="text-brand-600">with FinanceAI.</span>
             </h2>
-            <p className="text-xl text-dark-600 mb-12 max-w-2xl mx-auto font-medium">
+            <p className="text-xl text-dark-600 dark:text-dark-300 mb-12 max-w-2xl mx-auto font-medium">
               Join hundreds of forward-thinking businesses managing their finances intelligently.
             </p>
-            <Link to="/register" className="inline-flex items-center gap-2 px-10 py-5 bg-dark-900 text-white rounded-full font-bold text-lg hover:bg-brand-600 transition-all shadow-xl hover:-translate-y-1">
-              Get Started for Free <ArrowRight className="w-5 h-5 ml-2" />
+            <Link to="/register" className="inline-flex items-center gap-2 px-10 py-5 bg-dark-900 text-white dark:bg-white dark:text-dark-900 rounded-full font-bold text-lg hover:bg-brand-600 dark:hover:bg-brand-600 dark:hover:text-white transition-all shadow-xl hover:-translate-y-1">
+              Let's Speak <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
           </FadeInSection>
         </section>
@@ -374,10 +379,10 @@ export default function LandingPage() {
       </main>
 
       {/* --- FOOTER --- */}
-      <footer className="bg-dark-950 text-white pt-12 pb-8 relative z-10 border-t border-white/5">
+      <footer className="bg-dark-950 text-white pt-20 pb-10 relative z-10 border-t border-white/5">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
           
-          <div className="bg-brand-600 rounded-3xl p-12 mb-12 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
+          <div className="bg-brand-600 rounded-3xl p-12 mb-20 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
             <h3 className="text-3xl font-bold z-10">Get the latest FinanceAI news<br/>straight to your inbox</h3>
             <div className="flex w-full lg:w-auto z-10">
@@ -388,26 +393,35 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-12 mb-12 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20 text-sm">
             <div className="col-span-2 lg:col-span-1">
               <span className="font-bold text-2xl tracking-tight mb-6 block">FinanceAI<span className="text-brand-500">.</span></span>
-              <p className="text-gray-300 mb-2">Yangon, Myanmar</p>
-              <p className="text-gray-300 mt-6">support@financeai.com</p>
+              <p className="text-dark-400 dark:text-dark-300 mb-2">123 Innovation Drive</p>
+              <p className="text-dark-400 dark:text-dark-300 mb-2">Tech City, TC 10117</p>
+              <p className="text-dark-400 dark:text-dark-300 mt-6">contact@financeai.com</p>
             </div>
             
             <div>
-              <h4 className="font-bold mb-6 text-white">Features</h4>
-              <ul className="space-y-4 text-gray-400">
-                <li><Link to="/login" className="hover:text-white transition-colors">Transactions Ledger</Link></li>
-                <li><Link to="/login" className="hover:text-white transition-colors">Budget Overview</Link></li>
-                <li><Link to="/login" className="hover:text-white transition-colors">AI Assistant Chat</Link></li>
-                <li><Link to="/login" className="hover:text-white transition-colors">Gap Analysis Reports</Link></li>
+              <h4 className="font-bold mb-6 text-white">Digital Core</h4>
+              <ul className="space-y-4 text-dark-400 dark:text-dark-400">
+                <li><a href="#" className="hover:text-white transition-colors">Core Software</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">BaaS</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Functionality</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Technology</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-bold mb-6 text-white">Consulting</h4>
+              <ul className="space-y-4 text-dark-400 dark:text-dark-400">
+                <li><a href="#" className="hover:text-white transition-colors">Implementation</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Advisory</a></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-bold mb-6 text-white">Company</h4>
-              <ul className="space-y-4 text-gray-400">
+              <ul className="space-y-4 text-dark-400 dark:text-dark-400">
                 <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Partners</a></li>
@@ -416,16 +430,16 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h4 className="font-bold mb-6 text-white">Compliance</h4>
-              <ul className="space-y-4 text-gray-400">
+              <h4 className="font-bold mb-6 text-white">Documents</h4>
+              <ul className="space-y-4 text-dark-400 dark:text-dark-400">
                 <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Security Standards</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between text-gray-400 text-xs font-medium">
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between text-dark-500 dark:text-dark-450 text-xs font-medium">
             <p>© 2026 FINANCEAI. ALL RIGHTS RESERVED.</p>
             <div className="flex gap-6 mt-4 md:mt-0">
               <a href="#" className="hover:text-white">LinkedIn</a>

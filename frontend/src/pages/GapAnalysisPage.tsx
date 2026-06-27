@@ -224,7 +224,7 @@ export default function GapAnalysisPage() {
       const mergedText = lines.map(line => line.trim()).join(' ');
 
       return (
-        <p key={bIdx} className="text-sm text-[#3B3054] leading-relaxed my-1.5">
+        <p key={bIdx} className="text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed my-1.5">
           {parseInlineStyles(mergedText)}
         </p>
       );

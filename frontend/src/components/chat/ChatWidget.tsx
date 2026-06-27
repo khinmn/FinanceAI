@@ -74,7 +74,7 @@ export default function ChatWidget() {
       if (parts.length === 1) return rawText;
       return parts.map((part, index) => {
         if (index % 2 === 1) {
-          return <strong key={index} className="font-bold text-[#2D1A54] bg-[#EFE6FD] px-1 rounded text-sm">{part}</strong>;
+          return <strong key={index} className="font-bold text-[#2D1A54] dark:text-brand-300 bg-[#EFE6FD] dark:bg-brand-950/40 px-1 rounded text-sm">{part}</strong>;
         }
         return part;
       });
@@ -87,21 +87,21 @@ export default function ChatWidget() {
       // Headers
       if (trimmedBlock.startsWith('# ')) {
         return (
-          <h3 key={bIdx} className="text-sm font-extrabold text-[#2D1A54] mt-4 mb-2 first:mt-0 border-b border-[#E5DCFC] pb-1">
+          <h3 key={bIdx} className="text-sm font-extrabold text-[#2D1A54] dark:text-white mt-4 mb-2 first:mt-0 border-b border-[#E5DCFC] dark:border-dark-700 pb-1">
             {parseInlineStyles(trimmedBlock.slice(2))}
           </h3>
         );
       }
       if (trimmedBlock.startsWith('## ')) {
         return (
-          <h4 key={bIdx} className="text-sm font-extrabold text-[#5B39A8] mt-4 mb-2 first:mt-0">
+          <h4 key={bIdx} className="text-sm font-extrabold text-[#5B39A8] dark:text-brand-300 mt-4 mb-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(3))}
           </h4>
         );
       }
       if (trimmedBlock.startsWith('### ')) {
         return (
-          <h5 key={bIdx} className="text-sm font-bold text-[#7C3AED] mt-3 mb-1">
+          <h5 key={bIdx} className="text-sm font-bold text-[#7C3AED] dark:text-brand-400 mt-3 mb-1">
             {parseInlineStyles(trimmedBlock.slice(4))}
           </h5>
         );
@@ -136,8 +136,8 @@ export default function ChatWidget() {
 
               if (isBullet) {
                 return (
-                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(bulletRestText)}</span>
                   </div>
                 );
@@ -163,15 +163,15 @@ export default function ChatWidget() {
 
               if (isNumbered) {
                 return (
-                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-6">
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(numRestText)}</span>
                   </div>
                 );
               }
 
               return (
-                <p key={lIdx} className="text-sm text-[#3B3054] leading-relaxed pl-6">
+                <p key={lIdx} className="text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed pl-6">
                   {parseInlineStyles(trimmedLine)}
                 </p>
               );
@@ -184,7 +184,7 @@ export default function ChatWidget() {
       const mergedText = lines.map(line => line.trim()).join(' ');
 
       return (
-        <p key={bIdx} className="text-sm text-[#3B3054] leading-relaxed my-1.5">
+        <p key={bIdx} className="text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed my-1.5">
           {parseInlineStyles(mergedText)}
         </p>
       );
@@ -232,25 +232,25 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
             transition={{ duration: 0.28, ease: 'easeOut' }}
-            className="fixed bottom-6 right-6 z-40 w-[380px] h-[550px] max-h-[80vh] flex flex-col bg-white border border-dark-100 rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-6 right-6 z-40 w-[380px] h-[550px] max-h-[80vh] flex flex-col bg-white dark:bg-dark-800 border border-dark-100 dark:border-dark-700 rounded-2xl shadow-2xl overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-4 border-b border-dark-100/50 bg-white">
+            <div className="flex items-center gap-3 px-4 py-4 border-b border-dark-100/50 dark:border-dark-700 bg-white dark:bg-dark-800">
               <div className="w-8 h-8 rounded-xl bg-brand-600 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-dark-900 text-sm font-bold">FinanceAI Assistant</p>
+                <p className="text-dark-900 dark:text-white text-sm font-bold">FinanceAI Assistant</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                  <p className="text-dark-400 text-xs font-medium">Powered by Gemini 2.5 Flash</p>
+                  <p className="text-dark-400 dark:text-dark-400 text-xs font-medium">Powered by Gemini 2.5 Flash</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
                 {messages.length > 0 && (
                   <button
                     onClick={clearChat}
-                    className="p-1.5 rounded-lg text-dark-400 hover:text-dark-700 hover:bg-dark-50 transition-all"
+                    className="p-1.5 rounded-lg text-dark-400 hover:text-dark-700 dark:hover:text-white hover:bg-dark-50 dark:hover:bg-dark-700 transition-all"
                     title="Clear chat"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -258,7 +258,7 @@ export default function ChatWidget() {
                 )}
                 <button
                   onClick={() => setOpen(false)}
-                  className="p-1.5 rounded-lg text-dark-400 hover:text-dark-700 hover:bg-dark-50 transition-all"
+                  className="p-1.5 rounded-lg text-dark-400 hover:text-dark-700 dark:hover:text-white hover:bg-dark-50 dark:hover:bg-dark-700 transition-all"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -266,18 +266,18 @@ export default function ChatWidget() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0 bg-softGray/30">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0 bg-gray-50/50 dark:bg-dark-900/30">
               {messages.length === 0 && (
                 <div className="space-y-4">
                   <div className="text-center py-2">
-                    <p className="text-dark-400 text-xs font-medium">Ask me anything about your business finances</p>
+                    <p className="text-dark-400 dark:text-dark-400 text-xs font-medium">Ask me anything about your business finances</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {SUGGESTIONS.map((s) => (
                       <button
                         key={s}
                         onClick={() => { setInput(s); inputRef.current?.focus(); }}
-                        className="p-3 rounded-xl bg-white border border-dark-100 text-dark-700 text-xs font-semibold hover:text-brand-600 hover:border-brand-200 hover:shadow-soft transition-all text-left"
+                        className="p-3 rounded-xl bg-white dark:bg-dark-800 border border-dark-100 dark:border-dark-700 text-dark-700 dark:text-dark-300 text-xs font-semibold hover:text-brand-600 hover:border-brand-200 dark:hover:border-brand-700 hover:shadow-soft transition-all text-left"
                       >
                         {s}
                       </button>
@@ -293,8 +293,8 @@ export default function ChatWidget() {
                 >
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
                     msg.role === 'user'
-                      ? 'bg-brand-50 text-brand-600 border border-brand-100 shadow-sm'
-                      : 'bg-[#EDE5FC] text-[#7C3AED] border border-[#E5DCFC] shadow-sm'
+                      ? 'bg-brand-50 dark:bg-brand-950/20 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-900/50 shadow-sm'
+                      : 'bg-[#EDE5FC] dark:bg-brand-950/20 text-[#7C3AED] dark:text-brand-400 border border-[#E5DCFC] dark:border-brand-900/50 shadow-sm'
                   }`}>
                     {msg.role === 'user'
                       ? <User className="w-3.5 h-3.5" />
@@ -304,7 +304,7 @@ export default function ChatWidget() {
                   <div className={`max-w-[80%] px-3.5 py-2.5 rounded-xl text-sm leading-relaxed ${
                     msg.role === 'user'
                       ? 'bg-brand-600 text-white rounded-tr-sm shadow-sm font-medium'
-                      : 'bg-[#F8F5FE] border border-[#E5DCFC] text-[#3B3054] rounded-tl-sm shadow-sm font-medium'
+                      : 'bg-[#F8F5FE] dark:bg-dark-800 border border-[#E5DCFC] dark:border-dark-700 text-[#3B3054] dark:text-dark-300 rounded-tl-sm shadow-sm font-medium'
                   }`}>
                     {msg.role === 'user' ? (
                       <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -318,15 +318,15 @@ export default function ChatWidget() {
               {/* Typing indicator */}
               {loading && (
                 <div className="flex gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-dark-50 text-dark-600 flex items-center justify-center flex-shrink-0">
+                  <div className="w-7 h-7 rounded-lg bg-[#EDE5FC] dark:bg-brand-950/20 text-[#7C3AED] dark:text-brand-400 flex items-center justify-center flex-shrink-0">
                     <Bot className="w-3.5 h-3.5" />
                   </div>
-                  <div className="px-3.5 py-3 rounded-xl rounded-tl-sm bg-white border border-dark-100 shadow-sm">
+                  <div className="px-3.5 py-3 rounded-xl rounded-tl-sm bg-[#F8F5FE] dark:bg-dark-800 border border-[#E5DCFC] dark:border-dark-700 shadow-sm">
                     <div className="flex gap-1.5">
                       {[0, 1, 2].map((i) => (
                         <div
                           key={i}
-                          className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"
+                          className="w-1.5 h-1.5 rounded-full bg-brand-400 dark:bg-brand-500 animate-pulse"
                           style={{ animationDelay: `${i * 0.15}s` }}
                         />
                       ))}
@@ -339,7 +339,7 @@ export default function ChatWidget() {
             </div>
 
             {/* Input */}
-            <div className="px-4 py-3 border-t border-dark-100/50 bg-white">
+            <div className="px-4 py-3 border-t border-dark-100/50 dark:border-dark-700 bg-white dark:bg-dark-800">
               <div className="flex gap-2">
                 <input
                   ref={inputRef}
@@ -348,7 +348,7 @@ export default function ChatWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                   placeholder="Ask about your finances…"
-                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-dark-100 text-dark-800 text-sm placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all font-medium"
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-dark-900 border border-dark-100 dark:border-dark-700 text-dark-800 dark:text-white text-sm placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/40 transition-all font-medium"
                 />
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -361,7 +361,7 @@ export default function ChatWidget() {
                 </motion.button>
               </div>
               {aiDisclaimerEnabled !== false && (
-                <p className="text-dark-400 text-[10px] font-medium mt-2 text-center">
+                <p className="text-dark-400 dark:text-dark-500 text-[10px] font-medium mt-2 text-center">
                   AI response is for guidance only and does not replace professional financial advice.
                 </p>
               )}

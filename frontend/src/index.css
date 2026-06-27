@@ -78,7 +78,7 @@ html.dark body {
     @apply bg-white/80 backdrop-blur-lg border border-white/80 shadow-soft rounded-2xl transition-all duration-500 hover:shadow-glass-hover hover:bg-white hover:-translate-y-1 dark:bg-dark-800/80 dark:border-dark-700/50 dark:hover:bg-dark-800/90 dark:hover:shadow-glass-dark;
   }
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-dark-900 via-dark-800 to-brand-800 dark:from-white dark:via-gray-100 dark:to-brand-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-700 via-brand-500 to-violet-400 dark:from-white dark:via-gray-100 dark:to-brand-400;
   }
 }
 
@@ -94,6 +94,13 @@ input[type='number'] { -moz-appearance: textfield; }
 input[type='date']::-webkit-calendar-picker-indicator {
   filter: invert(0.4);
   cursor: pointer;
+}
+
+/* ── Dark mode glass panel override ────────────────────────────────────────── */
+.dark .glass-panel {
+  background: rgba(26, 29, 36, 0.80);
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
 }
 
 /* ── Recharts overrides ─────────────────────────────────────────────────────── */

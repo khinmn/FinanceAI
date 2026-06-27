@@ -12,12 +12,18 @@ module.exports = {
       colors: {
         // Dark theme colors
         dark: {
-          900: '#0F1115', // even darker, more premium black
+          950: '#07090E', // deepest black — used for footer bg and borders
+          900: '#0F1115', // near-black
+          850: '#141720', // between 800 and 900
           800: '#1A1D24',
           700: '#2A2E39',
           600: '#4B5563',
           500: '#6B7280',
+          450: '#828EA0', // between 400 and 500
           400: '#9CA3AF',
+          300: '#D1D5DB', // light gray for secondary texts
+          200: '#E5E7EB', // lighter gray
+          100: '#F3F4F6', // very light gray
         },
         // Advapay-inspired premium brand colors
         brand: {
@@ -68,6 +74,7 @@ module.exports = {
         'blob': 'blob 10s infinite',
         'blob-reverse': 'blob-reverse 12s infinite',
         'float': 'float 6s ease-in-out infinite',
+        'spin-slow': 'spin 3s linear infinite',
       },
       keyframes: {
         blob: {
