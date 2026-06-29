@@ -8,9 +8,11 @@ import { useAuthStore } from '../../store/authStore';
 export default function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const location = useLocation();
-  const aiCopilotEnabled = useAuthStore((s) => s.aiCopilotEnabled);
+  const { user, aiCopilotEnabled } = useAuthStore();
+  const role = user?.role || 'owner';
 
   const isAssistantPage = location.pathname === '/ai-assistant';
+  const showChatWidget = !isAssistantPage && aiCopilotEnabled !== false && ['owner', 'personal', 'accountant'].includes(role);
 
   return (
     <div className="flex h-screen overflow-hidden text-dark-900 dark:text-white font-sans relative bg-[#FDFDFD] dark:bg-dark-900 transition-colors duration-300">
@@ -35,7 +37,8 @@ export default function Layout() {
       </div>
 
       {/* Floating AI Chat Widget */}
-      {!isAssistantPage && aiCopilotEnabled !== false && <ChatWidget />}
+      {showChatWidget && <ChatWidget />}
     </div>
   );
 }
+

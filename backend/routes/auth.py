@@ -19,16 +19,18 @@ from flask_jwt_extended import (
 )
 
 from models import db
-from models.user import User
+from models.user import User, VALID_ROLES
 from models.business import Business
+from models.team_member import TeamMember
 from models.category import Category, DEFAULT_INCOME_CATEGORIES, DEFAULT_EXPENSE_CATEGORIES
 from utils.validators import validate_email, validate_password
 from utils.auth_helpers import get_current_user
+from middleware.auth_middleware import require_role, ROLE_OWNER
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 
-# ── Helper ─────────────────────────────────────────────────────────────────────
+# ── Helpers ─────────────────────────────────────────────────────────────────────
 
 def _seed_default_categories(user_id: int) -> None:
     """Create the 12 default income/expense categories for a new user."""
@@ -55,50 +57,106 @@ def _seed_default_categories(user_id: int) -> None:
     db.session.commit()
 
 
+def _get_user_business(user: User) -> dict | None:
+    """Resolve business profile for a user (either owned or joined via TeamMember)."""
+    if not user:
+        return None
+    if user.business:
+        return user.business.to_dict()
+        
+    # Check if team member
+    member = TeamMember.query.filter_by(email=user.email, status="Active").first()
+    if member:
+        biz = Business.query.get(member.business_id)
+        if biz:
+            return biz.to_dict()
+            
+    return None
+
+
 # ── Routes ─────────────────────────────────────────────────────────────────────
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json() or {}
 
-    # Required fields
-    for field in ("name", "email", "password", "business_name", "industry"):
+    # Email and password check are always required
+    for field in ("name", "email", "password"):
         if not data.get(field):
             return jsonify({"error": f"Missing required field: {field}"}), 400
 
-    if not validate_email(data["email"]):
+    email_clean = data["email"].lower().strip()
+
+    if not validate_email(email_clean):
         return jsonify({"error": "Invalid email format."}), 400
 
     valid_pw, pw_err = validate_password(data["password"])
     if not valid_pw:
         return jsonify({"error": pw_err}), 400
 
-    if User.query.filter_by(email=data["email"].lower().strip()).first():
+    if User.query.filter_by(email=email_clean).first():
         return jsonify({"error": "An account with this email already exists."}), 409
 
-    # Create user
-    user = User(
-        name=data["name"].strip(),
-        email=data["email"].lower().strip(),
-    )
-    user.set_password(data["password"])
-    db.session.add(user)
-    db.session.flush()  # populate user.id before commit
+    # Check if this email is invited as a TeamMember
+    invited_member = TeamMember.query.filter_by(email=email_clean).first()
+    
+    if invited_member:
+        # User is invited as team member
+        # Role is forced to the invited role (lowercased)
+        user_role = invited_member.role.lower().strip()
+        if user_role not in VALID_ROLES:
+            user_role = "employee"
+            
+        user = User(
+            name=data["name"].strip(),
+            email=email_clean,
+            role=user_role,
+        )
+        user.set_password(data["password"])
+        db.session.add(user)
+        db.session.flush()
 
-    # Create business profile (one per user)
-    business = Business(
-        user_id=user.id,
-        business_name=data["business_name"].strip(),
-        industry=data.get("industry", "other"),
-        description=data.get("description", ""),
-        currency="K",
-        currency_name="Myanmar Kyat",
-    )
-    db.session.add(business)
-    db.session.commit()
+        # Update invitation status
+        invited_member.status = "Active"
+        db.session.commit()
 
-    # Seed default categories
-    _seed_default_categories(user.id)
+        # Seed categories or other features not required, they share owner's categories
+        business_dict = _get_user_business(user)
+    else:
+        # Regular registration: create new business workspace
+        for field in ("business_name", "industry"):
+            if not data.get(field):
+                return jsonify({"error": f"Missing required field for business registration: {field}"}), 400
+
+        # Validate requested role
+        requested_role = data.get("role", "owner").lower().strip()
+        if requested_role not in VALID_ROLES or requested_role in ("accountant", "manager", "employee"):
+            requested_role = "owner"
+
+        user = User(
+            name=data["name"].strip(),
+            email=email_clean,
+            role=requested_role,
+        )
+        user.set_password(data["password"])
+        db.session.add(user)
+        db.session.flush()
+
+        # Create business profile
+        business = Business(
+            user_id=user.id,
+            business_name=data["business_name"].strip(),
+            industry=data.get("industry", "other"),
+            description=data.get("description", ""),
+            currency="K",
+            currency_name="Myanmar Kyat",
+        )
+        db.session.add(business)
+        db.session.commit()
+
+        # Seed default categories
+        _seed_default_categories(user.id)
+        business_dict = business.to_dict()
 
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
@@ -108,7 +166,7 @@ def register():
             {
                 "message": "Registration successful. Welcome to FinanceAI!",
                 "user": user.to_dict(),
-                "business": business.to_dict(),
+                "business": business_dict,
                 "access_token": access_token,
                 "refresh_token": refresh_token,
             }
@@ -139,7 +197,7 @@ def login():
         {
             "message": "Login successful.",
             "user": user.to_dict(),
-            "business": user.business.to_dict() if user.business else None,
+            "business": _get_user_business(user),
             "access_token": access_token,
             "refresh_token": refresh_token,
         }
@@ -163,7 +221,7 @@ def me():
     return jsonify(
         {
             "user": user.to_dict(),
-            "business": user.business.to_dict() if user.business else None,
+            "business": _get_user_business(user),
         }
     ), 200
 
@@ -178,6 +236,7 @@ def update_profile():
         user.name = data["name"].strip()
     user.updated_at = datetime.utcnow()
 
+    # Update business profile if user is the business owner
     if user.business and data.get("business"):
         biz = data["business"]
         if biz.get("business_name"):
@@ -193,7 +252,7 @@ def update_profile():
         {
             "message": "Profile updated successfully.",
             "user": user.to_dict(),
-            "business": user.business.to_dict() if user.business else None,
+            "business": _get_user_business(user),
         }
     ), 200
 

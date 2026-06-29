@@ -5,12 +5,13 @@ from flask_jwt_extended import jwt_required
 from models import db
 from models.team_member import TeamMember
 from utils.auth_helpers import get_current_user
+from middleware.auth_middleware import require_role, ROLE_OWNER
 
 team_bp = Blueprint("team", __name__, url_prefix="/api/team")
 
 
 @team_bp.route("", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER)
 def get_team_members():
     user = get_current_user()
     if not user:
@@ -38,7 +39,7 @@ def get_team_members():
 
 
 @team_bp.route("", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER)
 def add_team_member():
     user = get_current_user()
     if not user:
@@ -71,7 +72,7 @@ def add_team_member():
 
 
 @team_bp.route("/<int:member_id>", methods=["PUT"])
-@jwt_required()
+@require_role(ROLE_OWNER)
 def update_team_member(member_id):
     user = get_current_user()
     if not user or not user.business:
@@ -105,7 +106,7 @@ def update_team_member(member_id):
 
 
 @team_bp.route("/<int:member_id>", methods=["DELETE"])
-@jwt_required()
+@require_role(ROLE_OWNER)
 def delete_team_member(member_id):
     user = get_current_user()
     if not user or not user.business:

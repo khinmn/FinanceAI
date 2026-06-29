@@ -15,7 +15,11 @@ from dateutil.relativedelta import relativedelta
 from models import db
 from models.transaction import Transaction
 from models.category import Category
-from utils.auth_helpers import get_current_user
+from utils.auth_helpers import get_current_user, get_business_owner_id
+from middleware.auth_middleware import (
+    require_role,
+    ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER,
+)
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/api/reports")
 
@@ -23,9 +27,11 @@ reports_bp = Blueprint("reports", __name__, url_prefix="/api/reports")
 # ── Monthly report ─────────────────────────────────────────────────────────────
 
 @reports_bp.route("/monthly", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def monthly_report():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     now = datetime.utcnow()
     month = request.args.get("month", now.month, type=int)
     year = request.args.get("year", now.year, type=int)
@@ -40,7 +46,7 @@ def monthly_report():
             )
             .join(Transaction, Transaction.category_id == Category.id)
             .filter(
-                Transaction.user_id == user.id,
+                Transaction.user_id == owner_id,
                 Transaction.type == t_type,
                 extract("month", Transaction.date) == month,
                 extract("year", Transaction.date) == year,
@@ -58,7 +64,7 @@ def monthly_report():
     # All transactions for the month
     txs = (
         Transaction.query.filter(
-            Transaction.user_id == user.id,
+            Transaction.user_id == owner_id,
             extract("month", Transaction.date) == month,
             extract("year", Transaction.date) == year,
         )
@@ -95,9 +101,11 @@ def monthly_report():
 # ── Cash-flow trend ────────────────────────────────────────────────────────────
 
 @reports_bp.route("/cashflow", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def cashflow():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     num_months = min(request.args.get("months", 6, type=int), 12)
     now = datetime.utcnow()
 
@@ -109,7 +117,7 @@ def cashflow():
                 Transaction.type, func.sum(Transaction.amount).label("total")
             )
             .filter(
-                Transaction.user_id == user.id,
+                Transaction.user_id == owner_id,
                 extract("month", Transaction.date) == target.month,
                 extract("year", Transaction.date) == target.year,
             )
@@ -147,9 +155,11 @@ def cashflow():
 # ── Annual category breakdown ──────────────────────────────────────────────────
 
 @reports_bp.route("/category-breakdown", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
 def category_breakdown():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     year = request.args.get("year", datetime.utcnow().year, type=int)
     t_type = request.args.get("type", "expense")
 
@@ -162,7 +172,7 @@ def category_breakdown():
         )
         .join(Transaction, Transaction.category_id == Category.id)
         .filter(
-            Transaction.user_id == user.id,
+            Transaction.user_id == owner_id,
             Transaction.type == t_type,
             extract("year", Transaction.date) == year,
         )

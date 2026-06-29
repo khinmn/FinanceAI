@@ -27,10 +27,30 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
 }
 
+// Enforce role-based access control on routes
+function RoleRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
+  const { isAuthenticated, user } = useAuthStore();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  const role = user?.role || 'owner';
+
+  if (!allowedRoles.includes(role)) {
+    // If not allowed, redirect back to dashboard (or transactions for employee)
+    const fallbackPath = role === 'employee' ? '/transactions' : '/dashboard';
+    return <Navigate to={fallbackPath} replace />;
+  }
+
+  return <>{children}</>;
+}
+
 // Catch unknown URLs: logged in → dashboard, logged out → landing page
 function CatchAllRoute() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  return <Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />;
+  const { isAuthenticated, user } = useAuthStore();
+  const defaultPath = user?.role === 'employee' ? '/transactions' : '/dashboard';
+  return <Navigate to={isAuthenticated ? defaultPath : '/'} replace />;
 }
 
 export default function AppRoutes() {
@@ -56,14 +76,59 @@ export default function AppRoutes() {
 
         {/* Protected app routes */}
         <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-          <Route path="dashboard" element={<DashboardPage />} />
+          {/* Dashboard page accessible by all except employees */}
+          <Route path="dashboard" element={
+            <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
+              <DashboardPage />
+            </RoleRoute>
+          } />
+          
+          {/* Transactions page accessible by everyone */}
           <Route path="transactions" element={<TransactionsPage />} />
-          <Route path="budget" element={<BudgetPage />} />
-          <Route path="reports" element={<ReportsPage />} />
-          <Route path="gap-analysis" element={<GapAnalysisPage />} />
-          <Route path="ai-assistant" element={<AiAssistantPage />} />
-          <Route path="goals" element={<GoalsPage />} />
-          <Route path="team" element={<TeamPage />} />
+          
+          {/* Budget page accessible by all except employees */}
+          <Route path="budget" element={
+            <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
+              <BudgetPage />
+            </RoleRoute>
+          } />
+          
+          {/* Reports page accessible by all except employees */}
+          <Route path="reports" element={
+            <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
+              <ReportsPage />
+            </RoleRoute>
+          } />
+          
+          {/* Gap Analysis page accessible by all except employees */}
+          <Route path="gap-analysis" element={
+            <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
+              <GapAnalysisPage />
+            </RoleRoute>
+          } />
+          
+          {/* AI Assistant page accessible by owner, personal, accountant */}
+          <Route path="ai-assistant" element={
+            <RoleRoute allowedRoles={['owner', 'personal', 'accountant']}>
+              <AiAssistantPage />
+            </RoleRoute>
+          } />
+          
+          {/* Goals page accessible by owner and personal only */}
+          <Route path="goals" element={
+            <RoleRoute allowedRoles={['owner', 'personal']}>
+              <GoalsPage />
+            </RoleRoute>
+          } />
+          
+          {/* Team page accessible by owner only */}
+          <Route path="team" element={
+            <RoleRoute allowedRoles={['owner']}>
+              <TeamPage />
+            </RoleRoute>
+          } />
+          
+          {/* Settings page accessible by everyone (some tabs restricted internally) */}
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 

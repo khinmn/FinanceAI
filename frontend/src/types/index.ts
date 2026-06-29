@@ -7,10 +7,12 @@ export interface User {
   id: number;
   email: string;
   name: string;
+  role: 'personal' | 'owner' | 'accountant' | 'manager' | 'employee';
   is_active: boolean;
   created_at: string;
   has_business: boolean;
 }
+
 
 export interface Business {
   id: number;

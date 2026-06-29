@@ -4,29 +4,28 @@ from flask_jwt_extended import jwt_required
 
 from models import db
 from models.goal import Goal
-from utils.auth_helpers import get_current_user
+from utils.auth_helpers import get_current_user, get_business_owner_id
 from services.ai_service import get_goal_projection
+from middleware.auth_middleware import require_role, ROLE_OWNER, ROLE_PERSONAL
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/api/goals")
 
 
 @goals_bp.route("", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def get_goals():
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-        
-    goals = Goal.query.filter_by(user_id=user.id).order_by(Goal.created_at.desc()).all()
+    owner_id = get_business_owner_id(user)
+    
+    goals = Goal.query.filter_by(user_id=owner_id).order_by(Goal.created_at.desc()).all()
     return jsonify({"goals": [g.to_dict() for g in goals]}), 200
 
 
 @goals_bp.route("", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def create_goal():
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
+    owner_id = get_business_owner_id(user)
 
     data = request.get_json() or {}
 
@@ -49,7 +48,7 @@ def create_goal():
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD."}), 400
 
     goal = Goal(
-        user_id=user.id,
+        user_id=owner_id,
         name=data["name"],
         target_amount=target_amount,
         current_amount=current_amount,
@@ -63,13 +62,12 @@ def create_goal():
 
 
 @goals_bp.route("/<int:goal_id>", methods=["PUT"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def update_goal(goal_id):
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
+    owner_id = get_business_owner_id(user)
 
-    goal = Goal.query.filter_by(id=goal_id, user_id=user.id).first()
+    goal = Goal.query.filter_by(id=goal_id, user_id=owner_id).first()
     if not goal:
         return jsonify({"error": "Goal not found."}), 404
 
@@ -119,13 +117,12 @@ def update_goal(goal_id):
 
 
 @goals_bp.route("/<int:goal_id>", methods=["DELETE"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def delete_goal(goal_id):
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
+    owner_id = get_business_owner_id(user)
 
-    goal = Goal.query.filter_by(id=goal_id, user_id=user.id).first()
+    goal = Goal.query.filter_by(id=goal_id, user_id=owner_id).first()
     if not goal:
         return jsonify({"error": "Goal not found."}), 404
 
@@ -136,13 +133,12 @@ def delete_goal(goal_id):
 
 
 @goals_bp.route("/<int:goal_id>/projection", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def get_goal_ai_projection(goal_id):
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
+    owner_id = get_business_owner_id(user)
 
-    goal = Goal.query.filter_by(id=goal_id, user_id=user.id).first()
+    goal = Goal.query.filter_by(id=goal_id, user_id=owner_id).first()
     if not goal:
         return jsonify({"error": "Goal not found."}), 404
 

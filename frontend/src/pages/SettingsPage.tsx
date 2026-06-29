@@ -17,7 +17,11 @@ export default function SettingsPage() {
     setNotifyWeeklySummary, setNotifyBudgetThreshold, setNotifyAiInsights
   } = useAuthStore();
 
+  const userRole = user?.role || 'owner';
+  const canManageWorkspace = ['owner', 'personal'].includes(userRole);
+
   const [profile, setProfile] = useState({
+
     name: user?.name || '',
     email: user?.email || '',
     business_name: business?.business_name || '',
@@ -179,8 +183,8 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <Input label="Full Name" value={profile.name} onChange={(e) => setProfile(p => ({...p, name: e.target.value}))} />
               <Input label="Email Address" value={profile.email} disabled className="bg-gray-50 cursor-not-allowed text-dark-400 font-medium" />
-              <Input label="Business Name" value={profile.business_name} onChange={(e) => setProfile(p => ({...p, business_name: e.target.value}))} />
-              <Select label="Role Profile" value={role || 'SME Owner'} onChange={(e) => setRole?.(e.target.value)} options={[
+              <Input label="Business Name" value={profile.business_name} disabled={!canManageWorkspace} onChange={(e) => setProfile(p => ({...p, business_name: e.target.value}))} />
+              <Select label="Role Profile" value={role || 'SME Owner'} disabled={!canManageWorkspace} onChange={(e) => setRole?.(e.target.value)} options={[
                 { value: 'SME Owner', label: 'SME Owner' },
                 { value: 'Freelancer', label: 'Freelancer' },
                 { value: 'Shop Owner', label: 'Shop Owner' },
@@ -212,7 +216,7 @@ export default function SettingsPage() {
                   MMK (Myanmar Kyat) — Fixed for local compliance
                 </p>
               </div>
-              <Select label="Business Industry" value={profile.industry} onChange={(e) => setProfile(p => ({...p, industry: e.target.value}))} options={[
+              <Select label="Business Industry" disabled={!canManageWorkspace} value={profile.industry} onChange={(e) => setProfile(p => ({...p, industry: e.target.value}))} options={[
                 { value: 'retail', label: 'Retail' },
                 { value: 'food_beverage', label: 'Food & Beverage' },
                 { value: 'services', label: 'Services' },
@@ -225,16 +229,17 @@ export default function SettingsPage() {
                 { value: 'transport', label: 'Transport' },
                 { value: 'other', label: 'Other' },
               ]} />
-              <Input label="Country / Region" value={prefs.country} onChange={(e) => setPrefs(p => ({...p, country: e.target.value}))} />
+              <Input label="Country / Region" disabled={!canManageWorkspace} value={prefs.country} onChange={(e) => setPrefs(p => ({...p, country: e.target.value}))} />
             </div>
           </div>
           <div className="flex gap-3 mt-6 pt-4 border-t border-gray-50 dark:border-dark-700">
-            <Button variant="secondary" onClick={savePrefs} loading={savingPrefs} className="w-full sm:w-auto text-[15px] font-bold py-2.5 rounded-xl">
-              Save Preferences
-            </Button>
+            {canManageWorkspace && (
+              <Button variant="secondary" onClick={savePrefs} loading={savingPrefs} className="w-full sm:w-auto text-[15px] font-bold py-2.5 rounded-xl">
+                Save Preferences
+              </Button>
+            )}
           </div>
         </section>
-
         {/* AI Assistant Settings */}
         <section className="lg:col-span-2 bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700/50 p-6 shadow-soft hover:border-brand-200 dark:hover:border-brand-700 transition-all duration-300">
           <div className="flex items-center gap-2.5 mb-5 border-b border-gray-50 dark:border-dark-700 pb-3">
@@ -263,10 +268,13 @@ export default function SettingsPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setAiCopilotEnabled(!aiCopilotEnabled)}
-                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                  onClick={() => canManageWorkspace && setAiCopilotEnabled(!aiCopilotEnabled)}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                    canManageWorkspace ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                  } ${
                     aiCopilotEnabled !== false ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
+                  disabled={!canManageWorkspace}
                 >
                   <span
                     className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
@@ -295,10 +303,13 @@ export default function SettingsPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setAiDisclaimerEnabled(!aiDisclaimerEnabled)}
-                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                  onClick={() => canManageWorkspace && setAiDisclaimerEnabled(!aiDisclaimerEnabled)}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                    canManageWorkspace ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                  } ${
                     aiDisclaimerEnabled !== false ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
+                  disabled={!canManageWorkspace}
                 >
                   <span
                     className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
@@ -347,10 +358,13 @@ export default function SettingsPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setNotifyWeeklySummary?.(!notifyWeeklySummary)}
+                  onClick={() => canManageWorkspace && setNotifyWeeklySummary?.(!notifyWeeklySummary)}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                    canManageWorkspace ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                  } ${
                     notifyWeeklySummary !== false ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
+                  disabled={!canManageWorkspace}
                 >
                   <span
                     className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
@@ -380,10 +394,13 @@ export default function SettingsPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setNotifyBudgetThreshold?.(!notifyBudgetThreshold)}
+                  onClick={() => canManageWorkspace && setNotifyBudgetThreshold?.(!notifyBudgetThreshold)}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                    canManageWorkspace ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                  } ${
                     notifyBudgetThreshold !== false ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
+                  disabled={!canManageWorkspace}
                 >
                   <span
                     className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
@@ -413,10 +430,13 @@ export default function SettingsPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setNotifyAiInsights?.(!notifyAiInsights)}
+                  onClick={() => canManageWorkspace && setNotifyAiInsights?.(!notifyAiInsights)}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
+                    canManageWorkspace ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                  } ${
                     notifyAiInsights === true ? 'bg-brand-600' : 'bg-gray-300 dark:bg-dark-600'
                   }`}
+                  disabled={!canManageWorkspace}
                 >
                   <span
                     className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
@@ -428,6 +448,8 @@ export default function SettingsPage() {
             </div>
           </div>
         </section>
+
+
 
         {/* Security & Access */}
         <section className="lg:col-span-2 bg-white dark:bg-dark-800 rounded-3xl border border-gray-100 dark:border-dark-700/50 p-6 shadow-soft hover:border-brand-200 dark:hover:border-brand-700 transition-all duration-300">

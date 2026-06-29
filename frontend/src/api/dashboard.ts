@@ -30,4 +30,8 @@ export const dashboardApi = {
 
   recent: (limit = 5) =>
     api.get<{ transactions: Transaction[] }>(`/api/dashboard/recent?limit=${limit}`),
+
+  healthScore: () =>
+    api.get<{ health_score: number; overall_health: string; score_label: string; risk_score: number }>('/api/dashboard/health-score'),
 };
+

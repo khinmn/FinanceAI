@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, AlertCircle, CheckCircle, Info,
@@ -8,6 +8,8 @@ import { gapAnalysisApi } from '../api/gapAnalysis';
 import type { GapAnalysisResult, GapFinding, HealthStatus } from '../types';
 import Button from '../components/ui/Button';
 import { Select } from '../components/ui/Input';
+import { useAuthStore } from '../store/authStore';
+
 
 const HEALTH_CONFIG: Record<HealthStatus, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
   good:     { label: 'Good',     color: 'text-emerald-600 border-emerald-200', bg: 'bg-emerald-50/70 border-emerald-100', Icon: CheckCircle },
@@ -84,11 +86,35 @@ function FindingCard({ finding, index }: { finding: GapFinding; index: number })
 }
 
 export default function GapAnalysisPage() {
+  const { user } = useAuthStore();
+  const role = user?.role || 'owner';
+  const canRun = ['owner', 'personal', 'accountant'].includes(role);
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GapAnalysisResult | null>(null);
   const [error, setError] = useState('');
   const [monthsBack, setMonthsBack] = useState('3');
   const [analysisRan, setAnalysisRan] = useState(false);
+
+  const loadLatest = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await gapAnalysisApi.history();
+      if (res.results && res.results.length > 0) {
+        setResult(res.results[0]);
+        setAnalysisRan(true);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadLatest();
+  }, [loadLatest]);
+
 
   const runAnalysis = useCallback(async () => {
     setLoading(true);
@@ -243,21 +269,26 @@ export default function GapAnalysisPage() {
             </p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
-            <Select
-              value={monthsBack}
-              onChange={(e) => setMonthsBack(e.target.value)}
-              options={[
-                { value: '1', label: '1 month' },
-                { value: '3', label: '3 months' },
-                { value: '6', label: '6 months' },
-              ]}
-              className="w-32"
-            />
-            <Button onClick={runAnalysis} loading={loading} size="md">
-              <Play className="w-4 h-4 fill-current" />
-              {loading ? 'Analyzing…' : 'Run Analysis'}
-            </Button>
+            {canRun && (
+              <>
+                <Select
+                  value={monthsBack}
+                  onChange={(e) => setMonthsBack(e.target.value)}
+                  options={[
+                    { value: '1', label: '1 month' },
+                    { value: '3', label: '3 months' },
+                    { value: '6', label: '6 months' },
+                  ]}
+                  className="w-32"
+                />
+                <Button onClick={runAnalysis} loading={loading} size="md">
+                  <Play className="w-4 h-4 fill-current" />
+                  {loading ? 'Analyzing…' : 'Run Analysis'}
+                </Button>
+              </>
+            )}
           </div>
+
         </div>
       </div>
 

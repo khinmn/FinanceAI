@@ -16,7 +16,11 @@ from models import db
 from models.chat_session import ChatSession, ChatMessage
 from services.ai_service import get_chat_response
 from services.gap_analysis_service import run_gap_analysis, build_financial_summary
-from utils.auth_helpers import get_current_user
+from utils.auth_helpers import get_current_user, get_business_owner_id
+from middleware.auth_middleware import (
+    require_role,
+    ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT,
+)
 
 chat_bp = Blueprint("chat", __name__, url_prefix="/api/chat")
 
@@ -34,7 +38,7 @@ def _get_financial_context(user_id: int) -> str:
 # ── List sessions ──────────────────────────────────────────────────────────────
 
 @chat_bp.route("/sessions", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
 def get_sessions():
     user = get_current_user()
     sessions = (
@@ -49,7 +53,7 @@ def get_sessions():
 # ── Create session ─────────────────────────────────────────────────────────────
 
 @chat_bp.route("/session", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
 def create_session():
     user = get_current_user()
     data = request.get_json() or {}
@@ -65,7 +69,7 @@ def create_session():
 # ── Get session with messages ──────────────────────────────────────────────────
 
 @chat_bp.route("/sessions/<int:session_id>", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
 def get_session(session_id):
     user = get_current_user()
     session = ChatSession.query.filter_by(id=session_id, user_id=user.id).first()
@@ -77,9 +81,11 @@ def get_session(session_id):
 # ── Send message ───────────────────────────────────────────────────────────────
 
 @chat_bp.route("/message", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
 def send_message():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     data = request.get_json() or {}
 
     message_text = (data.get("message") or "").strip()
@@ -88,7 +94,7 @@ def send_message():
 
     session_id = data.get("session_id")
 
-    # Get or auto-create session
+    # Get or auto-create session (private to user)
     if session_id:
         session = ChatSession.query.filter_by(id=session_id, user_id=user.id).first()
         if not session:
@@ -109,8 +115,8 @@ def send_message():
     ]
     existing.append({"role": "user", "content": message_text})
 
-    # AI response
-    financial_ctx = _get_financial_context(user.id)
+    # AI response using the business context
+    financial_ctx = _get_financial_context(owner_id)
     ai_text, error = get_chat_response(existing, financial_context=financial_ctx)
 
     if error:
@@ -140,7 +146,7 @@ def send_message():
 # ── Delete session ─────────────────────────────────────────────────────────────
 
 @chat_bp.route("/sessions/<int:session_id>", methods=["DELETE"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
 def delete_session(session_id):
     user = get_current_user()
     session = ChatSession.query.filter_by(id=session_id, user_id=user.id).first()

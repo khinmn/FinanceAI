@@ -22,8 +22,12 @@ from dateutil.relativedelta import relativedelta
 from models import db
 from models.transaction import Transaction
 from models.category import Category
-from utils.auth_helpers import get_current_user
+from utils.auth_helpers import get_current_user, get_business_owner_id
 from utils.validators import validate_month_year
+from middleware.auth_middleware import (
+    require_role, require_auth,
+    ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER, ROLE_EMPLOYEE,
+)
 
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/api/dashboard")
 
@@ -64,7 +68,7 @@ def _period_totals(user_id: int, month: int, year: int) -> tuple[float, float, i
 # ── Summary ────────────────────────────────────────────────────────────────────
 
 @dashboard_bp.route("/summary", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def summary():
     """
     Return KPI summary for a given month/year.
@@ -79,6 +83,8 @@ def summary():
         income_change_pct (vs prev month), expense_change_pct (vs prev month)
     """
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     now = datetime.utcnow()
 
     raw_month = request.args.get("month", now.month, type=int)
@@ -92,7 +98,7 @@ def summary():
     month, year = raw_month, raw_year
 
     # Current month totals
-    income, expense, inc_cnt, exp_cnt = _period_totals(user.id, month, year)
+    income, expense, inc_cnt, exp_cnt = _period_totals(owner_id, month, year)
     net = round(income - expense, 2)
 
     # Ratios — safe division
@@ -101,7 +107,7 @@ def summary():
 
     # Previous month for MoM comparison
     prev_dt = datetime(year, month, 1) - relativedelta(months=1)
-    prev_income, prev_expense, _, _ = _period_totals(user.id, prev_dt.month, prev_dt.year)
+    prev_income, prev_expense, _, _ = _period_totals(owner_id, prev_dt.month, prev_dt.year)
 
     income_change = (
         round((income - prev_income) / prev_income * 100, 1) if prev_income > 0 else None
@@ -131,7 +137,7 @@ def summary():
 # ── Monthly chart (income vs expense trend) ────────────────────────────────────
 
 @dashboard_bp.route("/chart/monthly", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def monthly_chart():
     """
     Return monthly income vs expense trend data.
@@ -142,6 +148,8 @@ def monthly_chart():
     Returns: chart_data list ordered oldest → newest
     """
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     # Clamp to safe range
     raw_months = request.args.get("months", 6, type=int)
     num_months = max(1, min(raw_months, 12))
@@ -150,7 +158,7 @@ def monthly_chart():
     result = []
     for i in range(num_months - 1, -1, -1):
         target = now - relativedelta(months=i)
-        income, expense, _, _ = _period_totals(user.id, target.month, target.year)
+        income, expense, _, _ = _period_totals(owner_id, target.month, target.year)
         result.append(
             {
                 "month": target.strftime("%b"),
@@ -169,7 +177,7 @@ def monthly_chart():
 # ── Category pie-chart ─────────────────────────────────────────────────────────
 
 @dashboard_bp.route("/chart/categories", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def category_chart():
     """
     Return category-wise spending breakdown for a given month.
@@ -182,6 +190,8 @@ def category_chart():
     Returns: chart_data list with name, color, amount, percentage
     """
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     now = datetime.utcnow()
     month = request.args.get("month", now.month, type=int)
     year = request.args.get("year", now.year, type=int)
@@ -203,7 +213,7 @@ def category_chart():
         )
         .join(Transaction, Transaction.category_id == Category.id)
         .filter(
-            Transaction.user_id == user.id,
+            Transaction.user_id == owner_id,
             Transaction.type == t_type,
             extract("month", Transaction.date) == month,
             extract("year", Transaction.date) == year,
@@ -235,24 +245,57 @@ def category_chart():
 # ── Recent transactions ────────────────────────────────────────────────────────
 
 @dashboard_bp.route("/recent", methods=["GET"])
-@jwt_required()
+@require_auth()
 def recent_transactions():
     """
-    Return the most recent N transactions for the authenticated user.
+    Return the most recent N transactions for the authenticated user's business.
 
     Query params:
         limit (int, 1-20, default: 5)
-
-    Security: Only returns transactions belonging to the authenticated user.
     """
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     raw_limit = request.args.get("limit", 5, type=int)
     limit = max(1, min(raw_limit, 20))  # Clamp to safe range
 
     txs = (
-        Transaction.query.filter_by(user_id=user.id)
+        Transaction.query.filter_by(user_id=owner_id)
         .order_by(Transaction.date.desc(), Transaction.created_at.desc())
         .limit(limit)
         .all()
     )
     return jsonify({"transactions": [t.to_dict() for t in txs]}), 200
+
+
+# ── Health Score ───────────────────────────────────────────────────────────────
+
+@dashboard_bp.route("/health-score", methods=["GET"])
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
+def health_score():
+    user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
+    from services.gap_analysis_service import run_gap_analysis
+    
+    tx_count = Transaction.query.filter_by(user_id=owner_id).count()
+    if tx_count == 0:
+        return jsonify({
+            "health_score": 100,
+            "overall_health": "good",
+            "score_label": "No transactions",
+            "risk_score": 0,
+            "message": "Add some transactions to compute health score."
+        }), 200
+        
+    analysis = run_gap_analysis(owner_id, months_back=3)
+    risk_score = analysis.get("risk_score", 0)
+    health_val = max(0, 100 - risk_score)
+    
+    return jsonify({
+        "health_score": health_val,
+        "overall_health": analysis.get("overall_health", "good"),
+        "score_label": analysis.get("score_label", "healthy"),
+        "risk_score": risk_score,
+    }), 200
+

@@ -63,6 +63,17 @@ export default function Header() {
     .toUpperCase()
     .slice(0, 2) || 'U';
 
+  const getRoleLabel = (role?: string | null) => {
+    switch (role) {
+      case 'owner': return 'SME Owner';
+      case 'personal': return 'Solo User';
+      case 'accountant': return 'Accountant';
+      case 'manager': return 'Manager';
+      case 'employee': return 'Staff Member';
+      default: return 'User';
+    }
+  };
+
   return (
     <header className="flex items-center justify-between px-6 py-4 bg-white/60 dark:bg-dark-900/60 backdrop-blur-md border-b border-brand-100/50 dark:border-dark-800/40 flex-shrink-0 z-30 relative transition-colors duration-300">
       <div className="flex-1">
@@ -185,7 +196,7 @@ export default function Header() {
           </div>
           <div className="hidden sm:block">
             <div className="text-sm font-bold text-dark-900 dark:text-white leading-none">{user?.name || 'Admin User'}</div>
-            <div className="text-[10px] text-brand-600 dark:text-brand-400 font-semibold mt-1">SME Owner</div>
+            <div className="text-[10px] text-brand-600 dark:text-brand-400 font-semibold mt-1">{getRoleLabel(user?.role)}</div>
           </div>
         </div>
       </div>

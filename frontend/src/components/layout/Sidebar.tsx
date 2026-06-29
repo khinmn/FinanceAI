@@ -19,15 +19,15 @@ import { useAuthStore } from '../../store/authStore';
 import { clsx } from 'clsx';
 
 const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/transactions', icon: ArrowLeftRight, label: 'Transactions' },
-  { to: '/budget', icon: PieChart, label: 'Budget' },
-  { to: '/reports', icon: BarChart3, label: 'Reports' },
-  { to: '/gap-analysis', icon: Target, label: 'Gap Analysis' },
-  { to: '/ai-assistant', icon: Brain, label: 'AI Assistant' },
-  { to: '/goals', icon: Target, label: 'Goals' },
-  { to: '/team', icon: Users, label: 'Team' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', allowedRoles: ['owner', 'personal', 'accountant', 'manager'] },
+  { to: '/transactions', icon: ArrowLeftRight, label: 'Transactions', allowedRoles: ['owner', 'personal', 'accountant', 'manager', 'employee'] },
+  { to: '/budget', icon: PieChart, label: 'Budget', allowedRoles: ['owner', 'personal', 'accountant', 'manager'] },
+  { to: '/reports', icon: BarChart3, label: 'Reports', allowedRoles: ['owner', 'personal', 'accountant', 'manager'] },
+  { to: '/gap-analysis', icon: Target, label: 'Gap Analysis', allowedRoles: ['owner', 'personal', 'accountant', 'manager'] },
+  { to: '/ai-assistant', icon: Brain, label: 'AI Assistant', allowedRoles: ['owner', 'personal', 'accountant'] },
+  { to: '/goals', icon: Target, label: 'Goals', allowedRoles: ['owner', 'personal'] },
+  { to: '/team', icon: Users, label: 'Team', allowedRoles: ['owner'] },
+  { to: '/settings', icon: Settings, label: 'Settings', allowedRoles: ['owner', 'personal', 'accountant', 'manager', 'employee'] },
 ];
 
 interface SidebarProps {
@@ -43,6 +43,9 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
     logout();
     navigate('/');
   };
+
+  const userRole = user?.role || 'owner';
+  const visibleNavItems = navItems.filter((item) => item.allowedRoles.includes(userRole));
 
   return (
     <motion.aside
@@ -73,7 +76,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* Nav */}
       <nav className="relative z-10 flex-1 px-4 py-2 space-y-1.5 overflow-y-auto">
-        {navItems.map(({ to, icon: Icon, label }) => (
+        {visibleNavItems.map(({ to, icon: Icon, label }) => (
           <NavLink key={label} to={to}>
             {({ isActive }) => (
               <motion.div
@@ -101,6 +104,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           </NavLink>
         ))}
       </nav>
+
 
       {/* Bottom Section */}
       <div className="relative z-10 px-4 py-6 space-y-4">

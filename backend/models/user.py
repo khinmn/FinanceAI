@@ -2,6 +2,9 @@ from datetime import datetime
 from . import db
 import bcrypt
 
+# Valid roles in the system
+VALID_ROLES = ("personal", "owner", "accountant", "manager", "employee")
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -10,6 +13,8 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=True)
     name = db.Column(db.String(100), nullable=False)
+    # Role-based access control: personal | owner | accountant | manager | employee
+    role = db.Column(db.String(20), nullable=False, default="owner")
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
@@ -48,11 +53,18 @@ class User(db.Model):
         )
 
     def to_dict(self) -> dict:
+        from .team_member import TeamMember
+        has_biz = self.business is not None
+        if not has_biz:
+            has_biz = TeamMember.query.filter_by(email=self.email, status="Active").first() is not None
         return {
             "id": self.id,
             "email": self.email,
             "name": self.name,
+            "role": self.role,
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat(),
-            "has_business": self.business is not None,
+            "has_business": has_biz,
         }
+
+

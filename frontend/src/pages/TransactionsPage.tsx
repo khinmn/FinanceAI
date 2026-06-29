@@ -10,6 +10,8 @@ import type { Transaction, Category, TransactionFormData } from '../types';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { Input, Select } from '../components/ui/Input';
+import { useAuthStore } from '../store/authStore';
+
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n) + ' MMK';
@@ -34,12 +36,19 @@ const emptyForm: TransactionFormData = {
 };
 
 export default function TransactionsPage() {
+  const { user } = useAuthStore();
+  const role = user?.role || 'owner';
+  const canAdd = ['owner', 'personal', 'manager', 'employee'].includes(role);
+  const canEdit = ['owner', 'personal', 'manager'].includes(role);
+  const canDelete = ['owner', 'personal'].includes(role);
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
 
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -271,11 +280,14 @@ export default function TransactionsPage() {
           <Button onClick={exportToCSV} variant="secondary" size="sm">
             Export CSV
           </Button>
-          <Button onClick={openAdd} size="sm">
-            <Plus className="w-4 h-4" />
-            Add Transaction
-          </Button>
+          {canAdd && (
+            <Button onClick={openAdd} size="sm">
+              <Plus className="w-4 h-4" />
+              Add Transaction
+            </Button>
+          )}
         </div>
+
       </div>
 
       {/* Stats and Alerts Bar */}
@@ -382,20 +394,25 @@ export default function TransactionsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => openEdit(tx)}
-                            className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-dark-700"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteId(tx.id)}
-                            className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:text-danger dark:hover:text-rose-450 hover:bg-danger/10 dark:hover:bg-rose-950/20"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {canEdit && (
+                            <button
+                              onClick={() => openEdit(tx)}
+                              className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-dark-700"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button
+                              onClick={() => setDeleteId(tx.id)}
+                              className="p-1.5 rounded-lg text-dark-400 dark:text-dark-500 hover:text-danger dark:hover:text-rose-450 hover:bg-danger/10 dark:hover:bg-rose-950/20"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </td>
+
                     </motion.tr>
                   ))}
                 </AnimatePresence>

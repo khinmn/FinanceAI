@@ -7,7 +7,11 @@ from models import db
 from models.budget import Budget
 from models.category import Category
 from models.transaction import Transaction
-from utils.auth_helpers import get_current_user
+from utils.auth_helpers import get_current_user, get_business_owner_id
+from middleware.auth_middleware import (
+    require_role, require_auth,
+    ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER,
+)
 
 budgets_bp = Blueprint("budgets", __name__, url_prefix="/api/budgets")
 
@@ -15,13 +19,15 @@ budgets_bp = Blueprint("budgets", __name__, url_prefix="/api/budgets")
 # ── CRUD endpoints ─────────────────────────────────────────────────────────────
 
 @budgets_bp.route("", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def get_budgets():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     month = request.args.get("month", type=int)
     year = request.args.get("year", type=int)
 
-    query = Budget.query.filter_by(user_id=user.id)
+    query = Budget.query.filter_by(user_id=owner_id)
     if month:
         query = query.filter_by(month=month)
     if year:
@@ -32,9 +38,11 @@ def get_budgets():
 
 
 @budgets_bp.route("", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def create_budget():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     data = request.get_json() or {}
 
     for field in ("category_id", "amount", "month", "year"):
@@ -57,13 +65,13 @@ def create_budget():
         return jsonify({"error": "month must be an integer between 1 and 12, and year must be an integer."}), 400
 
     category_id = int(data["category_id"])
-    cat = Category.query.filter_by(id=category_id, user_id=user.id).first()
+    cat = Category.query.filter_by(id=category_id, user_id=owner_id).first()
     if not cat:
         return jsonify({"error": "Category not found."}), 404
 
     # Upsert: check if a budget for this category, month, and year already exists
     existing = Budget.query.filter_by(
-        user_id=user.id,
+        user_id=owner_id,
         category_id=category_id,
         month=month,
         year=year
@@ -76,7 +84,7 @@ def create_budget():
         return jsonify({"message": "Budget updated.", "budget": existing.to_dict()}), 200
 
     budget = Budget(
-        user_id=user.id,
+        user_id=owner_id,
         category_id=category_id,
         name=cat.name,
         amount=amount,
@@ -89,10 +97,12 @@ def create_budget():
 
 
 @budgets_bp.route("/<int:budget_id>", methods=["PUT"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def update_budget(budget_id):
     user = get_current_user()
-    budget = Budget.query.filter_by(id=budget_id, user_id=user.id).first()
+    owner_id = get_business_owner_id(user)
+    
+    budget = Budget.query.filter_by(id=budget_id, user_id=owner_id).first()
     if not budget:
         return jsonify({"error": "Budget not found."}), 404
 
@@ -112,10 +122,12 @@ def update_budget(budget_id):
 
 
 @budgets_bp.route("/<int:budget_id>", methods=["DELETE"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def delete_budget(budget_id):
     user = get_current_user()
-    budget = Budget.query.filter_by(id=budget_id, user_id=user.id).first()
+    owner_id = get_business_owner_id(user)
+    
+    budget = Budget.query.filter_by(id=budget_id, user_id=owner_id).first()
     if not budget:
         return jsonify({"error": "Budget not found."}), 404
 
@@ -127,20 +139,22 @@ def delete_budget(budget_id):
 # ── Budget Summary vs Actual Spending ──────────────────────────────────────────
 
 @budgets_bp.route("/summary", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def get_budget_summary():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     now = datetime.utcnow()
     month = request.args.get("month", now.month, type=int)
     year = request.args.get("year", now.year, type=int)
 
     # Get all user's expense categories
-    categories = Category.query.filter_by(user_id=user.id, type="expense").all()
+    categories = Category.query.filter_by(user_id=owner_id, type="expense").all()
 
     # Get all budgets for this month & year
     budgets = {
         b.category_id: b 
-        for b in Budget.query.filter_by(user_id=user.id, month=month, year=year).all()
+        for b in Budget.query.filter_by(user_id=owner_id, month=month, year=year).all()
     }
 
     # Query total expenses grouped by category for this month & year
@@ -150,7 +164,7 @@ def get_budget_summary():
             func.sum(Transaction.amount).label("total")
         )
         .filter(
-            Transaction.user_id == user.id,
+            Transaction.user_id == owner_id,
             Transaction.type == "expense",
             extract("month", Transaction.date) == month,
             extract("year", Transaction.date) == year
@@ -187,9 +201,11 @@ def get_budget_summary():
 
 
 @budgets_bp.route("/copy-previous", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def copy_previous_budgets():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     data = request.get_json() or {}
 
     target_month = data.get("month")
@@ -216,7 +232,7 @@ def copy_previous_budgets():
 
     # Get budgets from the previous month
     prev_budgets = Budget.query.filter_by(
-        user_id=user.id,
+        user_id=owner_id,
         month=prev_month,
         year=prev_year
     ).all()
@@ -228,7 +244,7 @@ def copy_previous_budgets():
     for pb in prev_budgets:
         # Check if budget already exists for target month/year/category
         existing = Budget.query.filter_by(
-            user_id=user.id,
+            user_id=owner_id,
             category_id=pb.category_id,
             month=target_month,
             year=target_year
@@ -237,7 +253,7 @@ def copy_previous_budgets():
         if not existing:
             # Create new
             new_budget = Budget(
-                user_id=user.id,
+                user_id=owner_id,
                 category_id=pb.category_id,
                 name=pb.name,
                 amount=pb.amount,
@@ -260,18 +276,20 @@ def copy_previous_budgets():
 
 
 @budgets_bp.route("/ai-coach", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
 def get_ai_coach():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     now = datetime.utcnow()
     month = request.args.get("month", now.month, type=int)
     year = request.args.get("year", now.year, type=int)
 
     # 1. Fetch budget summary list exactly like `/summary`
-    categories = Category.query.filter_by(user_id=user.id, type="expense").all()
+    categories = Category.query.filter_by(user_id=owner_id, type="expense").all()
     budgets = {
         b.category_id: b 
-        for b in Budget.query.filter_by(user_id=user.id, month=month, year=year).all()
+        for b in Budget.query.filter_by(user_id=owner_id, month=month, year=year).all()
     }
 
     rows = (
@@ -280,7 +298,7 @@ def get_ai_coach():
             func.sum(Transaction.amount).label("total")
         )
         .filter(
-            Transaction.user_id == user.id,
+            Transaction.user_id == owner_id,
             Transaction.type == "expense",
             extract("month", Transaction.date) == month,
             extract("year", Transaction.date) == year

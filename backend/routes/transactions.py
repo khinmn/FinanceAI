@@ -7,6 +7,12 @@ GET    /api/transactions/<id>         – get single transaction
 PUT    /api/transactions/<id>         – update transaction
 DELETE /api/transactions/<id>         – delete transaction
 GET    /api/transactions/summary      – monthly income/expense totals
+
+RBAC:
+  GET  (list, single, summary)  – all authenticated roles
+  POST (create)                 – owner, personal, manager, employee
+  PUT  (update)                 – owner, personal, manager
+  DELETE                        – owner, personal only
 """
 
 from datetime import datetime
@@ -17,11 +23,15 @@ from sqlalchemy import func, extract
 from models import db
 from models.transaction import Transaction
 from models.category import Category
-from utils.auth_helpers import get_current_user
+from utils.auth_helpers import get_current_user, get_business_owner_id
 from utils.validators import (
     validate_transaction_type,
     validate_payment_method,
     validate_date,
+)
+from middleware.auth_middleware import (
+    require_role, require_auth,
+    ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER, ROLE_EMPLOYEE,
 )
 
 transactions_bp = Blueprint("transactions", __name__, url_prefix="/api/transactions")
@@ -30,9 +40,11 @@ transactions_bp = Blueprint("transactions", __name__, url_prefix="/api/transacti
 # ── List ───────────────────────────────────────────────────────────────────────
 
 @transactions_bp.route("", methods=["GET"])
-@jwt_required()
+@require_auth()
 def get_transactions():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     page = request.args.get("page", 1, type=int)
     per_page = min(request.args.get("per_page", 20, type=int), 100)
     t_type = request.args.get("type")
@@ -41,7 +53,7 @@ def get_transactions():
     date_to = request.args.get("date_to")
     search = request.args.get("search", "").strip()
 
-    query = Transaction.query.filter_by(user_id=user.id)
+    query = Transaction.query.filter_by(user_id=owner_id)
 
     if t_type and validate_transaction_type(t_type):
         query = query.filter_by(type=t_type)
@@ -85,9 +97,11 @@ def get_transactions():
 # ── Create ─────────────────────────────────────────────────────────────────────
 
 @transactions_bp.route("", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_MANAGER, ROLE_EMPLOYEE)
 def create_transaction():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     data = request.get_json() or {}
 
     for field in ("type", "amount", "description", "date"):
@@ -114,7 +128,7 @@ def create_transaction():
 
     category_id = data.get("category_id")
     if category_id:
-        cat = Category.query.filter_by(id=category_id, user_id=user.id).first()
+        cat = Category.query.filter_by(id=category_id, user_id=owner_id).first()
         if not cat:
             return jsonify({"error": "Category not found."}), 404
         if cat.type != data["type"]:
@@ -123,7 +137,7 @@ def create_transaction():
             ), 400
 
     tx = Transaction(
-        user_id=user.id,
+        user_id=owner_id,
         category_id=category_id,
         type=data["type"],
         amount=amount,
@@ -143,14 +157,14 @@ def create_transaction():
         month = tx.date.month
         year = tx.date.year
         budget = Budget.query.filter_by(
-            user_id=user.id,
+            user_id=owner_id,
             category_id=tx.category_id,
             month=month,
             year=year
         ).first()
         if budget:
             total_spent = db.session.query(func.sum(Transaction.amount)).filter(
-                Transaction.user_id == user.id,
+                Transaction.user_id == owner_id,
                 Transaction.category_id == tx.category_id,
                 Transaction.type == "expense",
                 extract("month", Transaction.date) == month,
@@ -169,10 +183,12 @@ def create_transaction():
 # ── Read one ───────────────────────────────────────────────────────────────────
 
 @transactions_bp.route("/<int:tx_id>", methods=["GET"])
-@jwt_required()
+@require_auth()
 def get_transaction(tx_id):
     user = get_current_user()
-    tx = Transaction.query.filter_by(id=tx_id, user_id=user.id).first()
+    owner_id = get_business_owner_id(user)
+    
+    tx = Transaction.query.filter_by(id=tx_id, user_id=owner_id).first()
     if not tx:
         return jsonify({"error": "Transaction not found."}), 404
     return jsonify({"transaction": tx.to_dict()}), 200
@@ -181,10 +197,12 @@ def get_transaction(tx_id):
 # ── Update ─────────────────────────────────────────────────────────────────────
 
 @transactions_bp.route("/<int:tx_id>", methods=["PUT"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_MANAGER)
 def update_transaction(tx_id):
     user = get_current_user()
-    tx = Transaction.query.filter_by(id=tx_id, user_id=user.id).first()
+    owner_id = get_business_owner_id(user)
+    
+    tx = Transaction.query.filter_by(id=tx_id, user_id=owner_id).first()
     if not tx:
         return jsonify({"error": "Transaction not found."}), 404
 
@@ -225,7 +243,7 @@ def update_transaction(tx_id):
     if "category_id" in data:
         cat_id = data["category_id"]
         if cat_id:
-            cat = Category.query.filter_by(id=cat_id, user_id=user.id).first()
+            cat = Category.query.filter_by(id=cat_id, user_id=owner_id).first()
             if not cat:
                 return jsonify({"error": "Category not found."}), 404
         tx.category_id = cat_id
@@ -240,14 +258,14 @@ def update_transaction(tx_id):
         month = tx.date.month
         year = tx.date.year
         budget = Budget.query.filter_by(
-            user_id=user.id,
+            user_id=owner_id,
             category_id=tx.category_id,
             month=month,
             year=year
         ).first()
         if budget:
             total_spent = db.session.query(func.sum(Transaction.amount)).filter(
-                Transaction.user_id == user.id,
+                Transaction.user_id == owner_id,
                 Transaction.category_id == tx.category_id,
                 Transaction.type == "expense",
                 extract("month", Transaction.date) == month,
@@ -266,10 +284,12 @@ def update_transaction(tx_id):
 # ── Delete ─────────────────────────────────────────────────────────────────────
 
 @transactions_bp.route("/<int:tx_id>", methods=["DELETE"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def delete_transaction(tx_id):
     user = get_current_user()
-    tx = Transaction.query.filter_by(id=tx_id, user_id=user.id).first()
+    owner_id = get_business_owner_id(user)
+    
+    tx = Transaction.query.filter_by(id=tx_id, user_id=owner_id).first()
     if not tx:
         return jsonify({"error": "Transaction not found."}), 404
     db.session.delete(tx)
@@ -280,9 +300,11 @@ def delete_transaction(tx_id):
 # ── Monthly summary ────────────────────────────────────────────────────────────
 
 @transactions_bp.route("/summary", methods=["GET"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def monthly_summary():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     now = datetime.utcnow()
     month = request.args.get("month", now.month, type=int)
     year = request.args.get("year", now.year, type=int)
@@ -294,7 +316,7 @@ def monthly_summary():
             func.count(Transaction.id).label("count"),
         )
         .filter(
-            Transaction.user_id == user.id,
+            Transaction.user_id == owner_id,
             extract("month", Transaction.date) == month,
             extract("year", Transaction.date) == year,
         )

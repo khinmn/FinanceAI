@@ -3,6 +3,10 @@ import uuid
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 from werkzeug.utils import secure_filename
+from middleware.auth_middleware import (
+    require_role,
+    ROLE_OWNER, ROLE_PERSONAL, ROLE_MANAGER, ROLE_EMPLOYEE,
+)
 
 upload_bp = Blueprint("upload", __name__, url_prefix="/api/upload")
 
@@ -14,7 +18,7 @@ def allowed_file(filename: str) -> bool:
 
 
 @upload_bp.route("/receipt", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_MANAGER, ROLE_EMPLOYEE)
 def upload_receipt():
     if "file" not in request.files:
         return jsonify({"error": "No file part in request."}), 400

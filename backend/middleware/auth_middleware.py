@@ -3,14 +3,19 @@ RBAC & Security Middleware
 ===========================
 Provides decorators and helpers for:
 
-  - require_role(*roles)          – enforce role-based access control
-  - ownership_required(model)     – ensure the resource belongs to the current user
-  - rate_limit_response()         – standard 429 response helper
-  - sanitize_request_json()       – strip XSS from all incoming string fields
+  - require_auth()             – enforce JWT authentication only (any role)
+  - require_role(*roles)       – enforce JWT + role-based access control
+  - ownership_required(model)  – ensure the resource belongs to the current user
+  - rate_limit_response()      – standard 429 response helper
+  - sanitize_request_json()    – strip XSS from all incoming string fields
+
+Role hierarchy (lowest → highest privilege):
+  employee < manager < accountant < personal < owner
 
 Usage examples in routes:
-  @require_role("admin")
-  @require_role("owner", "admin")
+  @require_auth()
+  @require_role("owner")
+  @require_role("owner", "accountant")
 """
 
 import re
@@ -22,6 +27,31 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from models.user import User
 from models import db
+
+# Canonical role constants — use these everywhere, never raw strings
+ROLE_PERSONAL  = "personal"
+ROLE_OWNER     = "owner"
+ROLE_ACCOUNTANT = "accountant"
+ROLE_MANAGER   = "manager"
+ROLE_EMPLOYEE  = "employee"
+
+# All valid roles
+ALL_ROLES = (ROLE_PERSONAL, ROLE_OWNER, ROLE_ACCOUNTANT, ROLE_MANAGER, ROLE_EMPLOYEE)
+
+# Roles that can manage their own business (full-access users)
+BUSINESS_ADMIN_ROLES = (ROLE_OWNER,)
+
+# Roles that can perform read-heavy financial review
+FINANCE_REVIEWER_ROLES = (ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
+
+# Roles with at least manager-level access
+MANAGER_AND_ABOVE = (ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
+
+# Roles that can create/add transactions
+TRANSACTION_CREATE_ROLES = (ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER, ROLE_EMPLOYEE)
+
+# Roles that can see dashboards and reports
+DASHBOARD_ROLES = (ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -43,6 +73,34 @@ def _strip_html(value: str) -> str:
     return clean.strip()
 
 
+# ── Auth-Only Decorator ────────────────────────────────────────────────────────
+
+def require_auth():
+    """
+    Decorator that enforces JWT authentication — any valid role is accepted.
+    Use this for routes that all authenticated users can access.
+
+    Example::
+
+        @app.route("/api/profile")
+        @require_auth()
+        def profile():
+            ...
+    """
+    def decorator(fn):
+        @wraps(fn)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            user = _get_user_from_token()
+            if not user:
+                return jsonify({"error": "User not found."}), 404
+            if not user.is_active:
+                return jsonify({"error": "Account is deactivated."}), 403
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
 # ── RBAC Decorator ─────────────────────────────────────────────────────────────
 
 def require_role(*roles: str):
@@ -54,8 +112,13 @@ def require_role(*roles: str):
     Example::
 
         @app.route("/admin/users")
-        @require_role("admin")
+        @require_role("owner")
         def admin_users():
+            ...
+
+        @app.route("/api/reports")
+        @require_role("owner", "accountant", "personal")
+        def reports():
             ...
     """
     def decorator(fn):

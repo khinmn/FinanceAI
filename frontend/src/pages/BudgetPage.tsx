@@ -10,14 +10,21 @@ import type { BudgetSummaryItem, Category } from '../types';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { Input, Select } from '../components/ui/Input';
+import { useAuthStore } from '../store/authStore';
+
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n) + ' MMK';
 
 export default function BudgetPage() {
+  const { user } = useAuthStore();
+  const role = user?.role || 'owner';
+  const canManageBudget = ['owner', 'personal'].includes(role);
+
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
+
   
   const [summary, setSummary] = useState<BudgetSummaryItem[]>([]);
   const [totalBudgeted, setTotalBudgeted] = useState(0);
@@ -320,16 +327,19 @@ export default function BudgetPage() {
         
         {/* Date Selectors & Copy Last Month's Budget */}
         <div className="flex flex-wrap items-center gap-3">
-          <Button
-            onClick={handleCopyPrevious}
-            variant="secondary"
-            size="sm"
-            loading={copyLoading}
-            className="text-xs flex items-center gap-1.5"
-            title="Auto-fill budgets from the previous month"
-          >
-            Copy Last Month's Budgets
-          </Button>
+          {canManageBudget && (
+            <Button
+              onClick={handleCopyPrevious}
+              variant="secondary"
+              size="sm"
+              loading={copyLoading}
+              className="text-xs flex items-center gap-1.5"
+              title="Auto-fill budgets from the previous month"
+            >
+              Copy Last Month's Budgets
+            </Button>
+          )}
+
 
           <div className="flex items-center gap-2 bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-xl p-1.5 shadow-sm">
             <Calendar className="w-4 h-4 text-dark-400 ml-2" />
@@ -481,11 +491,14 @@ export default function BudgetPage() {
             <h2 className="text-dark-900 dark:text-white font-bold text-lg">Category Spent vs. Budget</h2>
             <p className="text-dark-500 dark:text-dark-400 text-sm">Monthly breakdowns and progress meters.</p>
           </div>
-          <Button onClick={() => handleOpenSetBudget()} size="sm" className="flex items-center gap-1">
-            <Plus className="w-4 h-4" />
-            Set Budget
-          </Button>
+          {canManageBudget && (
+            <Button onClick={() => handleOpenSetBudget()} size="sm" className="flex items-center gap-1">
+              <Plus className="w-4 h-4" />
+              Set Budget
+            </Button>
+          )}
         </div>
+
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -539,24 +552,27 @@ export default function BudgetPage() {
                         )}
                       </div>
 
-                      <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                        <button
-                          onClick={() => handleOpenSetBudget(item)}
-                          className="p-1.5 rounded-lg text-dark-400 hover:text-brand-600 hover:bg-brand-50"
-                          title="Configure Budget"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        {item.budget_id && (
+                      {canManageBudget && (
+                        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                           <button
-                            onClick={() => setDeleteId(item.budget_id)}
-                            className="p-1.5 rounded-lg text-dark-400 hover:text-danger hover:bg-danger/10"
-                            title="Delete Budget"
+                            onClick={() => handleOpenSetBudget(item)}
+                            className="p-1.5 rounded-lg text-dark-400 hover:text-brand-600 hover:bg-brand-50"
+                            title="Configure Budget"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Edit2 className="w-3.5 h-3.5" />
                           </button>
-                        )}
-                      </div>
+                          {item.budget_id && (
+                            <button
+                              onClick={() => setDeleteId(item.budget_id)}
+                              className="p-1.5 rounded-lg text-dark-400 hover:text-danger hover:bg-danger/10"
+                              title="Delete Budget"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+
                     </div>
                   </div>
 

@@ -102,6 +102,11 @@ export default function DashboardPage() {
   const [recent, setRecent] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const role = user?.role || 'owner';
+  const showHealthScore = ['owner', 'personal', 'accountant'].includes(role);
+  const [healthScore, setHealthScore] = useState<number | null>(null);
+  const [healthLabel, setHealthLabel] = useState<string>('healthy');
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -115,12 +120,23 @@ export default function DashboardPage() {
       setMonthly(m.chart_data);
       setCatData(c.chart_data);
       setRecent(r.transactions);
+
+      if (showHealthScore) {
+        try {
+          const h = await dashboardApi.healthScore();
+          setHealthScore(h.health_score);
+          setHealthLabel(h.score_label);
+        } catch (err) {
+          console.error(err);
+        }
+      }
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, [month, year]);
+  }, [month, year, showHealthScore]);
+
 
   useEffect(() => { load(); }, [load]);
 
@@ -169,13 +185,23 @@ export default function DashboardPage() {
           change={null}
           icon={Wallet} color="text-brand-600 dark:text-brand-400" bg="bg-brand-100 dark:bg-brand-900/30"
         />
-        <KPICard
-          label="Health Score" delay={0.3}
-          value={`${summary?.savings_rate ?? 0}/100`}
-          change={12.5}
-          icon={Activity} color="text-purple-500 dark:text-purple-400" bg="bg-purple-100 dark:bg-purple-900/30"
-        />
+        {showHealthScore ? (
+          <KPICard
+            label="Health Score" delay={0.3}
+            value={healthScore !== null ? `${healthScore}/100` : '...'}
+            change={null}
+            icon={Activity} color="text-purple-500 dark:text-purple-400" bg="bg-purple-100 dark:bg-purple-900/30"
+          />
+        ) : (
+          <KPICard
+            label="Savings Rate" delay={0.3}
+            value={`${summary?.savings_rate ?? 0}%`}
+            change={null}
+            icon={Percent} color="text-purple-500 dark:text-purple-400" bg="bg-purple-100 dark:bg-purple-900/30"
+          />
+        )}
       </div>
+
 
       {/* Main Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -357,11 +383,12 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center justify-between border-t border-dark-800 pt-4">
-              <div className="text-white text-2xl font-bold">85<span className="text-dark-500 text-sm font-normal">/100</span></div>
-              <div className="px-3 py-1 rounded-full bg-success/20 text-success text-xs font-bold border border-success/30">Excellent</div>
+              <div className="text-white text-2xl font-bold">{healthScore !== null ? healthScore : '85'}<span className="text-dark-500 text-sm font-normal">/100</span></div>
+              <div className="px-3 py-1 rounded-full bg-success/20 text-success text-xs font-bold border border-success/30 capitalize">{healthLabel}</div>
             </div>
           </div>
         </motion.div>
+
 
       </div>
 

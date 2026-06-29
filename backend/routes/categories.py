@@ -12,18 +12,24 @@ from flask_jwt_extended import jwt_required
 
 from models import db
 from models.category import Category
-from utils.auth_helpers import get_current_user
+from utils.auth_helpers import get_current_user, get_business_owner_id
+from middleware.auth_middleware import (
+    require_role, require_auth,
+    ROLE_OWNER, ROLE_PERSONAL,
+)
 
 categories_bp = Blueprint("categories", __name__, url_prefix="/api/categories")
 
 
 @categories_bp.route("", methods=["GET"])
-@jwt_required()
+@require_auth()
 def get_categories():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     t_type = request.args.get("type")  # 'income' | 'expense'
 
-    query = Category.query.filter_by(user_id=user.id)
+    query = Category.query.filter_by(user_id=owner_id)
     if t_type in ("income", "expense"):
         query = query.filter_by(type=t_type)
 
@@ -34,9 +40,11 @@ def get_categories():
 
 
 @categories_bp.route("", methods=["POST"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def create_category():
     user = get_current_user()
+    owner_id = get_business_owner_id(user)
+    
     data = request.get_json() or {}
 
     if not data.get("name") or not data.get("type"):
@@ -46,7 +54,7 @@ def create_category():
         return jsonify({"error": "type must be 'income' or 'expense'."}), 400
 
     existing = Category.query.filter_by(
-        user_id=user.id,
+        user_id=owner_id,
         name=data["name"].strip(),
         type=data["type"],
     ).first()
@@ -54,7 +62,7 @@ def create_category():
         return jsonify({"error": "A category with this name already exists."}), 409
 
     cat = Category(
-        user_id=user.id,
+        user_id=owner_id,
         name=data["name"].strip(),
         type=data["type"],
         color=data.get("color", "#6B7280"),
@@ -66,10 +74,12 @@ def create_category():
 
 
 @categories_bp.route("/<int:cat_id>", methods=["PUT"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def update_category(cat_id):
     user = get_current_user()
-    cat = Category.query.filter_by(id=cat_id, user_id=user.id).first()
+    owner_id = get_business_owner_id(user)
+    
+    cat = Category.query.filter_by(id=cat_id, user_id=owner_id).first()
     if not cat:
         return jsonify({"error": "Category not found."}), 404
 
@@ -84,10 +94,12 @@ def update_category(cat_id):
 
 
 @categories_bp.route("/<int:cat_id>", methods=["DELETE"])
-@jwt_required()
+@require_role(ROLE_OWNER, ROLE_PERSONAL)
 def delete_category(cat_id):
     user = get_current_user()
-    cat = Category.query.filter_by(id=cat_id, user_id=user.id).first()
+    owner_id = get_business_owner_id(user)
+    
+    cat = Category.query.filter_by(id=cat_id, user_id=owner_id).first()
     if not cat:
         return jsonify({"error": "Category not found."}), 404
     if cat.is_default:
