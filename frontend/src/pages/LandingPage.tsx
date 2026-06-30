@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -29,6 +29,38 @@ const scrollTo = (id: string) => {
 export default function LandingPage() {
   const { darkMode, setDarkMode } = useAuthStore();
   const containerRef = useRef(null);
+
+  // Newsletter subscription state
+  const [subEmail, setSubEmail]     = useState('');
+  const [subLoading, setSubLoading] = useState(false);
+  const [subSuccess, setSubSuccess] = useState('');
+  const [subError, setSubError]     = useState('');
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subEmail.trim()) return;
+    setSubLoading(true);
+    setSubSuccess('');
+    setSubError('');
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: subEmail.trim().toLowerCase() }),
+      });
+      const data = await res.json();
+      if (res.ok || res.status === 200) {
+        setSubSuccess(data.message || 'You are subscribed!');
+        setSubEmail('');
+      } else {
+        setSubError(data.error || 'Subscription failed. Please try again.');
+      }
+    } catch {
+      setSubError('Network error. Please check your connection.');
+    } finally {
+      setSubLoading(false);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
@@ -434,13 +466,37 @@ export default function LandingPage() {
           {/* Newsletter */}
           <div className="bg-brand-600 rounded-3xl p-12 mb-20 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <h3 className="text-3xl font-bold z-10">Get the latest FinanceAI news<br />straight to your inbox</h3>
-            <div className="flex w-full lg:w-auto z-10">
-              <input type="email" placeholder="Enter your email" className="px-6 py-4 rounded-l-full w-full lg:w-80 text-dark-900 focus:outline-none" />
-              <button className="bg-dark-900 text-white px-8 py-4 rounded-r-full font-bold hover:bg-dark-800 transition-colors">
-                Subscribe
-              </button>
+            <div className="z-10">
+              <h3 className="text-3xl font-bold mb-2">Get the latest FinanceAI news<br />straight to your inbox</h3>
+              {subSuccess && (
+                <p className="mt-3 text-sm font-semibold text-green-200 flex items-center gap-2">
+                  <span>✅</span> {subSuccess}
+                </p>
+              )}
+              {subError && (
+                <p className="mt-3 text-sm font-semibold text-red-200 flex items-center gap-2">
+                  <span>⚠️</span> {subError}
+                </p>
+              )}
             </div>
+            <form onSubmit={handleSubscribe} className="flex w-full lg:w-auto z-10">
+              <input
+                type="email"
+                required
+                placeholder="Enter your email"
+                value={subEmail}
+                onChange={(e) => setSubEmail(e.target.value)}
+                disabled={subLoading}
+                className="px-6 py-4 rounded-l-full w-full lg:w-80 text-dark-900 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={subLoading}
+                className="bg-dark-900 text-white px-8 py-4 rounded-r-full font-bold hover:bg-dark-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {subLoading ? 'Sending…' : 'Subscribe'}
+              </button>
+            </form>
           </div>
 
           {/* Footer columns */}
