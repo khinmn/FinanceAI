@@ -49,10 +49,7 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl shadow-brand-500/30 mb-5"
-            style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)' }}>
-            <div className="w-7 h-7 rounded-full border-[3px] border-white border-t-transparent animate-spin" />
-          </div>
+          <img src="/logo.svg" alt="FinanceAI" className="w-16 h-16 mb-5 drop-shadow-xl" />
           <h1 className="text-dark-900 dark:text-white text-3xl font-extrabold tracking-tight">Welcome back</h1>
           <p className="text-dark-500 dark:text-dark-300 text-sm mt-2 font-medium">Sign in to FinanceAI</p>
         </div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import Layout from '../components/layout/Layout';
@@ -14,44 +14,113 @@ import BudgetPage from '../pages/BudgetPage';
 import AiAssistantPage from '../pages/AiAssistantPage';
 import GoalsPage from '../pages/GoalsPage';
 import TeamPage from '../pages/TeamPage';
+import { authApi } from '../api/auth';
 
-// If logged in, redirect to dashboard. Otherwise show the page (landing/login/register).
+// ─── Role constants ───────────────────────────────────────────────────────────
+const VALID_ROLES = ['personal', 'owner', 'accountant', 'manager', 'employee'] as const;
+
+function normaliseRole(role: string | null | undefined): string {
+  if (!role) return 'owner';
+  const lower = role.toLowerCase().trim();
+  const legacyMap: Record<string, string> = {
+    'sme owner':    'owner',
+    'sme_owner':    'owner',
+    'solo user':    'personal',
+    'personal user':'personal',
+    'staff member': 'employee',
+    'freelancer':   'personal',
+    'shop owner':   'owner',
+    'admin':        'owner',
+    'accountant / finance staff': 'accountant',
+  };
+  if (legacyMap[lower]) return legacyMap[lower];
+  if ((VALID_ROLES as readonly string[]).includes(lower)) return lower;
+  return 'owner';
+}
+
+// ─── Route guards ────────────────────────────────────────────────────────────
+
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
 }
 
-// If NOT logged in, redirect to landing page. Otherwise show the protected page.
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
 }
 
-// Enforce role-based access control on routes
 function RoleRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
   const { isAuthenticated, user } = useAuthStore();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-
-  const role = user?.role || 'owner';
-
+  if (!isAuthenticated) return <Navigate to="/" replace />;
+  const role = normaliseRole(user?.role);
   if (!allowedRoles.includes(role)) {
-    // If not allowed, redirect back to dashboard (or transactions for employee)
-    const fallbackPath = role === 'employee' ? '/transactions' : '/dashboard';
-    return <Navigate to={fallbackPath} replace />;
+    const fallback = role === 'employee' ? '/transactions' : '/dashboard';
+    return <Navigate to={fallback} replace />;
+  }
+  return <>{children}</>;
+}
+
+function CatchAllRoute() {
+  const { isAuthenticated, user } = useAuthStore();
+  const role = normaliseRole(user?.role);
+  const defaultPath = role === 'employee' ? '/transactions' : '/dashboard';
+  return <Navigate to={isAuthenticated ? defaultPath : '/'} replace />;
+}
+
+// ─── Splash / token-validation loader ────────────────────────────────────────
+
+function AppLoader({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, logout, setUser, user } = useAuthStore();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setChecking(false);
+      return;
+    }
+
+    // Validate the stored token by hitting /api/auth/me
+    authApi.me()
+      .then((res) => {
+        // Refresh user data in case anything changed on the server
+        setUser(res.user as any);
+      })
+      .catch(() => {
+        // Token is expired / invalid — clear everything so the login page is shown
+        logout();
+      })
+      .finally(() => {
+        setChecking(false);
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only on mount
+
+  // Auto-heal: normalise any legacy role stored in persisted user object
+  useEffect(() => {
+    if (!user) return;
+    const normalised = normaliseRole(user.role);
+    if (normalised !== user.role) {
+      setUser({ ...user, role: normalised as any });
+    }
+  }, [user, setUser]);
+
+  if (checking) {
+    // Minimal loading screen while we verify the token
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFDFD] dark:bg-dark-900">
+        <div className="flex flex-col items-center gap-4">
+          <img src="/logo.svg" alt="FinanceAI" className="w-14 h-14 animate-pulse" />
+          <p className="text-sm text-dark-400 font-medium">Loading FinanceAI…</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;
 }
 
-// Catch unknown URLs: logged in → dashboard, logged out → landing page
-function CatchAllRoute() {
-  const { isAuthenticated, user } = useAuthStore();
-  const defaultPath = user?.role === 'employee' ? '/transactions' : '/dashboard';
-  return <Navigate to={isAuthenticated ? defaultPath : '/'} replace />;
-}
+// ─── Main router ──────────────────────────────────────────────────────────────
 
 export default function AppRoutes() {
   const darkMode = useAuthStore((s) => s.darkMode);
@@ -66,75 +135,76 @@ export default function AppRoutes() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Landing Page - first thing any visitor sees */}
-        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+      <AppLoader>
+        <Routes>
+          {/* Public pages */}
+          <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-        {/* Auth pages */}
-        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+          {/* Protected app shell */}
+          <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
 
-        {/* Protected app routes */}
-        <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-          {/* Dashboard page accessible by all except employees */}
-          <Route path="dashboard" element={
-            <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
-              <DashboardPage />
-            </RoleRoute>
-          } />
-          
-          {/* Transactions page accessible by everyone */}
-          <Route path="transactions" element={<TransactionsPage />} />
-          
-          {/* Budget page accessible by all except employees */}
-          <Route path="budget" element={
-            <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
-              <BudgetPage />
-            </RoleRoute>
-          } />
-          
-          {/* Reports page accessible by all except employees */}
-          <Route path="reports" element={
-            <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
-              <ReportsPage />
-            </RoleRoute>
-          } />
-          
-          {/* Gap Analysis page accessible by all except employees */}
-          <Route path="gap-analysis" element={
-            <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
-              <GapAnalysisPage />
-            </RoleRoute>
-          } />
-          
-          {/* AI Assistant page accessible by owner, personal, accountant */}
-          <Route path="ai-assistant" element={
-            <RoleRoute allowedRoles={['owner', 'personal', 'accountant']}>
-              <AiAssistantPage />
-            </RoleRoute>
-          } />
-          
-          {/* Goals page accessible by owner and personal only */}
-          <Route path="goals" element={
-            <RoleRoute allowedRoles={['owner', 'personal']}>
-              <GoalsPage />
-            </RoleRoute>
-          } />
-          
-          {/* Team page accessible by owner only */}
-          <Route path="team" element={
-            <RoleRoute allowedRoles={['owner']}>
-              <TeamPage />
-            </RoleRoute>
-          } />
-          
-          {/* Settings page accessible by everyone (some tabs restricted internally) */}
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
+            {/* Dashboard — personal/owner/accountant/manager */}
+            <Route path="dashboard" element={
+              <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
+                <DashboardPage />
+              </RoleRoute>
+            } />
 
-        {/* Catch-all */}
-        <Route path="*" element={<CatchAllRoute />} />
-      </Routes>
+            {/* Transactions — all roles */}
+            <Route path="transactions" element={<TransactionsPage />} />
+
+            {/* Budget — view: all except employee; create/edit: owner/personal only (enforced inside) */}
+            <Route path="budget" element={
+              <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
+                <BudgetPage />
+              </RoleRoute>
+            } />
+
+            {/* Reports — full: owner/personal/accountant; basic: manager */}
+            <Route path="reports" element={
+              <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
+                <ReportsPage />
+              </RoleRoute>
+            } />
+
+            {/* Gap Analysis — full: owner/personal/accountant; summary: manager */}
+            <Route path="gap-analysis" element={
+              <RoleRoute allowedRoles={['owner', 'personal', 'accountant', 'manager']}>
+                <GapAnalysisPage />
+              </RoleRoute>
+            } />
+
+            {/* AI Assistant — owner/personal/accountant only */}
+            <Route path="ai-assistant" element={
+              <RoleRoute allowedRoles={['owner', 'personal', 'accountant']}>
+                <AiAssistantPage />
+              </RoleRoute>
+            } />
+
+            {/* Goals — owner/personal only */}
+            <Route path="goals" element={
+              <RoleRoute allowedRoles={['owner', 'personal']}>
+                <GoalsPage />
+              </RoleRoute>
+            } />
+
+            {/* Team Management — owner only */}
+            <Route path="team" element={
+              <RoleRoute allowedRoles={['owner']}>
+                <TeamPage />
+              </RoleRoute>
+            } />
+
+            {/* Settings — all roles */}
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+
+          {/* Catch-all */}
+          <Route path="*" element={<CatchAllRoute />} />
+        </Routes>
+      </AppLoader>
     </BrowserRouter>
   );
 }

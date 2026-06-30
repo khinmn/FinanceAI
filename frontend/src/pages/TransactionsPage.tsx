@@ -38,9 +38,9 @@ const emptyForm: TransactionFormData = {
 export default function TransactionsPage() {
   const { user } = useAuthStore();
   const role = user?.role || 'owner';
-  const canAdd = ['owner', 'personal', 'manager', 'employee'].includes(role);
-  const canEdit = ['owner', 'personal', 'manager'].includes(role);
-  const canDelete = ['owner', 'personal'].includes(role);
+  const canAdd    = ['owner', 'personal', 'manager', 'employee'].includes(role);  // accountant ❌
+  const canEdit   = ['owner', 'personal', 'manager'].includes(role);              // accountant/employee ❌
+  const canDelete = ['owner', 'personal'].includes(role);                         // manager/accountant/employee ❌
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

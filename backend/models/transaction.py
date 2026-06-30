@@ -16,13 +16,15 @@ class Transaction(db.Model):
     # cash | bank | card | mobile | other
     note = db.Column(db.Text, nullable=True)
     receipt_url = db.Column(db.String(255), nullable=True)
+    created_by_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
     # Relationships
-    user = db.relationship("User", back_populates="transactions")
+    user = db.relationship("User", foreign_keys=[user_id], back_populates="transactions")
+    creator = db.relationship("User", foreign_keys=[created_by_id])
     category = db.relationship("Category", back_populates="transactions")
 
     def to_dict(self) -> dict:
@@ -40,6 +42,7 @@ class Transaction(db.Model):
             "payment_method": self.payment_method,
             "note": self.note,
             "receipt_url": self.receipt_url,
+            "created_by_id": self.created_by_id,
             "created_at": self.created_at.isoformat(),
             "updated_at": updated.isoformat() if updated else None,
         }

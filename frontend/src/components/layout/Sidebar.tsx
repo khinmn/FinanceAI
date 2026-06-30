@@ -10,24 +10,89 @@ import {
   Brain,
   Users,
   Settings,
-  Crown,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  Crosshair
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { clsx } from 'clsx';
 
+// Role-label display map (matches Header.tsx)
+const ROLE_LABELS: Record<string, string> = {
+  owner:      'SME Owner',
+  personal:   'Personal User',
+  accountant: 'Accountant',
+  manager:    'Manager',
+  employee:   'Employee',
+};
+
+// RBAC matrix per feature area
+// Dashboard   : owner/personal/accountant/manager  (employee: None)
+// Transactions: everyone (add/delete restricted inside page)
+// Budget      : owner/personal/accountant/manager  (employee: None)
+// Reports     : owner/personal/accountant/manager  (employee: None)
+// Gap Analysis: owner/personal/accountant/manager  (employee: None)
+// AI Assistant: owner/personal/accountant          (manager/employee: None)
+// Goals       : owner/personal                     (others: None)
+// Team        : owner only
+// Settings    : everyone
+
 const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', allowedRoles: ['owner', 'personal', 'accountant', 'manager'] },
-  { to: '/transactions', icon: ArrowLeftRight, label: 'Transactions', allowedRoles: ['owner', 'personal', 'accountant', 'manager', 'employee'] },
-  { to: '/budget', icon: PieChart, label: 'Budget', allowedRoles: ['owner', 'personal', 'accountant', 'manager'] },
-  { to: '/reports', icon: BarChart3, label: 'Reports', allowedRoles: ['owner', 'personal', 'accountant', 'manager'] },
-  { to: '/gap-analysis', icon: Target, label: 'Gap Analysis', allowedRoles: ['owner', 'personal', 'accountant', 'manager'] },
-  { to: '/ai-assistant', icon: Brain, label: 'AI Assistant', allowedRoles: ['owner', 'personal', 'accountant'] },
-  { to: '/goals', icon: Target, label: 'Goals', allowedRoles: ['owner', 'personal'] },
-  { to: '/team', icon: Users, label: 'Team', allowedRoles: ['owner'] },
-  { to: '/settings', icon: Settings, label: 'Settings', allowedRoles: ['owner', 'personal', 'accountant', 'manager', 'employee'] },
+  {
+    to: '/dashboard',
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+    allowedRoles: ['owner', 'personal', 'accountant', 'manager'],
+  },
+  {
+    to: '/transactions',
+    icon: ArrowLeftRight,
+    label: 'Transactions',
+    allowedRoles: ['owner', 'personal', 'accountant', 'manager', 'employee'],
+  },
+  {
+    to: '/budget',
+    icon: PieChart,
+    label: 'Budget',
+    allowedRoles: ['owner', 'personal', 'accountant', 'manager'],
+  },
+  {
+    to: '/reports',
+    icon: BarChart3,
+    label: 'Reports',
+    allowedRoles: ['owner', 'personal', 'accountant', 'manager'],
+  },
+  {
+    to: '/gap-analysis',
+    icon: Crosshair,
+    label: 'Gap Analysis',
+    allowedRoles: ['owner', 'personal', 'accountant', 'manager'],
+  },
+  {
+    to: '/ai-assistant',
+    icon: Brain,
+    label: 'AI Assistant',
+    allowedRoles: ['owner', 'personal', 'accountant'],
+  },
+  {
+    to: '/goals',
+    icon: Target,
+    label: 'Goals',
+    allowedRoles: ['owner', 'personal'],
+  },
+  {
+    to: '/team',
+    icon: Users,
+    label: 'Team',
+    allowedRoles: ['owner'],
+  },
+  {
+    to: '/settings',
+    icon: Settings,
+    label: 'Settings',
+    allowedRoles: ['owner', 'personal', 'accountant', 'manager', 'employee'],
+  },
 ];
 
 interface SidebarProps {
@@ -45,6 +110,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   };
 
   const userRole = user?.role || 'owner';
+  const roleLabel = ROLE_LABELS[userRole] || 'User';
   const visibleNavItems = navItems.filter((item) => item.allowedRoles.includes(userRole));
 
   return (
@@ -54,25 +120,31 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       className="relative flex flex-col h-screen overflow-hidden flex-shrink-0 font-sans"
       style={{ background: 'linear-gradient(180deg, #0F1115 0%, #1A1328 50%, #0F1115 100%)' }}
     >
-      {/* Ambient blob inside sidebar */}
+      {/* Ambient blobs */}
       <div className="absolute top-0 right-0 w-40 h-40 bg-brand-600/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-20 left-0 w-32 h-32 bg-brand-800/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Logo */}
       <div className="relative z-10 flex items-center gap-3 px-6 py-8">
-        <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand-500/30">
-          <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin-slow" />
-        </div>
+        <img src="/logo.svg" alt="FinanceAI" className="w-9 h-9 flex-shrink-0" />
         {!collapsed && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="font-bold text-xl tracking-tight text-white"
           >
-            FinanceAI<span className="text-brand-400 text-lg relative -top-1">.</span>
+            FinanceAI
           </motion.div>
         )}
       </div>
+
+      {/* Role badge (visible when not collapsed) */}
+      {!collapsed && (
+        <div className="relative z-10 mx-4 mb-3 px-3 py-2 rounded-xl bg-brand-600/15 border border-brand-500/20">
+          <p className="text-[10px] text-brand-400 font-bold uppercase tracking-widest">Current Role</p>
+          <p className="text-xs text-white font-bold mt-0.5">{roleLabel}</p>
+        </div>
+      )}
 
       {/* Nav */}
       <nav className="relative z-10 flex-1 px-4 py-2 space-y-1.5 overflow-y-auto">
@@ -105,29 +177,10 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         ))}
       </nav>
 
-
       {/* Bottom Section */}
       <div className="relative z-10 px-4 py-6 space-y-4">
-        {!collapsed && (
-          <div className="p-4 rounded-2xl relative overflow-hidden border border-brand-500/20"
-            style={{ background: 'linear-gradient(135deg, rgba(109,40,217,0.2) 0%, rgba(76,29,149,0.1) 100%)' }}>
-            <div className="absolute top-0 right-0 w-12 h-12 bg-brand-400/20 blur-xl rounded-full" />
-            <div className="w-8 h-8 rounded-full bg-brand-500/20 border border-brand-500/30 flex items-center justify-center mb-3">
-              <Crown className="w-4 h-4 text-brand-400" />
-            </div>
-            <div className="text-sm font-bold text-white mb-1">Premium Plan</div>
-            <div className="text-xs text-brand-400 font-medium">Active</div>
-          </div>
-        )}
-        
-        {collapsed && (
-           <div className="w-10 h-10 mx-auto rounded-full bg-brand-500/20 border border-brand-500/30 flex items-center justify-center">
-             <Crown className="w-5 h-5 text-brand-400" />
-           </div>
-        )}
-
         <div className="pt-2 border-t border-white/5">
-           <button
+          <button
             onClick={handleLogout}
             className={clsx(
               "flex items-center gap-3 w-full py-2.5 rounded-xl text-dark-400 hover:text-white hover:bg-white/5 transition-all duration-200",
@@ -139,7 +192,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             {!collapsed && <span className="text-sm font-semibold">Logout</span>}
           </button>
         </div>
-        
+
         {!collapsed && (
           <div className="text-[10px] text-dark-600 px-3 text-center">
             FinanceAI v2.0

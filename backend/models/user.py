@@ -26,7 +26,10 @@ class User(db.Model):
         "Business", back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
     transactions = db.relationship(
-        "Transaction", back_populates="user", cascade="all, delete-orphan"
+        "Transaction",
+        foreign_keys="Transaction.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
     categories = db.relationship(
         "Category", back_populates="user", cascade="all, delete-orphan"

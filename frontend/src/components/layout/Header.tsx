@@ -65,12 +65,12 @@ export default function Header() {
 
   const getRoleLabel = (role?: string | null) => {
     switch (role) {
-      case 'owner': return 'SME Owner';
-      case 'personal': return 'Solo User';
+      case 'owner':      return 'SME Owner';
+      case 'personal':   return 'Personal User';
       case 'accountant': return 'Accountant';
-      case 'manager': return 'Manager';
-      case 'employee': return 'Staff Member';
-      default: return 'User';
+      case 'manager':    return 'Manager';
+      case 'employee':   return 'Employee';
+      default:           return 'User';
     }
   };
 

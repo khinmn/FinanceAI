@@ -55,6 +55,10 @@ def get_transactions():
 
     query = Transaction.query.filter_by(user_id=owner_id)
 
+    # Employees can only view transactions they personally created
+    if user.role == ROLE_EMPLOYEE:
+        query = query.filter(Transaction.created_by_id == user.id)
+
     if t_type and validate_transaction_type(t_type):
         query = query.filter_by(type=t_type)
     if category_id:
@@ -138,6 +142,7 @@ def create_transaction():
 
     tx = Transaction(
         user_id=owner_id,
+        created_by_id=user.id,
         category_id=category_id,
         type=data["type"],
         amount=amount,
@@ -191,6 +196,11 @@ def get_transaction(tx_id):
     tx = Transaction.query.filter_by(id=tx_id, user_id=owner_id).first()
     if not tx:
         return jsonify({"error": "Transaction not found."}), 404
+
+    # Employees can only view their own transactions
+    if user.role == ROLE_EMPLOYEE and tx.created_by_id != user.id:
+        return jsonify({"error": "Access denied. You can only view your own transactions."}), 403
+
     return jsonify({"transaction": tx.to_dict()}), 200
 
 

@@ -123,6 +123,7 @@ def history():
     """Return paginated history of past gap analysis results for the current business."""
     user = get_current_user()
     owner_id = get_business_owner_id(user)
+    summary_only = (user.role == ROLE_MANAGER)
     
     page = max(1, request.args.get("page", 1, type=int))
 
@@ -134,7 +135,7 @@ def history():
 
     return jsonify(
         {
-            "results": [r.to_dict() for r in paginated.items],
+            "results": [r.to_dict(summary_only=summary_only) for r in paginated.items],
             "total": paginated.total,
             "pages": paginated.pages,
         }
@@ -147,10 +148,11 @@ def get_result(result_id):
     """Return a single past gap analysis result. Enforces business ownership."""
     user = get_current_user()
     owner_id = get_business_owner_id(user)
+    summary_only = (user.role == ROLE_MANAGER)
     
     result = GapAnalysisResult.query.filter_by(
         id=result_id, user_id=owner_id
     ).first()
     if not result:
         return jsonify({"error": "Analysis result not found."}), 404
-    return jsonify({"result": result.to_dict()}), 200
+    return jsonify({"result": result.to_dict(summary_only=summary_only)}), 200

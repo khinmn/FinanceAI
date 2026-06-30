@@ -6,6 +6,7 @@ export const authApi = {
     name: string;
     email: string;
     password: string;
+    role?: string;
     business_name: string;
     industry: string;
     description?: string;

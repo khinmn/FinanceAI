@@ -40,6 +40,9 @@ type Tab = 'cashflow' | 'income' | 'expenses';
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('cashflow');
   const darkMode = useAuthStore((s) => s.darkMode);
+  const { user } = useAuthStore();
+  const role = user?.role || 'owner';
+  const isManager = role === 'manager';
   const [cashflow, setCashflow] = useState<CashflowItem[]>([]);
   const [incomeBreakdown, setIncomeBreakdown] = useState<CategoryReportItem[]>([]);
   const [expenseBreakdown, setExpenseBreakdown] = useState<CategoryReportItem[]>([]);
@@ -64,21 +67,27 @@ export default function ReportsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [cf, inc, exp] = await Promise.all([
-        reportsApi.cashflow(6),
-        reportsApi.categoryBreakdown('income', year),
-        reportsApi.categoryBreakdown('expense', year),
-      ]);
-      setCashflow(cf.cashflow);
-      setIncomeBreakdown(inc.breakdown);
-      setExpenseBreakdown(exp.breakdown);
+      if (isManager) {
+        // Managers only get cash flow (category-breakdown is blocked for them)
+        const cf = await reportsApi.cashflow(6);
+        setCashflow(cf.cashflow);
+      } else {
+        const [cf, inc, exp] = await Promise.all([
+          reportsApi.cashflow(6),
+          reportsApi.categoryBreakdown('income', year),
+          reportsApi.categoryBreakdown('expense', year),
+        ]);
+        setCashflow(cf.cashflow);
+        setIncomeBreakdown(inc.breakdown);
+        setExpenseBreakdown(exp.breakdown);
+      }
     } catch (e) {
       console.error(e);
       showToast('Failed to load report data.', 'error');
     } finally {
       setLoading(false);
     }
-  }, [year]);
+  }, [year, isManager]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -146,11 +155,13 @@ export default function ReportsPage() {
     showToast('CSV report exported successfully!');
   };
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'cashflow', label: 'Cash Flow' },
-    { key: 'income', label: 'Income Breakdown' },
-    { key: 'expenses', label: 'Expense Breakdown' },
-  ];
+  const tabs: { key: Tab; label: string }[] = isManager
+    ? [{ key: 'cashflow', label: 'Cash Flow' }]
+    : [
+        { key: 'cashflow', label: 'Cash Flow' },
+        { key: 'income', label: 'Income Breakdown' },
+        { key: 'expenses', label: 'Expense Breakdown' },
+      ];
 
   // Annual Overview Calculations
   const totalIncome = incomeBreakdown.reduce((sum, item) => sum + item.total, 0);
@@ -179,16 +190,18 @@ export default function ReportsPage() {
         
         {/* Filters & Export Actions */}
         <div className="flex flex-wrap items-center gap-3">
-          <Button
-            onClick={exportToCSV}
-            variant="secondary"
-            size="sm"
-            className="text-xs flex items-center gap-1.5"
-            title="Export current tab data as a CSV spreadsheet"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Export CSV
-          </Button>
+          {!isManager && (
+            <Button
+              onClick={exportToCSV}
+              variant="secondary"
+              size="sm"
+              className="text-xs flex items-center gap-1.5"
+              title="Export current tab data as a CSV spreadsheet"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Export CSV
+            </Button>
+          )}
 
           <div className="flex items-center gap-2 bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-xl p-1.5 shadow-sm">
             <Calendar className="w-4 h-4 text-dark-400 ml-2" />
@@ -230,58 +243,68 @@ export default function ReportsPage() {
         )}
       </AnimatePresence>
 
-      {/* Annual Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Income */}
-        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 border border-emerald-100 dark:border-emerald-900/40">
-              <TrendingUp className="w-5 h-5" />
+      {/* Annual Summary KPI Cards - hidden for managers (basic view only) */}
+      {!isManager && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Total Income */}
+          <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
+            <div className="flex items-start justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 border border-emerald-100 dark:border-emerald-900/40">
+                <TrendingUp className="w-5 h-5" />
+              </div>
             </div>
+            <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Annual Income ({year})</p>
+            <p className="text-dark-900 dark:text-white text-xl font-bold">{fmt(totalIncome)}</p>
           </div>
-          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Annual Income ({year})</p>
-          <p className="text-dark-900 dark:text-white text-xl font-bold">{fmt(totalIncome)}</p>
-        </div>
 
-        {/* Total Expenses */}
-        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-50 dark:bg-rose-950/20 text-rose-600 border border-rose-100 dark:border-rose-900/40">
-              <TrendingDown className="w-5 h-5" />
+          {/* Total Expenses */}
+          <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
+            <div className="flex items-start justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-50 dark:bg-rose-950/20 text-rose-600 border border-rose-100 dark:border-rose-900/40">
+                <TrendingDown className="w-5 h-5" />
+              </div>
             </div>
+            <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Annual Expenses ({year})</p>
+            <p className="text-dark-900 dark:text-white text-xl font-bold">{fmt(totalExpense)}</p>
           </div>
-          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Annual Expenses ({year})</p>
-          <p className="text-dark-900 dark:text-white text-xl font-bold">{fmt(totalExpense)}</p>
-        </div>
 
-        {/* Net Savings */}
-        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
-          <div className="flex items-start justify-between mb-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
-              netSavings < 0 ? 'bg-danger/10 text-danger border-danger/20' : 'bg-brand-50 dark:bg-brand-950/20 text-brand-600 border border-brand-100 dark:border-brand-900/40'
-            }`}>
-              <DollarSign className="w-5 h-5" />
+          {/* Net Savings */}
+          <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
+            <div className="flex items-start justify-between mb-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
+                netSavings < 0 ? 'bg-danger/10 text-danger border-danger/20' : 'bg-brand-50 dark:bg-brand-950/20 text-brand-600 border border-brand-100 dark:border-brand-900/40'
+              }`}>
+                <DollarSign className="w-5 h-5" />
+              </div>
             </div>
+            <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Net Savings ({year})</p>
+            <p className="text-dark-900 dark:text-white text-xl font-bold">
+              {netSavings < 0 ? `-${fmt(Math.abs(netSavings))}` : fmt(netSavings)}
+            </p>
           </div>
-          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Net Savings ({year})</p>
-          <p className="text-dark-900 dark:text-white text-xl font-bold">
-            {netSavings < 0 ? `-${fmt(Math.abs(netSavings))}` : fmt(netSavings)}
-          </p>
-        </div>
 
-        {/* Savings Rate */}
-        <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 dark:bg-purple-950/20 text-purple-600 border border-purple-100 dark:border-purple-900/40">
-              <Percent className="w-5 h-5" />
+          {/* Savings Rate */}
+          <div className="bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700 p-5 shadow-soft">
+            <div className="flex items-start justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 dark:bg-purple-950/20 text-purple-600 border border-purple-100 dark:border-purple-900/40">
+                <Percent className="w-5 h-5" />
+              </div>
             </div>
+            <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Savings Rate ({year})</p>
+            <p className="text-dark-900 dark:text-white text-xl font-bold">
+              {savingsRate.toFixed(1)}%
+            </p>
           </div>
-          <p className="text-dark-500 dark:text-dark-400 text-xs font-bold uppercase tracking-wider mb-1">Savings Rate ({year})</p>
-          <p className="text-dark-900 dark:text-white text-xl font-bold">
-            {savingsRate.toFixed(1)}%
-          </p>
         </div>
-      </div>
+      )}
+
+      {/* Manager notice */}
+      {isManager && (
+        <div className="flex items-center gap-3 p-4 bg-brand-50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-800 rounded-2xl text-brand-700 dark:text-brand-300 text-sm font-semibold">
+          <span>ℹ️</span>
+          <span>You have basic report access. Detailed income/expense breakdowns are available to Owners, Personal users, and Accountants.</span>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-white dark:bg-dark-800 border border-dark-100 dark:border-dark-700 rounded-xl w-fit shadow-soft">

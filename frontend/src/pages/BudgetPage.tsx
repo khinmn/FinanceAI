@@ -20,6 +20,7 @@ export default function BudgetPage() {
   const { user } = useAuthStore();
   const role = user?.role || 'owner';
   const canManageBudget = ['owner', 'personal'].includes(role);
+  const canUseAiCoach = ['owner', 'personal', 'accountant'].includes(role);
 
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -409,13 +410,15 @@ export default function BudgetPage() {
                 <p className="text-xs text-dark-500 dark:text-dark-400 font-semibold mt-0.5">Automated rule analysis and spending advice</p>
               </div>
             </div>
-            <button
-              onClick={handleToggleAiCoach}
-              type="button"
-              className="px-4 py-2 rounded-xl text-xs font-bold border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/40 bg-white dark:bg-dark-800 transition-all shadow-sm flex items-center gap-1.5"
-            >
-              {aiCoachOpen ? 'Hide Insights' : 'Get Budget Analysis'}
-            </button>
+            {canUseAiCoach && (
+              <button
+                onClick={handleToggleAiCoach}
+                type="button"
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/40 bg-white dark:bg-dark-800 transition-all shadow-sm flex items-center gap-1.5"
+              >
+                {aiCoachOpen ? 'Hide Insights' : 'Get Budget Analysis'}
+              </button>
+            )}
           </div>
           
           <AnimatePresence>

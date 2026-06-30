@@ -31,14 +31,14 @@ class GapAnalysisResult(db.Model):
     def rule_findings(self, value: list) -> None:
         self._rule_findings = json.dumps(value)
 
-    def to_dict(self) -> dict:
+    def to_dict(self, summary_only: bool = False) -> dict:
         return {
             "id": self.id,
             "generated_at": self.generated_at.isoformat(),
             "period_start": self.period_start.isoformat() if self.period_start else None,
             "period_end": self.period_end.isoformat() if self.period_end else None,
-            "rule_findings": self.rule_findings,
-            "ai_explanation": self.ai_explanation,
+            "rule_findings": [] if summary_only else self.rule_findings,
+            "ai_explanation": None if summary_only else self.ai_explanation,
             "overall_health": self.overall_health,
             "finding_count": len(self.rule_findings),
         }

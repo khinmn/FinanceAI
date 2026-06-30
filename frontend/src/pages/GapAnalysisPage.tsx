@@ -89,6 +89,7 @@ export default function GapAnalysisPage() {
   const { user } = useAuthStore();
   const role = user?.role || 'owner';
   const canRun = ['owner', 'personal', 'accountant'].includes(role);
+  const isManager = role === 'manager';
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GapAnalysisResult | null>(null);
@@ -335,28 +336,30 @@ export default function GapAnalysisPage() {
             </div>
           )}
 
-          {/* Findings */}
-          {result.rule_findings.length === 0 ? (
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 text-center shadow-soft">
-              <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
-              <p className="text-emerald-600 font-bold text-lg">No risks detected!</p>
-              <p className="text-dark-500 text-sm mt-1">Your finances look healthy for the selected period.</p>
-            </div>
-          ) : (
-            <div>
-              <h3 className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-3">
-                Risk Findings ({result.rule_findings.length})
-              </h3>
-              <div className="space-y-3">
-                {result.rule_findings.map((f, i) => (
-                  <FindingCard key={f.rule_id} finding={f} index={i} />
-                ))}
+          {/* Findings - hidden for managers (summary view only) */}
+          {role !== 'manager' && (
+            result.rule_findings.length === 0 ? (
+              <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 text-center shadow-soft">
+                <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
+                <p className="text-emerald-600 font-bold text-lg">No risks detected!</p>
+                <p className="text-dark-500 text-sm mt-1">Your finances look healthy for the selected period.</p>
               </div>
-            </div>
+            ) : (
+              <div>
+                <h3 className="text-dark-500 text-xs font-bold uppercase tracking-wider mb-3">
+                  Risk Findings ({result.rule_findings.length})
+                </h3>
+                <div className="space-y-3">
+                  {result.rule_findings.map((f, i) => (
+                    <FindingCard key={f.rule_id} finding={f} index={i} />
+                  ))}
+                </div>
+              </div>
+            )
           )}
 
-          {/* AI Explanation */}
-          {result.ai_explanation && (
+          {/* AI Explanation - hidden for managers */}
+          {role !== 'manager' && result.ai_explanation && (
             <div className="bg-[#F8F5FE] border border-[#E5DCFC] rounded-2xl p-6 shadow-soft">
               <div className="flex items-center gap-3.5 mb-4 border-b border-[#E5DCFC] pb-3">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#EDE5FC] text-[#7C3AED] border border-[#E5DCFC]">
@@ -370,6 +373,14 @@ export default function GapAnalysisPage() {
               <div className="max-w-none text-[#3B3054] leading-relaxed font-sans space-y-3">
                 {renderMarkdown(result.ai_explanation)}
               </div>
+            </div>
+          )}
+
+          {/* Manager summary notice */}
+          {isManager && (
+            <div className="flex items-start gap-3 p-5 bg-brand-50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-800 rounded-2xl text-brand-700 dark:text-brand-300 text-sm font-semibold">
+              <span className="text-lg mt-0.5">ℹ️</span>
+              <span>You have summary-level access to Gap Analysis. Detailed risk findings and AI recommendations are restricted to Owner, Personal User, and Accountant roles.</span>
             </div>
           )}
         </motion.div>
