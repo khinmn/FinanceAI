@@ -22,6 +22,8 @@ budgets_bp = Blueprint("budgets", __name__, url_prefix="/api/budgets")
 @require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def get_budgets():
     user = get_current_user()
+    if not user:
+        return jsonify({"error": "User not found."}), 401
     owner_id = get_business_owner_id(user)
     
     month = request.args.get("month", type=int)
@@ -41,6 +43,8 @@ def get_budgets():
 @require_role(ROLE_OWNER, ROLE_PERSONAL)
 def create_budget():
     user = get_current_user()
+    if not user:
+        return jsonify({"error": "User not found."}), 401
     owner_id = get_business_owner_id(user)
     
     data = request.get_json() or {}
@@ -100,6 +104,8 @@ def create_budget():
 @require_role(ROLE_OWNER, ROLE_PERSONAL)
 def update_budget(budget_id):
     user = get_current_user()
+    if not user:
+        return jsonify({"error": "User not found."}), 401
     owner_id = get_business_owner_id(user)
     
     budget = Budget.query.filter_by(id=budget_id, user_id=owner_id).first()
@@ -125,6 +131,8 @@ def update_budget(budget_id):
 @require_role(ROLE_OWNER, ROLE_PERSONAL)
 def delete_budget(budget_id):
     user = get_current_user()
+    if not user:
+        return jsonify({"error": "User not found."}), 401
     owner_id = get_business_owner_id(user)
     
     budget = Budget.query.filter_by(id=budget_id, user_id=owner_id).first()
@@ -142,6 +150,8 @@ def delete_budget(budget_id):
 @require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT, ROLE_MANAGER)
 def get_budget_summary():
     user = get_current_user()
+    if not user:
+        return jsonify({"error": "User not found."}), 401
     owner_id = get_business_owner_id(user)
     
     now = datetime.utcnow()
@@ -204,6 +214,8 @@ def get_budget_summary():
 @require_role(ROLE_OWNER, ROLE_PERSONAL)
 def copy_previous_budgets():
     user = get_current_user()
+    if not user:
+        return jsonify({"error": "User not found."}), 401
     owner_id = get_business_owner_id(user)
     
     data = request.get_json() or {}
@@ -279,6 +291,8 @@ def copy_previous_budgets():
 @require_role(ROLE_OWNER, ROLE_PERSONAL, ROLE_ACCOUNTANT)
 def get_ai_coach():
     user = get_current_user()
+    if not user:
+        return jsonify({"error": "User not found."}), 401
     owner_id = get_business_owner_id(user)
     
     now = datetime.utcnow()

@@ -21,6 +21,22 @@ class Budget(db.Model):
     user = db.relationship("User", backref=db.backref("budgets", lazy=True))
     category = db.relationship("Category", backref=db.backref("budgets", lazy=True))
 
+    def __init__(
+        self,
+        user_id: int,
+        category_id: "int | None",
+        name: str,
+        amount: float,
+        month: int,
+        year: int,
+    ) -> None:
+        self.user_id = user_id
+        self.category_id = category_id
+        self.name = name
+        self.amount = amount  # type: ignore[assignment]
+        self.month = month
+        self.year = year
+
     def to_dict(self) -> dict:
         return {
             "id": self.id,
