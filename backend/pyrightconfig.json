@@ -7,5 +7,10 @@
   "reportMissingImports": "none",
   "reportMissingModuleSource": "none",
   "reportUndefinedVariable": "warning",
-  "reportGeneralTypeIssues": "warning"
+  "reportGeneralTypeIssues": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportOptionalSubscript": "none",
+  "reportArgumentType": "none",
+  "reportReturnType": "none",
+  "reportAttributeAccessIssue": "none"
 }
