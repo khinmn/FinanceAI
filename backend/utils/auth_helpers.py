@@ -1,4 +1,5 @@
 from flask_jwt_extended import get_jwt_identity
+from models import db
 from models.user import User
 from models.team_member import TeamMember
 from models.business import Business
@@ -9,10 +10,10 @@ def get_current_user() -> User | None:
     user_id = get_jwt_identity()
     if not user_id:
         return None
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
-def get_business_owner_id(user: User) -> int:
+def get_business_owner_id(user: User) -> int | None:
     """
     Resolve the User ID of the business owner.
     For personal/owner accounts, returns the user's own ID.
@@ -28,7 +29,7 @@ def get_business_owner_id(user: User) -> int:
     # Resolve from team member email
     member = TeamMember.query.filter_by(email=user.email, status="Active").first()
     if member:
-        biz = Business.query.get(member.business_id)
+        biz = db.session.get(Business, member.business_id)
         if biz:
             return biz.user_id
 
