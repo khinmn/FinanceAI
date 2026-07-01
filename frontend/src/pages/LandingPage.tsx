@@ -102,6 +102,7 @@ export default function LandingPage() {
             <button onClick={() => scrollTo('home')}     className="hover:text-dark-900 dark:hover:text-white transition-colors">Platform</button>
             <button onClick={() => scrollTo('features')} className="hover:text-dark-900 dark:hover:text-white transition-colors">Features</button>
             <button onClick={() => scrollTo('security')} className="hover:text-dark-900 dark:hover:text-white transition-colors">Security</button>
+            <button onClick={() => scrollTo('privacy')}  className="hover:text-dark-900 dark:hover:text-white transition-colors">Privacy & Policy</button>
             <button onClick={() => scrollTo('about')}    className="hover:text-dark-900 dark:hover:text-white transition-colors">About</button>
           </div>
 
@@ -374,6 +375,52 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* PRIVACY AND POLICY SECTION */}
+        <section id="privacy" className="py-28 px-6 lg:px-12 max-w-[1400px] mx-auto relative z-10">
+          <FadeInSection className="max-w-3xl mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-950/30 border border-brand-100 dark:border-brand-900/50 text-brand-600 dark:text-brand-400 text-sm font-bold mb-6">
+              <ShieldCheck className="w-4 h-4" /> Privacy & Policy
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-extrabold mb-6 tracking-tight dark:text-white">
+              Your financial data stays<br />
+              <span className="text-brand-600">private, protected, and controlled.</span>
+            </h2>
+            <p className="text-xl text-dark-600 dark:text-dark-300 font-medium leading-relaxed">
+              FinanceAI is designed for sensitive SME and personal finance records. The platform uses clear data rules, secure access, and responsible AI handling so users understand how their information is protected.
+            </p>
+          </FadeInSection>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Lock,
+                title: 'Data Protection',
+                desc: 'Income, expense, budget, goal, and report data are connected only to the authenticated account or workspace. Users should not be able to access another user’s financial records.',
+              },
+              {
+                icon: Shield,
+                title: 'Responsible AI Use',
+                desc: 'AI features are used to explain financial patterns and provide general guidance. They do not replace professional accounting, tax, legal, or financial advice.',
+              },
+              {
+                icon: FileText,
+                title: 'Newsletter Consent',
+                desc: 'Newsletter emails are collected only when a visitor subscribes. Subscription data is stored for FinanceAI updates and admin notification purposes only.',
+              },
+            ].map((item, i) => (
+              <FadeInSection key={i} delay={i * 0.1}>
+                <div className="glass-card dark:bg-dark-800/80 dark:border-dark-700/50 p-8 h-full">
+                  <div className="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-950/30 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-900/50 flex items-center justify-center mb-6">
+                    <item.icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-bold text-xl mb-3 dark:text-white">{item.title}</h3>
+                  <p className="text-dark-600 dark:text-dark-300 leading-relaxed">{item.desc}</p>
+                </div>
+              </FadeInSection>
+            ))}
+          </div>
+        </section>
+
         {/* ABOUT SECTION */}
         <section id="about" className="py-32 px-6 lg:px-12 max-w-[1400px] mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -513,6 +560,7 @@ export default function LandingPage() {
               <ul className="space-y-4 text-dark-400">
                 <li><button onClick={() => scrollTo('features')} className="hover:text-white transition-colors">Features</button></li>
                 <li><button onClick={() => scrollTo('security')} className="hover:text-white transition-colors">Security</button></li>
+                <li><button onClick={() => scrollTo('privacy')}  className="hover:text-white transition-colors">Privacy & Policy</button></li>
                 <li><button onClick={() => scrollTo('about')}    className="hover:text-white transition-colors">About</button></li>
               </ul>
             </div>

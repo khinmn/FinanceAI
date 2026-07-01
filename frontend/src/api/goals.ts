@@ -31,5 +31,5 @@ export const goalsApi = {
     api.delete<{ message: string }>(`/api/goals/${id}`),
 
   getGoalProjection: (id: number) => 
-    api.post<{ projection: string }>(`/api/goals/${id}/projection`),
+    api.post<{ projection: string; warning?: string }>(`/api/goals/${id}/projection`),
 };

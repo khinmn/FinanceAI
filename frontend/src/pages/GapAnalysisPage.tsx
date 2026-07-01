@@ -134,7 +134,14 @@ export default function GapAnalysisPage() {
   const health = result ? HEALTH_CONFIG[result.overall_health] : null;
 
   const renderMarkdown = (text: string) => {
-    const blocks = text.split(/\n\n+/);
+    const cleanedText = text
+      .replace(/\n?\s*_AI service note:[\s\S]*?_\s*$/i, '')
+      .replace(/(^|\n)\s*[-*•]\s*(?=\n|$)/g, '$1')
+      .replace(/(^|\n)_([^_\n].*?)_(?=\n|$)/g, '$1$2')
+      .replace(/([^\n])\s+(?=(\d+)\.\s+(?:\*\*|[A-Z]))/g, '$1\n\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    const blocks = cleanedText.split(/\n\n+/);
 
     const parseInlineStyles = (rawText: string) => {
       const parts = rawText.split(/\*\*([^*]+)\*\*/g);
@@ -202,6 +209,7 @@ export default function GapAnalysisPage() {
               }
 
               if (isBullet) {
+                if (!bulletRestText.trim()) return null;
                 return (
                   <div key={lIdx} className="flex gap-1 text-sm text-dark-700 dark:text-dark-300 leading-relaxed items-start pl-6">
                     <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-dark-500 dark:text-dark-400 select-none font-bold">•</span>
@@ -212,6 +220,7 @@ export default function GapAnalysisPage() {
 
               // Numbered lists
               let isNumbered = false;
+              let numLabel = '';
               let numRestText = '';
               const matchNormalNum = trimmedLine.match(/^(\d+)\.\s+(.*)/);
               const matchBoldStartNum = trimmedLine.match(/^\*\*(\d+)\.\s*(.*)/);
@@ -219,19 +228,23 @@ export default function GapAnalysisPage() {
 
               if (matchBoldBothNum) {
                 isNumbered = true;
+                numLabel = `${matchBoldBothNum[1]}.`;
                 numRestText = matchBoldBothNum[2];
               } else if (matchBoldStartNum) {
                 isNumbered = true;
+                numLabel = `${matchBoldStartNum[1]}.`;
                 numRestText = matchBoldStartNum[2].includes('**') ? '**' + matchBoldStartNum[2] : matchBoldStartNum[2];
               } else if (matchNormalNum) {
                 isNumbered = true;
+                numLabel = `${matchNormalNum[1]}.`;
                 numRestText = matchNormalNum[2];
               }
 
               if (isNumbered) {
+                if (!numRestText.trim()) return null;
                 return (
                   <div key={lIdx} className="flex gap-1 text-sm text-dark-700 dark:text-dark-300 leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-dark-500 dark:text-dark-400 select-none font-bold">•</span>
+                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-dark-500 dark:text-dark-400 select-none font-bold">{numLabel}</span>
                     <span className="flex-1">{parseInlineStyles(numRestText)}</span>
                   </div>
                 );

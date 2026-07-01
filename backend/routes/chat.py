@@ -9,7 +9,7 @@ DELETE /api/chat/sessions/<id>     – delete a session
 """
 
 from datetime import datetime
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 
 from models import db
@@ -120,10 +120,7 @@ def send_message():
     ai_text, error = get_chat_response(existing, financial_context=financial_ctx)
 
     if error:
-        ai_text = (
-            "I'm having trouble connecting to the AI service right now. "
-            f"Please try again in a moment.\n\n_{error}_"
-        )
+        current_app.logger.warning("Chat AI fallback used: %s", error)
 
     # Persist assistant message
     assistant_msg = ChatMessage(

@@ -1,56 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, AlertCircle, CheckCircle, Sparkles, Sun, Moon } from 'lucide-react';
+import { Search, Bell, AlertCircle, CheckCircle, Sparkles, Sun, Moon, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { notificationsApi, type NotificationItem } from '../../api/notifications';
 
-interface NotificationItem {
-  id: string;
-  type: 'alert' | 'success' | 'info';
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-}
-
-const MOCK_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: '1',
-    type: 'alert',
-    title: 'Budget Threshold Exceeded',
-    message: 'Your Food & Beverage budget has crossed 90% of its monthly limit.',
-    time: '2h ago',
-    read: false,
-  },
-  {
-    id: '2',
-    type: 'info',
-    title: 'AI Smart Advice',
-    message: 'Saved 12% on utilities this week. Tap to see projection insights.',
-    time: '1d ago',
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'success',
-    title: 'Goal Reached',
-    message: 'Saved MMK 500,000 for "Shop expansion" target!',
-    time: '2d ago',
-    read: true,
-  },
-];
+const normaliseRole = (role?: string | null) => {
+  if (!role) return 'owner';
+  const lower = role.toLowerCase().trim();
+  const legacyMap: Record<string, string> = {
+    'sme owner': 'owner',
+    'sme_owner': 'owner',
+    'solo user': 'personal',
+    'personal user': 'personal',
+    'staff member': 'employee',
+    'freelancer': 'personal',
+    'shop owner': 'owner',
+    'admin': 'owner',
+    'accountant / finance staff': 'accountant',
+  };
+  return legacyMap[lower] || lower;
+};
 
 export default function Header() {
+  const navigate = useNavigate();
   const { user, darkMode, setDarkMode } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const storageKey = user?.id
+    ? `financeai-read-notifications-${user.id}`
+    : 'financeai-read-notifications-guest';
+
+  const getReadIds = useCallback((): Set<string> => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+    } catch {
+      return new Set();
+    }
+  }, [storageKey]);
+
+  const saveReadIds = useCallback((ids: Set<string>) => {
+    localStorage.setItem(storageKey, JSON.stringify(Array.from(ids)));
+  }, [storageKey]);
+
+  const applyReadState = useCallback((items: NotificationItem[]) => {
+    const readIds = getReadIds();
+    return items.map((item) => ({ ...item, read: readIds.has(item.id) }));
+  }, [getReadIds]);
+
+  const loadNotifications = useCallback(async () => {
+    if (!user?.id) {
+      setNotifications([]);
+      return;
+    }
+
+    try {
+      const res = await notificationsApi.list();
+      setNotifications(applyReadState(res.notifications || []));
+    } catch (err) {
+      console.error('Failed to load notifications', err);
+    }
+  }, [user?.id, applyReadState]);
+
+  useEffect(() => {
+    loadNotifications();
+    const timer = window.setInterval(loadNotifications, 30000);
+    return () => window.clearInterval(timer);
+  }, [loadNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAllRead = () => {
+    const readIds = getReadIds();
+    notifications.forEach((n) => readIds.add(n.id));
+    saveReadIds(readIds);
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
   const markAsRead = (id: string) => {
+    const readIds = getReadIds();
+    readIds.add(id);
+    saveReadIds(readIds);
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
@@ -64,13 +99,113 @@ export default function Header() {
     .slice(0, 2) || 'U';
 
   const getRoleLabel = (role?: string | null) => {
-    switch (role) {
+    switch (normaliseRole(role)) {
       case 'owner':      return 'SME Owner';
       case 'personal':   return 'Personal User';
       case 'accountant': return 'Accountant';
       case 'manager':    return 'Manager';
       case 'employee':   return 'Employee';
       default:           return 'User';
+    }
+  };
+
+  const searchableItems = useMemo(() => {
+    const role = normaliseRole(user?.role);
+    const items = [
+      {
+        title: 'Dashboard',
+        path: '/dashboard',
+        description: 'View income, expenses, net balance, charts, and financial overview.',
+        keywords: 'home overview summary chart income expense balance health score analytics refresh data',
+        allowedRoles: ['owner', 'personal', 'accountant', 'manager'],
+      },
+      {
+        title: 'Transactions',
+        path: '/transactions',
+        description: 'Add, edit, delete, filter, and review income or expense records.',
+        keywords: 'transaction transactions income expense add edit delete category receipt upload record list filter',
+        allowedRoles: ['owner', 'personal', 'accountant', 'manager', 'employee'],
+      },
+      {
+        title: 'Budget Planner',
+        path: '/budget',
+        description: 'Set monthly budgets, compare category spending, and open AI Budget Coach.',
+        keywords: 'budget planner budget coach spending limit category monthly copy previous alerts ai coach',
+        allowedRoles: ['owner', 'personal', 'accountant', 'manager'],
+      },
+      {
+        title: 'Reports',
+        path: '/reports',
+        description: 'Review monthly reports, cash flow, and category breakdowns.',
+        keywords: 'report reports monthly cash flow category breakdown profit loss export summary',
+        allowedRoles: ['owner', 'personal', 'accountant', 'manager'],
+      },
+      {
+        title: 'Gap Analysis',
+        path: '/gap-analysis',
+        description: 'Detect overspending, weak cash flow, budget gaps, and financial risks.',
+        keywords: 'gap analysis risk warnings overspending weakness ai analysis recommendations finance gaps',
+        allowedRoles: ['owner', 'personal', 'accountant', 'manager'],
+      },
+      {
+        title: 'AI Assistant',
+        path: '/ai-assistant',
+        description: 'Ask the FinanceAI chatbot about budgets, cash flow, and transactions.',
+        keywords: 'ai assistant chatbot chat coach gemini advice questions finance assistant conversation',
+        allowedRoles: ['owner', 'personal', 'accountant'],
+      },
+      {
+        title: 'Goals',
+        path: '/goals',
+        description: 'Create savings goals and review projections.',
+        keywords: 'goal goals saving savings target projection progress milestone ai projection',
+        allowedRoles: ['owner', 'personal'],
+      },
+      {
+        title: 'Team Management',
+        path: '/team',
+        description: 'Invite team members and manage workspace roles.',
+        keywords: 'team member invite accountant manager employee role access workspace permissions',
+        allowedRoles: ['owner'],
+      },
+      {
+        title: 'Settings',
+        path: '/settings',
+        description: 'Update business profile, role profile, country, and AI preferences.',
+        keywords: 'settings profile business role country region ai copilot disclaimer preferences account',
+        allowedRoles: ['owner', 'personal', 'accountant', 'manager', 'employee'],
+      },
+    ];
+
+    return items.filter((item) => item.allowedRoles.includes(role));
+  }, [user?.role]);
+
+  const searchResults = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return searchableItems.slice(0, 6);
+
+    return searchableItems
+      .filter((item) =>
+        `${item.title} ${item.description} ${item.keywords}`.toLowerCase().includes(query)
+      )
+      .slice(0, 6);
+  }, [searchQuery, searchableItems]);
+
+  const handleSearchSelect = (path: string) => {
+    setSearchQuery('');
+    setSearchOpen(false);
+    navigate(path);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchResults.length > 0) {
+      e.preventDefault();
+      handleSearchSelect(searchResults[0].path);
+    }
+
+    if (e.key === 'Escape') {
+      setSearchOpen(false);
+      setSearchQuery('');
     }
   };
 
@@ -86,9 +221,74 @@ export default function Header() {
           <Search className="w-4 h-4 text-dark-400 dark:text-dark-500 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search anything..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setSearchOpen(true);
+            }}
+            onFocus={() => setSearchOpen(true)}
+            onBlur={() => window.setTimeout(() => setSearchOpen(false), 120)}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="Search pages or features..."
+            aria-label="Search pages or features"
             className="pl-9 pr-4 py-2.5 w-64 rounded-full border border-brand-100 dark:border-dark-700 bg-white dark:bg-dark-800 text-sm dark:text-white focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 focus:ring-2 focus:ring-brand-400/20 transition-all placeholder:text-dark-400 dark:placeholder:text-dark-500 shadow-sm"
           />
+
+          <AnimatePresence>
+            {searchOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                transition={{ duration: 0.16, ease: 'easeOut' }}
+                className="absolute right-0 mt-3 w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700 shadow-2xl overflow-hidden z-50"
+              >
+                <div className="px-4 py-3 border-b border-gray-50 dark:border-dark-700/50">
+                  <p className="text-xs font-bold uppercase tracking-wider text-dark-400 dark:text-dark-500">
+                    {searchQuery.trim() ? 'Search results' : 'Quick navigation'}
+                  </p>
+                </div>
+
+                <div className="max-h-80 overflow-y-auto py-1">
+                  {searchResults.length === 0 ? (
+                    <div className="px-4 py-6 text-center">
+                      <p className="text-sm font-semibold text-dark-500 dark:text-dark-400">No matching page found.</p>
+                      <p className="text-xs text-dark-400 dark:text-dark-500 mt-1">Try searching budget, report, transaction, goal, or AI assistant.</p>
+                    </div>
+                  ) : (
+                    searchResults.map((item) => (
+                      <button
+                        key={item.path}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSearchSelect(item.path);
+                        }}
+                        className="w-full px-4 py-3 flex items-start gap-3 text-left hover:bg-brand-50/70 dark:hover:bg-dark-700/60 transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-brand-50 dark:bg-brand-950/30 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-850 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Search className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-bold text-dark-900 dark:text-white truncate">{item.title}</p>
+                            <ArrowRight className="w-3.5 h-3.5 text-dark-300 dark:text-dark-500 flex-shrink-0" />
+                          </div>
+                          <p className="text-xs text-dark-500 dark:text-dark-400 font-medium leading-relaxed mt-0.5">{item.description}</p>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+
+                {searchResults.length > 0 && (
+                  <div className="px-4 py-2.5 bg-gray-50 dark:bg-dark-900 border-t border-gray-100 dark:border-dark-700 text-[11px] text-dark-400 dark:text-dark-500 font-semibold">
+                    Press Enter to open the first result.
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Light/Dark Theme Toggle */}
@@ -103,7 +303,11 @@ export default function Header() {
         {/* Notification bell and Dropdown */}
         <div className="relative">
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              const nextOpen = !isOpen;
+              setIsOpen(nextOpen);
+              if (nextOpen) loadNotifications();
+            }}
             className="relative p-2.5 rounded-full hover:bg-brand-50 dark:hover:bg-dark-800 text-dark-500 hover:text-brand-600 dark:text-dark-400 dark:hover:text-white transition-colors border border-transparent hover:border-brand-100 dark:hover:border-dark-700/50"
           >
             <Bell className="w-5 h-5" />

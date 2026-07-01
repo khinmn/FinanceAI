@@ -8,6 +8,7 @@ import re
 from flask import Blueprint, request, jsonify
 from models import db
 from models.subscriber import Subscriber
+from services.email_service import send_newsletter_subscription_notice
 
 subscribe_bp = Blueprint("subscribe", __name__, url_prefix="/api")
 
@@ -28,16 +29,27 @@ def subscribe():
     if not _valid_email(email):
         return jsonify({"error": "Please enter a valid email address."}), 400
 
-    # Check for duplicate
+    # Existing subscribers are not inserted again, but the admin is still
+    # notified so testing the newsletter form with the same email remains visible.
     existing = Subscriber.query.filter_by(email=email).first()
     if existing:
-        return jsonify({"message": "You're already subscribed! Thanks."}), 200
+        mail_sent, mail_error = send_newsletter_subscription_notice(email, already_subscribed=True)
+        return jsonify({
+            "message": "You're already subscribed! Thanks.",
+            "email": email,
+            "mail_sent": mail_sent,
+            "mail_warning": None if mail_sent else mail_error,
+        }), 200
 
     subscriber = Subscriber(email=email)
     db.session.add(subscriber)
     db.session.commit()
 
+    mail_sent, mail_error = send_newsletter_subscription_notice(email)
+
     return jsonify({
         "message": "🎉 You've been subscribed! Thanks for joining FinanceAI.",
         "email": email,
+        "mail_sent": mail_sent,
+        "mail_warning": None if mail_sent else mail_error,
     }), 201

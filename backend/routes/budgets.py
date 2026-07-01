@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 from sqlalchemy import func, extract
 
@@ -368,10 +368,17 @@ def get_ai_coach():
                 f"Spent: K{s['actual_spent']:,.2f}\n"
             )
 
+    prompt += (
+        "\nPlease write the budget coach analysis using markdown headings: "
+        "## Overview, ## Key Findings, ## Recommended Actions, and ## Disclaimer. "
+        "Use short paragraphs, clean numbered lists, and useful bullet sub-points. "
+        "Do not include empty bullets, repeated disclaimers, or internal reasoning."
+    )
+
     # Call AI service
-    from services.ai_service import get_ai_explanation
-    insights, error = get_ai_explanation(prompt)
+    from services.ai_service import get_budget_coach_response
+    insights, error = get_budget_coach_response(prompt)
     if error:
-        return jsonify({"error": error}), 500
+        current_app.logger.warning("Budget AI fallback used: %s", error)
 
     return jsonify({"insights": insights}), 200

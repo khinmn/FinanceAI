@@ -22,6 +22,6 @@ export const budgetsApi = {
     const params = new URLSearchParams();
     params.set('month', String(month));
     params.set('year', String(year));
-    return api.get<{ insights: string }>(`/api/budgets/ai-coach?${params}`);
+    return api.get<{ insights: string; warning?: string }>(`/api/budgets/ai-coach?${params}`);
   },
 };

@@ -173,7 +173,14 @@ export default function AiAssistantPage() {
 
   // Custom block-based Markdown parser for Kyat signs, list alignment, and bold text
   const renderMarkdown = (text: string) => {
-    const blocks = text.split(/\n\n+/);
+    const cleanedText = text
+      .replace(/\n?\s*_AI service note:[\s\S]*?_\s*$/i, '')
+      .replace(/(^|\n)\s*[-*•]\s*(?=\n|$)/g, '$1')
+      .replace(/(^|\n)_([^_\n].*?)_(?=\n|$)/g, '$1$2')
+      .replace(/([^\n])\s+(?=(\d+)\.\s+(?:\*\*|[A-Z]))/g, '$1\n\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    const blocks = cleanedText.split(/\n\n+/);
 
     const parseInlineStyles = (rawText: string) => {
       const parts = rawText.split(/\*\*([^*]+)\*\*/g);
@@ -241,9 +248,10 @@ export default function AiAssistantPage() {
               }
 
               if (isBullet) {
+                if (!bulletRestText.trim()) return null;
                 return (
                   <div key={lIdx} className="flex gap-1 text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-4">
-                    <span className="flex-shrink-0 w-5 flex justify-end items-center pr-1.5 h-6 text-[15px] text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
+                    <span className="flex-shrink-0 w-7 flex justify-end items-center pr-2 h-6 text-[15px] text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(bulletRestText)}</span>
                   </div>
                 );
@@ -251,6 +259,7 @@ export default function AiAssistantPage() {
 
               // Numbered lists
               let isNumbered = false;
+              let numLabel = '';
               let numRestText = '';
               const matchNormalNum = trimmedLine.match(/^(\d+)\.\s+(.*)/);
               const matchBoldStartNum = trimmedLine.match(/^\*\*(\d+)\.\s*(.*)/);
@@ -258,19 +267,23 @@ export default function AiAssistantPage() {
 
               if (matchBoldBothNum) {
                 isNumbered = true;
+                numLabel = `${matchBoldBothNum[1]}.`;
                 numRestText = matchBoldBothNum[2];
               } else if (matchBoldStartNum) {
                 isNumbered = true;
+                numLabel = `${matchBoldStartNum[1]}.`;
                 numRestText = matchBoldStartNum[2].includes('**') ? '**' + matchBoldStartNum[2] : matchBoldStartNum[2];
               } else if (matchNormalNum) {
                 isNumbered = true;
+                numLabel = `${matchNormalNum[1]}.`;
                 numRestText = matchNormalNum[2];
               }
 
               if (isNumbered) {
+                if (!numRestText.trim()) return null;
                 return (
                   <div key={lIdx} className="flex gap-1 text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-4">
-                    <span className="flex-shrink-0 w-5 flex justify-end items-center pr-1.5 h-6 text-[15px] text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
+                    <span className="flex-shrink-0 w-7 flex justify-end items-center pr-2 h-6 text-[15px] text-[#3B3054] dark:text-dark-300 select-none font-bold">{numLabel}</span>
                     <span className="flex-1">{parseInlineStyles(numRestText)}</span>
                   </div>
                 );
@@ -392,8 +405,8 @@ export default function AiAssistantPage() {
       <div className="flex-1 flex flex-col h-full min-w-0 bg-[#FDFDFD] dark:bg-dark-850">
         
         {/* Chat Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-dark-700 bg-white dark:bg-dark-800">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-6 py-6 min-h-[92px] border-b border-gray-100 dark:border-dark-700 bg-white dark:bg-dark-800">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 -ml-2 rounded-xl text-dark-500 dark:text-dark-400 hover:bg-gray-50 dark:hover:bg-dark-700 focus:outline-none"
@@ -404,8 +417,8 @@ export default function AiAssistantPage() {
             <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#EDE5FC] dark:bg-brand-950/20 text-[#7C3AED] dark:text-brand-400 border border-[#E5DCFC] dark:border-brand-900/50">
               <Sparkles className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="font-bold text-dark-900 dark:text-white text-[15px] leading-tight">FinanceAI Assistant</h2>
+            <div className="min-w-0 pt-0.5">
+              <h2 className="font-bold text-dark-900 dark:text-white text-[16px] leading-snug">FinanceAI Assistant</h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                 <span className="text-[12px] text-dark-400 dark:text-dark-400 font-bold">Powered by Gemini 2.5 Flash</span>
@@ -441,7 +454,7 @@ export default function AiAssistantPage() {
         </AnimatePresence>
 
         {/* Messages List Area */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0 bg-gray-50/50 dark:bg-dark-900">
+        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 min-h-0 bg-gray-50/50 dark:bg-dark-900">
           {chatLoading ? (
             <div className="flex flex-col items-center justify-center h-full gap-2">
               <div className="w-8 h-8 border-3 border-brand-100 border-t-brand-500 rounded-full animate-spin" />
@@ -449,7 +462,7 @@ export default function AiAssistantPage() {
             </div>
           ) : messages.length === 0 ? (
             /* Suggestions Splash screen */
-            <div className="max-w-2xl mx-auto h-full flex flex-col justify-center space-y-6">
+            <div className="max-w-2xl mx-auto h-full flex flex-col justify-start pt-20 md:pt-24 space-y-7">
               <div className="text-center space-y-2">
                 <Sparkles className="w-12 h-12 text-[#7C3AED] dark:text-brand-400 mx-auto opacity-75 animate-pulse" />
                 <h3 className="text-lg font-bold text-dark-900 dark:text-white">How can I assist your business today?</h3>

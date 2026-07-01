@@ -10,6 +10,7 @@ Run:
 """
 
 import os
+from pathlib import Path
 from datetime import timedelta
 from urllib.parse import quote_plus
 
@@ -20,7 +21,9 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-load_dotenv()
+# Always load backend/.env no matter where python app.py is launched from.
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # ── Ensure the target database exists ──────────────────────────────────────────
@@ -147,6 +150,7 @@ def create_app() -> Flask:
     from routes.goals import goals_bp
     from routes.team import team_bp
     from routes.subscribe import subscribe_bp
+    from routes.notifications import notifications_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(transactions_bp)
@@ -160,6 +164,7 @@ def create_app() -> Flask:
     app.register_blueprint(goals_bp)
     app.register_blueprint(team_bp)
     app.register_blueprint(subscribe_bp)
+    app.register_blueprint(notifications_bp)
 
     # Ensure uploads folder exists
     uploads_dir = os.path.join(app.root_path, "uploads", "receipts")

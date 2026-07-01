@@ -13,7 +13,7 @@ Security:
 """
 
 from datetime import date as date_type
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 
 from models import db
@@ -79,10 +79,7 @@ def run_analysis():
     # ── Step 3: AI explanation with fallback ──────────────────────────────────
     ai_text, ai_error = get_ai_explanation(ai_prompt)
     if ai_error:
-        ai_text = (
-            f"⚠️ AI analysis is temporarily unavailable: {ai_error}\n\n"
-            "The rule-based findings above are still accurate and actionable."
-        )
+        current_app.logger.warning("Gap analysis AI fallback used: %s", ai_error)
 
     # ── Step 4: Persist result under owner_id so team shares history ───────────
     period_start = (

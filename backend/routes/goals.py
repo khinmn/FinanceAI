@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 
 from models import db
@@ -152,7 +152,7 @@ def get_goal_ai_projection(goal_id):
             monthly_savings=float(goal.monthly_savings),
         )
         if error_msg:
-            return jsonify({"error": error_msg}), 500
+            current_app.logger.warning("Goal projection AI fallback used: %s", error_msg)
         return jsonify({"projection": projection_text}), 200
     except Exception as exc:
         return jsonify({"error": f"AI service failed: {exc}"}), 500

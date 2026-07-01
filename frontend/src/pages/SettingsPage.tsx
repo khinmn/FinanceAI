@@ -19,6 +19,24 @@ export default function SettingsPage() {
 
   const userRole = user?.role || 'owner';
   const canManageWorkspace = ['owner', 'personal'].includes(userRole);
+  const roleOptions = [
+    { value: 'owner', label: 'SME Owner' },
+    { value: 'personal', label: 'Personal User' },
+    { value: 'accountant', label: 'Accountant' },
+    { value: 'manager', label: 'Manager' },
+    { value: 'employee', label: 'Employee' },
+  ];
+  const legacyRoleMap: Record<string, string> = {
+    'SME Owner': 'owner',
+    'Personal User': 'personal',
+    'Freelancer': 'personal',
+    'Shop Owner': 'owner',
+    'Accountant / Finance Staff': 'accountant',
+    'Admin': 'owner',
+  };
+  const roleSelectValue = roleOptions.some((option) => option.value === role)
+    ? String(role)
+    : legacyRoleMap[String(role || '')] || userRole;
 
   const [profile, setProfile] = useState({
 
@@ -184,13 +202,7 @@ export default function SettingsPage() {
               <Input label="Full Name" value={profile.name} onChange={(e) => setProfile(p => ({...p, name: e.target.value}))} />
               <Input label="Email Address" value={profile.email} disabled className="bg-gray-50 cursor-not-allowed text-dark-400 font-medium" />
               <Input label="Business Name" value={profile.business_name} disabled={!canManageWorkspace} onChange={(e) => setProfile(p => ({...p, business_name: e.target.value}))} />
-              <Select label="Role Profile" value={role || 'SME Owner'} disabled={!canManageWorkspace} onChange={(e) => setRole?.(e.target.value)} options={[
-                { value: 'SME Owner', label: 'SME Owner' },
-                { value: 'Freelancer', label: 'Freelancer' },
-                { value: 'Shop Owner', label: 'Shop Owner' },
-                { value: 'Accountant / Finance Staff', label: 'Accountant / Finance Staff' },
-                { value: 'Admin', label: 'Admin' },
-              ]} />
+              <Select label="Role Profile" value={roleSelectValue} disabled={!canManageWorkspace} onChange={(e) => setRole?.(e.target.value)} options={roleOptions} />
             </div>
           </div>
           <div className="flex gap-3 mt-6 pt-4 border-t border-gray-50 dark:border-dark-700">

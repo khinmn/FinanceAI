@@ -169,14 +169,21 @@ export default function BudgetPage() {
   };
 
   const renderMarkdown = (text: string) => {
-    const blocks = text.split(/\n\n+/);
+    const cleanedText = text
+      .replace(/\n?\s*_AI service note:[\s\S]*?_\s*$/i, '')
+      .replace(/(^|\n)\s*[-*•]\s*(?=\n|$)/g, '$1')
+      .replace(/(^|\n)_([^_\n].*?)_(?=\n|$)/g, '$1$2')
+      .replace(/([^\n])\s+(?=(\d+)\.\s+(?:\*\*|[A-Z]))/g, '$1\n\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    const blocks = cleanedText.split(/\n\n+/);
 
     const parseInlineStyles = (rawText: string) => {
       const parts = rawText.split(/\*\*([^*]+)\*\*/g);
       if (parts.length === 1) return rawText;
       return parts.map((part, index) => {
         if (index % 2 === 1) {
-          return <strong key={index} className="font-bold text-[#2D1A54] dark:text-brand-300 bg-[#EFE6FD] dark:bg-brand-950/40 px-1 rounded text-sm">{part}</strong>;
+          return <strong key={index} className="font-bold text-[#2D1A54] dark:text-brand-300 bg-[#EFE6FD] dark:bg-brand-950/40 px-1 rounded">{part}</strong>;
         }
         return part;
       });
@@ -189,21 +196,21 @@ export default function BudgetPage() {
       // Headers
       if (trimmedBlock.startsWith('# ')) {
         return (
-          <h3 key={bIdx} className="text-sm font-extrabold text-[#2D1A54] dark:text-white mt-4 mb-2 first:mt-0 border-b border-[#E5DCFC] dark:border-dark-700 pb-1">
+          <h3 key={bIdx} className="text-[15px] font-extrabold text-[#2D1A54] dark:text-white border-b border-[#E5DCFC] dark:border-dark-700 pb-2 mt-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(2))}
           </h3>
         );
       }
       if (trimmedBlock.startsWith('## ')) {
         return (
-          <h4 key={bIdx} className="text-sm font-extrabold text-[#5B39A8] dark:text-brand-300 mt-4 mb-2 first:mt-0">
+          <h4 key={bIdx} className="text-[15px] font-extrabold text-[#5B39A8] dark:text-brand-300 mt-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(3))}
           </h4>
         );
       }
       if (trimmedBlock.startsWith('### ')) {
         return (
-          <h5 key={bIdx} className="text-sm font-bold text-[#7C3AED] dark:text-brand-400 mt-3 mb-1">
+          <h5 key={bIdx} className="text-[15px] font-bold text-[#7C3AED] dark:text-brand-400 mt-2 first:mt-0">
             {parseInlineStyles(trimmedBlock.slice(4))}
           </h5>
         );
@@ -218,7 +225,7 @@ export default function BudgetPage() {
 
       if (isListBlock) {
         return (
-          <div key={bIdx} className="space-y-1.5 my-1.5">
+          <div key={bIdx} className="space-y-2">
             {lines.map((line, lIdx) => {
               const trimmedLine = line.trim();
               
@@ -237,9 +244,10 @@ export default function BudgetPage() {
               }
 
               if (isBullet) {
+                if (!bulletRestText.trim()) return null;
                 return (
-                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-4">
+                    <span className="flex-shrink-0 w-7 flex justify-end items-center pr-2 h-6 text-[15px] text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
                     <span className="flex-1">{parseInlineStyles(bulletRestText)}</span>
                   </div>
                 );
@@ -247,6 +255,7 @@ export default function BudgetPage() {
 
               // Numbered lists
               let isNumbered = false;
+              let numLabel = '';
               let numRestText = '';
               const matchNormalNum = trimmedLine.match(/^(\d+)\.\s+(.*)/);
               const matchBoldStartNum = trimmedLine.match(/^\*\*(\d+)\.\s*(.*)/);
@@ -254,26 +263,30 @@ export default function BudgetPage() {
 
               if (matchBoldBothNum) {
                 isNumbered = true;
+                numLabel = `${matchBoldBothNum[1]}.`;
                 numRestText = matchBoldBothNum[2];
               } else if (matchBoldStartNum) {
                 isNumbered = true;
+                numLabel = `${matchBoldStartNum[1]}.`;
                 numRestText = matchBoldStartNum[2].includes('**') ? '**' + matchBoldStartNum[2] : matchBoldStartNum[2];
               } else if (matchNormalNum) {
                 isNumbered = true;
+                numLabel = `${matchNormalNum[1]}.`;
                 numRestText = matchNormalNum[2];
               }
 
               if (isNumbered) {
+                if (!numRestText.trim()) return null;
                 return (
-                  <div key={lIdx} className="flex gap-1 text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-6">
-                    <span className="flex-shrink-0 w-6 flex justify-end items-center pr-2 h-5 text-sm text-[#3B3054] dark:text-dark-300 select-none font-bold">•</span>
+                  <div key={lIdx} className="flex gap-1 text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed items-start pl-4">
+                    <span className="flex-shrink-0 w-7 flex justify-end items-center pr-2 h-6 text-[15px] text-[#3B3054] dark:text-dark-300 select-none font-bold">{numLabel}</span>
                     <span className="flex-1">{parseInlineStyles(numRestText)}</span>
                   </div>
                 );
               }
 
               return (
-                <p key={lIdx} className="text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed pl-6">
+                <p key={lIdx} className="text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed pl-4">
                   {parseInlineStyles(trimmedLine)}
                 </p>
               );
@@ -286,7 +299,7 @@ export default function BudgetPage() {
       const mergedText = lines.map(line => line.trim()).join(' ');
 
       return (
-        <p key={bIdx} className="text-sm text-[#3B3054] dark:text-dark-300 leading-relaxed my-1.5">
+        <p key={bIdx} className="text-[15px] text-[#3B3054] dark:text-dark-300 leading-relaxed">
           {parseInlineStyles(mergedText)}
         </p>
       );
@@ -435,7 +448,7 @@ export default function BudgetPage() {
                     <span className="text-sm font-semibold">Analyzing budget limits and current expenses...</span>
                   </div>
                 ) : aiCoachInsights ? (
-                  <div className="max-w-none text-dark-800 dark:text-dark-200 leading-relaxed font-sans space-y-3">
+                  <div className="max-w-none text-[#3B3054] dark:text-dark-300 leading-relaxed font-sans space-y-4">
                     {renderMarkdown(aiCoachInsights)}
                   </div>
                 ) : (
