@@ -1,0 +1,122 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Mail, Eye, EyeOff, AlertCircle, ArrowLeft } from 'lucide-react';
+import { authApi } from '../api/auth';
+import { useAuthStore } from '../store/authStore';
+import Button from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const login = useAuthStore((s) => s.login);
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await authApi.login(form.email, form.password);
+      login(res.user, res.business, res.access_token, res.refresh_token);
+      navigate('/dashboard');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#FDFDFD] dark:bg-dark-900 transition-colors duration-300">
+      {/* Matching landing page blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] rounded-full bg-brand-400/20 dark:bg-brand-500/10 blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-indigo-400/15 dark:bg-brand-500/5 blur-[100px] pointer-events-none animate-blob-reverse" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md relative z-10"
+      >
+        {/* Back to home */}
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-dark-500 hover:text-brand-600 dark:text-dark-400 dark:hover:text-brand-400 transition-colors mb-8">
+          <ArrowLeft className="w-4 h-4" /> Back to Home
+        </Link>
+
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <img src="/logo.svg" alt="FinanceAI" className="w-16 h-16 mb-5 drop-shadow-xl" />
+          <h1 className="text-dark-900 dark:text-white text-3xl font-extrabold tracking-tight">Welcome back</h1>
+          <p className="text-dark-500 dark:text-dark-300 text-sm mt-2 font-medium">Sign in to FinanceAI</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-xl border border-white/80 dark:border-dark-700/50 rounded-3xl p-8 shadow-soft">
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2.5 p-3.5 mb-5 bg-danger/10 border border-danger/20 rounded-xl text-danger text-sm font-medium"
+            >
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              {error}
+            </motion.div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="relative">
+              <Input
+                label="Email"
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                required
+                autoComplete="email"
+              />
+              <Mail className="absolute right-3 top-9 w-4 h-4 text-dark-400 dark:text-dark-500 pointer-events-none" />
+            </div>
+
+            <div className="relative">
+              <Input
+                label="Password"
+                type={showPw ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={form.password}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                required
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw((s) => !s)}
+                className="absolute right-3 top-9 text-dark-400 hover:text-brand-600 dark:text-dark-500 dark:hover:text-brand-400 transition-colors"
+              >
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            <Button type="submit" size="lg" loading={loading} className="w-full mt-2">
+              {loading ? 'Signing in…' : 'Sign In'}
+            </Button>
+          </form>
+
+          <p className="text-center text-dark-500 dark:text-dark-300 text-sm mt-6">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-brand-600 dark:text-brand-400 hover:text-brand-500 font-bold transition-colors">
+              Create one
+            </Link>
+          </p>
+        </div>
+
+        <p className="text-center text-dark-400 dark:text-dark-500 text-xs mt-6 font-medium">
+          FinanceAI — AI-powered finance for SMEs
+        </p>
+      </motion.div>
+    </div>
+  );
+}

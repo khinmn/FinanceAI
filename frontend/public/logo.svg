@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+    <linearGradient id="ringGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#C4B5FD" stop-opacity="0.8"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)"/>
+
+  <!-- Subtle inner glow overlay -->
+  <rect width="64" height="64" rx="16" fill="white" opacity="0.05"/>
+
+  <!-- Outer ring (broken at top — spinning arc feel) -->
+  <path
+    d="M32 12 A20 20 0 1 1 13.86 43"
+    stroke="url(#ringGrad)"
+    stroke-width="3.5"
+    stroke-linecap="round"
+    fill="none"
+    filter="url(#glow)"
+  />
+
+  <!-- Inner ring dot accent -->
+  <circle cx="32" cy="12" r="2.5" fill="white" opacity="0.9"/>
+
+  <!-- Trend line chart (upward) -->
+  <polyline
+    points="18,42 24,36 30,39 36,29 42,32 48,22"
+    stroke="white"
+    stroke-width="2.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    opacity="0.95"
+    filter="url(#glow)"
+  />
+
+  <!-- Trend line end dot -->
+  <circle cx="48" cy="22" r="2.5" fill="white"/>
+
+  <!-- Small AI spark dots (3 tiny circles in top-right accent) -->
+  <circle cx="50" cy="14" r="1.5" fill="#C4B5FD" opacity="0.8"/>
+  <circle cx="54" cy="18" r="1"   fill="#C4B5FD" opacity="0.6"/>
+  <circle cx="54" cy="12" r="1"   fill="#C4B5FD" opacity="0.5"/>
+</svg>
